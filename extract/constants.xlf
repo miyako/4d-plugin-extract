@@ -40,5 +40,8 @@
         <trans-unit d4:value="1:L" id="D15BF8C5C33F452E973FAAADF506348B.2">
             <source>Extract Output Text</source>
         </trans-unit>
+        <trans-unit d4:value="2:L" id="D15BF8C5C33F452E973FAAADF506348B.3">
+            <source>Extract Output Collection</source>
+        </trans-unit>
     </group>
 </xliff>

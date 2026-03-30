@@ -170,7 +170,7 @@ void Extract(PA_PluginParameters params) {
     ob_set_b(returnValue, L"success", false);
     
     input_type  it = (input_type) PA_GetLongParameter(params, 1);
-    extract::output_type ot = (extract::output_type)PA_GetLongParameter(params, 2);
+    output_type ot = (output_type)PA_GetLongParameter(params, 2);
     std::string outPath;
     
     PA_ObjectRef document = PA_GetObjectParameter(params, 3);
@@ -182,6 +182,19 @@ void Extract(PA_PluginParameters params) {
         if(ob_get_s(document, L"password", &_password))
            password = (const char *)_password.c_str();
         
+        int max_paragraph_length = 100;
+        if(ob_is_defined(document, L"max_paragraph_length")) {
+            int intValue = (int)ob_get_n(document, L"max_paragraph_length");
+            if(intValue > 0) {
+                max_paragraph_length = intValue;
+            }
+        }
+        
+        bool unique_values_only = false;
+        if(ob_is_defined(document, L"unique_values_only")) {
+            unique_values_only = ob_get_b(document, L"unique_values_only");
+        }
+
         PA_ObjectRef file = ob_get_o(document, L"file");
         std::string path;
         if (file) {
@@ -201,15 +214,16 @@ void Extract(PA_PluginParameters params) {
                 std::cerr << "data:" << data.size() << std::endl;
             }
             if(data.size()) {
-                bool success = false;
                 switch (it) {
                     case input_type_xlsx:
                     case input_type_docx:
                     case input_type_pptx:
-                        success = opc_parse_data(data,
-                                                 returnValue,
-                                                 ot == extract::output_type_text,
-                                                 password);
+                        opc_parse_data(data,
+                                       returnValue,
+                                       ot,
+                                       max_paragraph_length,
+                                       unique_values_only,
+                                       password);
                         break;
                     default:
                         break;

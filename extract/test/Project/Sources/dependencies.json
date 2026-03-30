@@ -1,4 +1,25 @@
 {
 	"version": 2100,
-	"dependencies": {}
+	"dependencies": {
+		"ctranslate2": {
+			"github": "miyako/ctranslate2",
+			"version": "latest"
+		},
+		"4D AIKit": {
+			"github": "4d/4D-AIKit",
+			"version": "4d"
+		},
+		"workers": {
+			"github": "miyako/workers",
+			"version": "latest"
+		},
+		"tcp": {
+			"github": "miyako/tcp",
+			"version": "latest"
+		},
+		"event": {
+			"github": "miyako/event",
+			"version": "latest"
+		}
+	}
 }

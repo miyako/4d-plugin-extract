@@ -19,13 +19,6 @@
 #include <stdlib.h>
 #include "opc-parser.h"
 
-namespace extract {
-    typedef enum {
-        output_type_object = 0,
-        output_type_text
-    }output_type;
-}
-
 typedef enum {
     input_type_xlsx = 0,
     input_type_docx,

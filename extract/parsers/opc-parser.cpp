@@ -121,73 +121,138 @@ static void ob_append_o(PA_CollectionRef c, PA_ObjectRef value) {
     PA_ClearVariable(&v);
 }
 
-static void document_to_json_ss(Workbook& document, PA_ObjectRef documentNode, bool rawText) {
+static void ob_append_c(PA_CollectionRef c, PA_CollectionRef value) {
+
+    PA_Variable v = PA_CreateVariable(eVK_Collection);
+    PA_SetCollectionVariable(&v, value);
+    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
+    PA_ClearVariable(&v);
+}
+
+static void document_to_json_ss(Workbook& document, PA_ObjectRef documentNode,
+                                output_type mode,
+                                int max_paragraph_length,
+                                bool unique_values_only) {
     
-    if(rawText){
-        std::string text = "";
-        for (const auto &sheet : document.sheets) {
-            bool multiline = false;
-            for (const auto &row : sheet.rows) {
-                std::string _text;
-                bool continued = false;
-                for (const auto &cell : row.cells) {
-                    if(cell.empty())
-                        continue;
-                    if(continued) {
-                        _text += ",";
+    switch (mode) {
+        case output_type_text:
+        {
+            std::string text = "";
+            for (const auto &sheet : document.sheets) {
+                bool multiline = false;
+                for (const auto &row : sheet.rows) {
+                    std::string _text;
+                    bool continued = false;
+                    for (const auto &cell : row.cells) {
+                        if(cell.empty())
+                            continue;
+                        if(continued) {
+                            _text += ",";
+                        }
+                        _text += cell;
+                        continued = true;
                     }
-                    _text += cell;
-                    continued = true;
-                }
-                if(_text.empty())
-                    continue;
-                if(multiline) {
-                    text += "\n";
-                }
-                text += _text;
-                multiline = true;
-            }
-        }
-        ob_set_s(documentNode, "text", text.c_str());
-    }else{
-        ob_set_s(documentNode, "type", document.type.c_str());
-        PA_CollectionRef pages = PA_CreateCollection();
-        for (const auto &sheet : document.sheets) {
-            PA_ObjectRef sheetNode = PA_CreateObject();
-            PA_ObjectRef sheetMetaNode = PA_CreateObject();
-            ob_set_s(sheetMetaNode, "name", sheet.name.c_str());
-            ob_set_o(sheetNode, "meta", sheetMetaNode);
-            PA_CollectionRef paragraphs = PA_CreateCollection();
-            int rowIdx = 0; // physical sheet row index, increments regardless of empty rows
-            for (const auto &row : sheet.rows) {
-                
-                PA_ObjectRef paragraphNode = PA_CreateObject();
-                PA_CollectionRef values = PA_CreateCollection();
-                ob_set_c(paragraphNode, "values", values);
-                ob_set_n(paragraphNode, "row", rowIdx++);
-
-                bool emptyRow = true;
-                std::string joined;
-                for (const auto &cell : row.cells) {
-                    if(cell.empty())
+                    if(_text.empty())
                         continue;
-                    
-                    ob_append_s(values, cell);
-
-                    if (!joined.empty()) joined += " ";
-                    joined += cell;
-                    emptyRow = false;
+                    if(multiline) {
+                        text += "\n";
+                    }
+                    text += _text;
+                    multiline = true;
                 }
-                if(emptyRow) {
-                    continue;
-                }
-                ob_set_s(paragraphNode, "text", joined.c_str());
-                ob_append_o(paragraphs, paragraphNode);
             }
-            ob_set_c(sheetNode, "paragraphs", paragraphs);
-            ob_append_o(pages, sheetNode);
+            ob_set_s(documentNode, "text", text.c_str());
         }
-        ob_set_c(documentNode, L"pages", pages);
+            break;
+        case output_type_collection:
+        {
+            ob_set_s(documentNode, "type", document.type.c_str());
+            PA_CollectionRef pages = PA_CreateCollection();
+            for (const auto &sheet : document.sheets) {
+                PA_ObjectRef sheetNode = PA_CreateObject();
+                PA_ObjectRef sheetMetaNode = PA_CreateObject();
+                ob_set_s(sheetMetaNode, "name", sheet.name.c_str());
+                ob_set_o(sheetNode, "meta", sheetMetaNode);
+                PA_CollectionRef paragraphs = PA_CreateCollection();
+                
+                for (const auto &row : sheet.rows) {
+                    PA_CollectionRef values = PA_CreateCollection();
+                    bool emptyRow = true;
+                    int paragraph_length = 0;
+                    std::unordered_set<std::string> seen;
+                    for (const auto &cell : row.cells) {
+                        if(cell.empty())
+                            continue;
+                        if ((unique_values_only) && (!seen.insert(cell).second)) {
+//                            std::cerr << "skip duplicate value:" << cell << std::endl;
+                            continue;
+                        }
+                        ob_append_s(values, cell);
+                        emptyRow = false;
+                        if (max_paragraph_length > 0) {
+                            paragraph_length++;
+                            if (paragraph_length == max_paragraph_length) {
+//                                std::cerr << "abort paragraph at length:" << paragraph_length << std::endl;
+                                goto row_parsed;
+                            }
+                        }
+                    }
+                    if(emptyRow) {
+                        continue;
+                    }
+                row_parsed:
+                    ob_append_c(paragraphs, values);
+                }
+
+                ob_set_c(sheetNode, "inputs", paragraphs);
+                ob_append_o(pages, sheetNode);
+            }
+            ob_set_c(documentNode, L"pages", pages);
+        }
+            break;
+        case output_type_object:
+        default:
+        {
+            ob_set_s(documentNode, "type", document.type.c_str());
+            PA_CollectionRef pages = PA_CreateCollection();
+            for (const auto &sheet : document.sheets) {
+                PA_ObjectRef sheetNode = PA_CreateObject();
+                PA_ObjectRef sheetMetaNode = PA_CreateObject();
+                ob_set_s(sheetMetaNode, "name", sheet.name.c_str());
+                ob_set_o(sheetNode, "meta", sheetMetaNode);
+                PA_CollectionRef paragraphs = PA_CreateCollection();
+                int rowIdx = 0; // physical sheet row index, increments regardless of empty rows
+                for (const auto &row : sheet.rows) {
+                    
+                    PA_ObjectRef paragraphNode = PA_CreateObject();
+                    PA_CollectionRef values = PA_CreateCollection();
+                    ob_set_c(paragraphNode, "values", values);
+                    ob_set_n(paragraphNode, "row", rowIdx++);
+
+                    bool emptyRow = true;
+                    std::string joined;
+                    for (const auto &cell : row.cells) {
+                        if(cell.empty())
+                            continue;
+                        
+                        ob_append_s(values, cell);
+
+                        if (!joined.empty()) joined += " ";
+                        joined += cell;
+                        emptyRow = false;
+                    }
+                    if(emptyRow) {
+                        continue;
+                    }
+                    ob_set_s(paragraphNode, "text", joined.c_str());
+                    ob_append_o(paragraphs, paragraphNode);
+                }
+                ob_set_c(sheetNode, "paragraphs", paragraphs);
+                ob_append_o(pages, sheetNode);
+            }
+            ob_set_c(documentNode, L"pages", pages);
+        }
+            break;
     }
 }
 
@@ -485,7 +550,11 @@ static std::string wchar_to_utf8(const wchar_t* wstr) {
 }
 #endif
 
-bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj, bool rawText, std::string password) {
+bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
+                    output_type mode,
+                    int max_paragraph_length,
+                    bool unique_values_only,
+                    std::string password) {
     
     std::string text;
     
@@ -585,7 +654,7 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj, bool rawText, 
                         Page _page;
                         document.pages.push_back(_page);
                         process_document(doc_root, document, "p", type);
-                        document_to_json(document, text, rawText);
+                        document_to_json(document, text, false);
                         xmlFreeDoc(xml_doc);
                     }
                 }
@@ -676,7 +745,7 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj, bool rawText, 
                     }
                 } while (slide);
                 */
-                document_to_json_ss(workbook, obj, rawText);
+                document_to_json_ss(workbook, obj, mode, max_paragraph_length, unique_values_only);
             }
                 break;
             case document_type_pptx:
@@ -702,7 +771,7 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj, bool rawText, 
                         }
                     }
                 } while (slide);
-                document_to_json(document, text, rawText);
+                document_to_json(document, text, false);
             }
                 break;
             default:

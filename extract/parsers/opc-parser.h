@@ -30,6 +30,7 @@
 #include <json/json.h>
 #include <sstream>
 #include <iostream>
+#include <unordered_set>
 
 #include "4DPluginAPI.h"
 
@@ -60,13 +61,23 @@ typedef enum {
     
 }document_type;
 
+typedef enum {
+    output_type_object = 0,
+    output_type_text,
+    output_type_collection
+}output_type;
+
 #include "C_TEXT.h"
 #include "4DPlugin-JSON.h"
 
 //#ifdef __cplusplus
 //extern "C" {
 //#endif
-extern bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj, bool rawText, std::string password);
+extern bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
+                           output_type mode,
+                           int max_paragraph_length,
+                           bool unique_values_only,
+                           std::string password);
 //#ifdef __cplusplus
 //}
 //#endif

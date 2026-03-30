@@ -1,0 +1,1 @@
+cs:C1710.CTranslate2.CTranslate2.new().terminate()
