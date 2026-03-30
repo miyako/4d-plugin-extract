@@ -12,7 +12,7 @@ var $event : cs:C1710.event.event
 $event:=cs:C1710.event.event.new()
 
 $event.onError:=Formula:C1597(ALERT:C41($2.message))
-$event.onSuccess:=Formula:C1597(ALERT:C41($2.models.extract("name").join(",")+" loaded!"))
+$event.onSuccess:=Formula:C1597(OnModelDownloaded)
 
 $event.onData:=Formula:C1597(LOG EVENT:C667(Into 4D debug message:K38:5; This:C1470.file.fullName+":"+String:C10((This:C1470.range.end/This:C1470.range.length)*100; "###.00%")))
 //$event.onData:=Formula(MESSAGE(This.file.fullName+":"+String((This.range.end/This.range.length)*100; "###.00%")))
