@@ -31,7 +31,6 @@ typedef enum {
 #pragma mark -
 
 void Extract(PA_PluginParameters params);
-void Split(PA_PluginParameters params);
 void Embeddings(PA_PluginParameters params);
 void Embeddings_Setup(PA_PluginParameters params);
 

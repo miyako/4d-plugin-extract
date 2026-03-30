@@ -24,12 +24,9 @@ void PluginMain(PA_long32 selector, PA_PluginParameters params) {
 				Extract(params);
 				break;
 			case 2 :
-				Split(params);
-				break;
-			case 3 :
 				Embeddings(params);
 				break;
-			case 4 :
+			case 3 :
 				Embeddings_Setup(params);
 				break;
 
@@ -232,10 +229,6 @@ void Extract(PA_PluginParameters params) {
         }
     }
     PA_ReturnObject(params, returnValue);
-}
-
-void Split(PA_PluginParameters params) {
-
 }
 
 void Embeddings(PA_PluginParameters params) {
