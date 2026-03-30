@@ -2,3 +2,5 @@ extract/build/*
 extract/test/userPreferences.*
 extract/Universal Document Parser.xcodeproj/project.xcworkspace/xcuserdata/*
 extract/Universal Document Parser.xcodeproj/xcuserdata/*
+extract/test/Project/DerivedData/methodAttributes.json
+extract/test/Data/*
