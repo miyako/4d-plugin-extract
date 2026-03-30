@@ -55,7 +55,7 @@ ALERT(JSON Stringify({extraction: $duration_extraction; embeddings: $duration_em
 
 ## Contextualized Embeddings
 
-_Each sentence is prefixed with paragraph context before vectorization._
+_Each sentence is prefixed with paragraph context before vectorisation._
 
 ```4d
 var $file : 4D.File
