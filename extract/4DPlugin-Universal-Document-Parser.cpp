@@ -30,7 +30,7 @@ std::vector<std::string> input_node_names;
 std::vector<std::string> output_node_names;
 std::vector<const char*> input_names_c_array;
 std::vector<const char*> output_names_c_array;
-long long embedding_model_created = 0;
+long long embedding_model_created;
 int intra_op_threads;
 
 static int GetOptimalIntraOpThreads() {
@@ -65,20 +65,24 @@ static int GetOptimalIntraOpThreads() {
 static void OnStartup() {
     intra_op_threads = GetOptimalIntraOpThreads();
     std::cout << "Detected " << intra_op_threads << " Intra-Op threads." << std::endl;
+    embedding_model_created = 0;
 }
 
 static void OnExit() {
     
     if (embeddings_tokenizer) {
         embeddings_tokenizer.reset();
+        embeddings_tokenizer = NULL;
     }
     
     if (embeddings_session) {
         embeddings_session.reset();
+        embeddings_session = NULL;
     }
     
     if (embeddings_env) {
         embeddings_env.reset();
+        embeddings_env = NULL;
     }
 }
 
