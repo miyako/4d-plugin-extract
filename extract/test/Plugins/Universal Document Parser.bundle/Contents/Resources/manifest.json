@@ -9,7 +9,7 @@
         },     
         {
             "theme": "Embeddings",
-            "syntax": "Embeddings(&J):J",
+            "syntax": "Embeddings(&J;&L):J",
             "threadSafe": true
         },
         {

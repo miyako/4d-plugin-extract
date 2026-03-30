@@ -1,5 +1,5 @@
 var $huggingfaces : cs:C1710.event.huggingfaces
-var $embeddings : cs:C1710.event.huggingface
+var $huggingface : cs:C1710.event.huggingface
 
 var $homeFolder : 4D:C1709.Folder
 $homeFolder:=Folder:C1567(fk home folder:K87:24).folder(".ONNX")
@@ -28,7 +28,9 @@ $folder:=$homeFolder.folder("granite-embedding-english-r2")
 $path:="granite-embedding-english-r2-onnx-int8"
 $URL:="keisuke-miyako/granite-embedding-english-r2-onnx-int8"
 
-$huggingface:=cs:C1710.event.huggingface.new($folder; $URL; $path; "embedding"; ($URL="@-f16" || ($URL="@-f32")) ? "model.onnx" : "model_quantized.onnx")
+var $text : Text
+$text:=(($URL="@-f16") || ($URL="@-f32")) ? "model.onnx" : "model_quantized.onnx"
+$huggingface:=cs:C1710.event.huggingface.new($folder; $URL; $path; "embedding"; $text)
 $huggingfaces:=cs:C1710.event.huggingfaces.new([$huggingface])
 
 $ONNX:=cs:C1710.ONNX.ONNX.new($port; $huggingfaces; $homeFolder; $options; $event)

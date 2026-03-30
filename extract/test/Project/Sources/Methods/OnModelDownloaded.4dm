@@ -10,7 +10,7 @@ $folder:=$params.embeddings_model
 var $file : 4D:C1709.File
 $file:=$folder.file($params.embeddings_model_name)
 
-ALERT:C41(JSON Stringify:C1217({path: $file.path; pooling: $params.pooling}))
+//ALERT(JSON Stringify({path: $file.path; pooling: $params.pooling}))
 
 var $pooling : Integer
 
@@ -31,4 +31,4 @@ Case of
 		$pooling:=Extract Pooling Mean
 End case 
 
-Embeddings Setup($file; $pooling)
+$status:=Embeddings Setup($file; $pooling)
