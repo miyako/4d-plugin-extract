@@ -14,7 +14,7 @@
         },
         {
             "theme": "Embeddings",
-            "syntax": "Embeddings Setup(&J):J",
+            "syntax": "Embeddings Setup(&J;&L):J",
             "threadSafe": true
         }
     ]
