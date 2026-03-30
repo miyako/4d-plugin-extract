@@ -17,9 +17,23 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
+#include "opc-parser.h"
 
-#include "C_TEXT.h"
-#include "4DPlugin-JSON.h"
+namespace extract {
+    typedef enum {
+        output_type_object = 0,
+        output_type_text
+    }output_type;
+}
+
+typedef enum {
+    input_type_xlsx = 0,
+    input_type_docx,
+    input_type_pptx,
+    input_type_xls,
+    input_type_doc,
+    input_type_ppt
+}input_type;
 
 #pragma mark -
 

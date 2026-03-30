@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 <xliff version="1.0" xmlns:d4="http://www.4d.com/d4-ns">
     <header>
         <note>Universal Document Parser</note>
@@ -9,23 +9,23 @@
         </trans-unit>
     </group>
     <group restype="x-4DK#" d4:groupName="07E15F9018E24DCABBF795D95CE955C5">
-        <trans-unit d4:value="XLSX:S" id="07E15F9018E24DCABBF795D95CE955C5.1">
+        <trans-unit d4:value="0:L" id="07E15F9018E24DCABBF795D95CE955C5.1">
             <source>Extract Document XLSX</source>
         </trans-unit>
-        <trans-unit d4:value="PPTX:S" id="07E15F9018E24DCABBF795D95CE955C5.2">
-            <source>Extract Document PPTX</source>
-        </trans-unit>
-        <trans-unit d4:value="DOCX:S" id="07E15F9018E24DCABBF795D95CE955C5.3">
+        <trans-unit d4:value="1:L" id="07E15F9018E24DCABBF795D95CE955C5.2">
             <source>Extract Document DOCX</source>
         </trans-unit>
-        <trans-unit d4:value="XLS:S" id="07E15F9018E24DCABBF795D95CE955C5.4">
+        <trans-unit d4:value="2:L" id="07E15F9018E24DCABBF795D95CE955C5.3">
+            <source>Extract Document PPTX</source>
+        </trans-unit>
+        <trans-unit d4:value="3:L" id="07E15F9018E24DCABBF795D95CE955C5.4">
             <source>Extract Document XLS</source>
         </trans-unit>
-        <trans-unit d4:value="PPT:S" id="07E15F9018E24DCABBF795D95CE955C5.5">
-            <source>Extract Document PPT</source>
-        </trans-unit>
-        <trans-unit d4:value="DOC:S" id="07E15F9018E24DCABBF795D95CE955C5.6">
+        <trans-unit d4:value="4:L" id="07E15F9018E24DCABBF795D95CE955C5.5">
             <source>Extract Document DOC</source>
+        </trans-unit>
+        <trans-unit d4:value="5:L" id="07E15F9018E24DCABBF795D95CE955C5.6">
+            <source>Extract Document PPT</source>
         </trans-unit>
     </group>
     <group resname="themes">
@@ -34,14 +34,11 @@
         </trans-unit>
     </group>
     <group restype="x-4DK#" d4:groupName="D15BF8C5C33F452E973FAAADF506348B">
-        <trans-unit d4:value="Object:S" id="D15BF8C5C33F452E973FAAADF506348B.1">
+        <trans-unit d4:value="0:L" id="D15BF8C5C33F452E973FAAADF506348B.1">
             <source>Extract Output Object</source>
         </trans-unit>
-        <trans-unit d4:value="Text:S" id="D15BF8C5C33F452E973FAAADF506348B.2">
+        <trans-unit d4:value="1:L" id="D15BF8C5C33F452E973FAAADF506348B.2">
             <source>Extract Output Text</source>
-        </trans-unit>
-        <trans-unit d4:value="File:S" id="D15BF8C5C33F452E973FAAADF506348B.3">
-            <source>Extract Output File</source>
         </trans-unit>
     </group>
 </xliff>

@@ -169,17 +169,51 @@ void Extract(PA_PluginParameters params) {
     PA_ObjectRef returnValue = PA_CreateObject();
     ob_set_b(returnValue, L"success", false);
     
+    input_type  it = (input_type) PA_GetLongParameter(params, 1);
+    extract::output_type ot = (extract::output_type)PA_GetLongParameter(params, 2);
+    std::string outPath;
+    
     PA_ObjectRef document = PA_GetObjectParameter(params, 3);
     if (document) {
+                
+        std::vector<uint8_t>data;
+        CUTF8String _password;
+        std::string password;
+        if(ob_get_s(document, L"password", &_password))
+           password = (const char *)_password.c_str();
+        
         PA_ObjectRef file = ob_get_o(document, L"file");
         std::string path;
         if (file) {
             if (file_object_to_path(file, path)) {
                 std::cerr << "path:" << path << std::endl;
+                FILE *f = _fopen(path.c_str(), _rb);
+                if(f) {
+                    _fseek(f, 0, SEEK_END);
+                    size_t len = (size_t)_ftell(f);
+                    _fseek(f, 0, SEEK_SET);
+                    data.resize(len);
+                    fread(data.data(), 1, data.size(), f);
+                    fclose(f);
+                }
             }
-            std::vector<uint8_t>data;
             if (file_object_to_data(file, data)) {
                 std::cerr << "data:" << data.size() << std::endl;
+            }
+            if(data.size()) {
+                bool success = false;
+                switch (it) {
+                    case input_type_xlsx:
+                    case input_type_docx:
+                    case input_type_pptx:
+                        success = opc_parse_data(data,
+                                                 returnValue,
+                                                 ot == extract::output_type_text,
+                                                 password);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
     }

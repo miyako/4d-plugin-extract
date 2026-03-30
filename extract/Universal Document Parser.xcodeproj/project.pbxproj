@@ -23,6 +23,18 @@
 		D19BC4E22F7A1C81009A5E32 /* C_TEXT.h in Headers */ = {isa = PBXBuildFile; fileRef = D19BC4DD2F7A1C81009A5E32 /* C_TEXT.h */; };
 		D19BC4E52F7A1CE1009A5E32 /* 4DPlugin-JSON.h in Headers */ = {isa = PBXBuildFile; fileRef = D19BC4E32F7A1CE1009A5E32 /* 4DPlugin-JSON.h */; };
 		D19BC4E62F7A1CE1009A5E32 /* 4DPlugin-JSON.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D19BC4E42F7A1CE1009A5E32 /* 4DPlugin-JSON.cpp */; };
+		D19BC4E82F7A2EA2009A5E32 /* constants.xlf in CopyFiles */ = {isa = PBXBuildFile; fileRef = D14D10DD1A03A8A5008B3411 /* constants.xlf */; };
+		D19BC4EA2F7A3128009A5E32 /* opc-parser.h in Headers */ = {isa = PBXBuildFile; fileRef = D19BC4E92F7A3127009A5E32 /* opc-parser.h */; };
+		D19BC4EC2F7A31AF009A5E32 /* opc-parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D19BC4EB2F7A31AF009A5E32 /* opc-parser.cpp */; };
+		D19BC5022F7A3B93009A5E32 /* libxml2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D19BC4ED2F7A38D8009A5E32 /* libxml2.a */; };
+		D19BC5032F7A3BA3009A5E32 /* libcrypto.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D19BC4F12F7A38D8009A5E32 /* libcrypto.a */; };
+		D19BC5042F7A3BE2009A5E32 /* libmce.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D19BC4F42F7A38D8009A5E32 /* libmce.a */; };
+		D19BC5052F7A3BE2009A5E32 /* libplib.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D19BC4F02F7A38D8009A5E32 /* libplib.a */; };
+		D19BC5062F7A3BE2009A5E32 /* libopc.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D19BC4EE2F7A38D8009A5E32 /* libopc.a */; };
+		D19BC5072F7A3BE2009A5E32 /* libjsoncpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D19BC4EF2F7A38D8009A5E32 /* libjsoncpp.a */; };
+		D19BC5082F7A3BE2009A5E32 /* libxml2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D19BC4ED2F7A38D8009A5E32 /* libxml2.a */; };
+		D19BC5092F7A3BE2009A5E32 /* libiconv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D19BC4F22F7A38D8009A5E32 /* libiconv.a */; };
+		D19BC50A2F7A3BF4009A5E32 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D19BC5002F7A3940009A5E32 /* libz.tbd */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -32,6 +44,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
+				D19BC4E82F7A2EA2009A5E32 /* constants.xlf in CopyFiles */,
 				D134D4AC1A030BA0008D14EF /* manifest.json in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -58,6 +71,17 @@
 		D19BC4DF2F7A1C81009A5E32 /* C_TYPES.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = C_TYPES.h; path = "4D Plugin API/Classes/C_TYPES.h"; sourceTree = "<group>"; };
 		D19BC4E32F7A1CE1009A5E32 /* 4DPlugin-JSON.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "4DPlugin-JSON.h"; path = "support/4DPlugin-JSON.h"; sourceTree = "<group>"; };
 		D19BC4E42F7A1CE1009A5E32 /* 4DPlugin-JSON.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = "4DPlugin-JSON.cpp"; path = "support/4DPlugin-JSON.cpp"; sourceTree = "<group>"; };
+		D19BC4E92F7A3127009A5E32 /* opc-parser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "opc-parser.h"; path = "parsers/opc-parser.h"; sourceTree = "<group>"; };
+		D19BC4EB2F7A31AF009A5E32 /* opc-parser.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = "opc-parser.cpp"; path = "parsers/opc-parser.cpp"; sourceTree = "<group>"; };
+		D19BC4ED2F7A38D8009A5E32 /* libxml2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libxml2.a; path = a/libxml2.a; sourceTree = "<group>"; };
+		D19BC4EE2F7A38D8009A5E32 /* libopc.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libopc.a; path = a/libopc.a; sourceTree = "<group>"; };
+		D19BC4EF2F7A38D8009A5E32 /* libjsoncpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libjsoncpp.a; path = a/libjsoncpp.a; sourceTree = "<group>"; };
+		D19BC4F02F7A38D8009A5E32 /* libplib.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libplib.a; path = a/libplib.a; sourceTree = "<group>"; };
+		D19BC4F12F7A38D8009A5E32 /* libcrypto.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libcrypto.a; path = a/libcrypto.a; sourceTree = "<group>"; };
+		D19BC4F22F7A38D8009A5E32 /* libiconv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libiconv.a; path = a/libiconv.a; sourceTree = "<group>"; };
+		D19BC4F32F7A38D8009A5E32 /* libOpenXLSX.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libOpenXLSX.a; path = a/libOpenXLSX.a; sourceTree = "<group>"; };
+		D19BC4F42F7A38D8009A5E32 /* libmce.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmce.a; path = a/libmce.a; sourceTree = "<group>"; };
+		D19BC5002F7A3940009A5E32 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,7 +89,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D19BC5022F7A3B93009A5E32 /* libxml2.a in Frameworks */,
 				D130064F12F02D9700702C0E /* Cocoa.framework in Frameworks */,
+				D19BC5082F7A3BE2009A5E32 /* libxml2.a in Frameworks */,
+				D19BC5062F7A3BE2009A5E32 /* libopc.a in Frameworks */,
+				D19BC5072F7A3BE2009A5E32 /* libjsoncpp.a in Frameworks */,
+				D19BC5052F7A3BE2009A5E32 /* libplib.a in Frameworks */,
+				D19BC5032F7A3BA3009A5E32 /* libcrypto.a in Frameworks */,
+				D19BC5092F7A3BE2009A5E32 /* libiconv.a in Frameworks */,
+				D19BC5042F7A3BE2009A5E32 /* libmce.a in Frameworks */,
+				D19BC50A2F7A3BF4009A5E32 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -107,10 +140,12 @@
 			children = (
 				18B684FE06944F8800CC6A1E /* 4DPlugin-Universal-Document-Parser.cpp */,
 				D120937E13534DCC00A72CAA /* 4DPlugin-Universal-Document-Parser.h */,
-				D19BC4E32F7A1CE1009A5E32 /* 4DPlugin-JSON.h */,
 				D19BC4E42F7A1CE1009A5E32 /* 4DPlugin-JSON.cpp */,
-				D19BC4DD2F7A1C81009A5E32 /* C_TEXT.h */,
+				D19BC4E32F7A1CE1009A5E32 /* 4DPlugin-JSON.h */,
+				D19BC4EB2F7A31AF009A5E32 /* opc-parser.cpp */,
+				D19BC4E92F7A3127009A5E32 /* opc-parser.h */,
 				D19BC4DE2F7A1C81009A5E32 /* C_TEXT.cpp */,
+				D19BC4DD2F7A1C81009A5E32 /* C_TEXT.h */,
 				D19BC4DF2F7A1C81009A5E32 /* C_TYPES.h */,
 				18B684ED06944F2000CC6A1E /* 4D Plugin API */,
 			);
@@ -150,6 +185,15 @@
 		D16FBB3C22A4C07E008F0416 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D19BC5002F7A3940009A5E32 /* libz.tbd */,
+				D19BC4F12F7A38D8009A5E32 /* libcrypto.a */,
+				D19BC4F22F7A38D8009A5E32 /* libiconv.a */,
+				D19BC4EF2F7A38D8009A5E32 /* libjsoncpp.a */,
+				D19BC4F42F7A38D8009A5E32 /* libmce.a */,
+				D19BC4EE2F7A38D8009A5E32 /* libopc.a */,
+				D19BC4F32F7A38D8009A5E32 /* libOpenXLSX.a */,
+				D19BC4F02F7A38D8009A5E32 /* libplib.a */,
+				D19BC4ED2F7A38D8009A5E32 /* libxml2.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -161,6 +205,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D19BC4EA2F7A3128009A5E32 /* opc-parser.h in Headers */,
 				D19BC4E52F7A1CE1009A5E32 /* 4DPlugin-JSON.h in Headers */,
 				18B684F706944F2000CC6A1E /* 4DPluginAPI.h in Headers */,
 				18B684F806944F2000CC6A1E /* EntryPoints.h in Headers */,
@@ -278,6 +323,7 @@
 				18B684FF06944F8800CC6A1E /* 4DPlugin-Universal-Document-Parser.cpp in Sources */,
 				D19BC4E02F7A1C81009A5E32 /* C_TEXT.cpp in Sources */,
 				D13116A91A03ACB700DE1322 /* 4DPluginAPI.c in Sources */,
+				D19BC4EC2F7A31AF009A5E32 /* opc-parser.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -299,6 +345,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -329,10 +376,11 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
 				LIBRARY_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/lib",
+					"$(inherited)",
 					"$(PROJECT_DIR)/a",
 				);
 				LIBRARY_STYLE = Bundle;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -355,6 +403,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -382,10 +431,11 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
 				LIBRARY_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/lib",
+					"$(inherited)",
 					"$(PROJECT_DIR)/a",
 				);
 				LIBRARY_STYLE = Bundle;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -408,6 +458,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -433,10 +484,11 @@
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
 				LIBRARY_SEARCH_PATHS = (
-					"$(PROJECT_DIR)/lib",
+					"$(inherited)",
 					"$(PROJECT_DIR)/a",
 				);
 				LIBRARY_STYLE = Bundle;
+				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
