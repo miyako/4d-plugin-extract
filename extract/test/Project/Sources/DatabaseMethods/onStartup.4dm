@@ -1,7 +1,9 @@
-var $CTranslate2 : cs:C1710.CTranslate2.CTranslate2
+var $huggingfaces : cs:C1710.event.huggingfaces
+var $embeddings : cs:C1710.event.huggingface
 
 var $homeFolder : 4D:C1709.Folder
-$homeFolder:=Folder:C1567(fk home folder:K87:24).folder(".CTranslate2")
+$homeFolder:=Folder:C1567(fk home folder:K87:24).folder(".ONNX")
+
 var $file : 4D:C1709.File
 var $URL : Text
 var $port : Integer
@@ -20,15 +22,13 @@ $event.onTerminate:=Formula:C1597(LOG EVENT:C667(Into 4D debug message:K38:5; ([
 
 $port:=8080
 
-$options:={}
-var $huggingfaces : cs:C1710.event.huggingfaces
+$options:={pooling: "cls"}
 
-$folder:=$homeFolder.folder("bge-m3")
-$path:="bge-m3-ct2-int8"
-$URL:="keisuke-miyako/bge-m3-ct2-int8"
-$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path; "embedding")
+$folder:=$homeFolder.folder("granite-embedding-english-r2")
+$path:="granite-embedding-english-r2-onnx-int8"
+$URL:="keisuke-miyako/granite-embedding-english-r2-onnx-int8"
 
-$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-$options:={}
+$huggingface:=cs:C1710.event.huggingface.new($folder; $URL; $path; "embedding"; ($URL="@-f16" || ($URL="@-f32")) ? "model.onnx" : "model_quantized.onnx")
+$huggingfaces:=cs:C1710.event.huggingfaces.new([$huggingface])
 
-$CTranslate2:=cs:C1710.CTranslate2.CTranslate2.new($port; $huggingfaces; $homeFolder; $options; $event)
+$ONNX:=cs:C1710.ONNX.ONNX.new($port; $huggingfaces; $homeFolder; $options; $event)
