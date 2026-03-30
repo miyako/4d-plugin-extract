@@ -3,6 +3,7 @@ var $file : 4D:C1709.File
 var $extracted : Object
 
 $file:=File:C1566("/RESOURCES/sample.xlsx")
+$file:=Folder:C1567(fk desktop folder:K87:19).file("D100022700.xlsx")
 
 $task:={\
 file: $file; \
@@ -23,7 +24,7 @@ If ($extracted.success)
 	$start_embeddings:=Milliseconds:C459
 	For each ($page; $extracted.pages)
 		$paragraphs:=$page.inputs  //paragraphs in page
-		$len:=9  //number of paragraphs to process 
+		$len:=4  //number of paragraphs to process 
 		$pos:=0  //slicing offset
 		$inputs:=$paragraphs.slice($pos; $pos+$len)
 		var $batch : Object

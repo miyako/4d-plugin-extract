@@ -73,7 +73,7 @@
     </group>
     <group restype="x-4DK#" d4:groupName="2AD5937D90ED446BAC72E7A156710F15">
         <trans-unit d4:value="0:L" id="2AD5937D90ED446BAC72E7A156710F15.1">
-            <source>Embedding Dense</source>
+            <source>Embedding Simple</source>
         </trans-unit>
         <trans-unit d4:value="1:L" id="2AD5937D90ED446BAC72E7A156710F15.2">
             <source>Embedding Contextual</source>
