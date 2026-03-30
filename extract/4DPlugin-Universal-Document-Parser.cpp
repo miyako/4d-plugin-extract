@@ -12,12 +12,92 @@
 
 #pragma mark -
 
+std::string embedding_fingerprint;
+std::string embedding_modelName;
+int max_position_embeddings;
+int cls_id_embeddings = 101;
+int sep_id_embeddings = 102;
+RerankingMode ranking_mode_embeddings;
+
+std::unique_ptr<Ort::Env> embeddings_env;
+std::unique_ptr<Ort::Session> embeddings_session;
+std::unique_ptr<tokenizers::Tokenizer> embeddings_tokenizer;
+
+PoolingMode pooling_mode;
+size_t num_input_nodes = 0;
+size_t num_output_nodes = 0;
+std::vector<std::string> input_node_names;
+std::vector<std::string> output_node_names;
+std::vector<const char*> input_names_c_array;
+std::vector<const char*> output_names_c_array;
+long long embedding_model_created = 0;
+int intra_op_threads;
+
+static int GetOptimalIntraOpThreads() {
+    
+    int threads = 0;
+
+    // --- macOS Implementation ---
+    #if defined(__APPLE__)
+        int32_t core_count = 0;
+        size_t size = sizeof(core_count);
+        
+        // 1. Try to get "Performance Level 0" cores (P-Cores on Apple Silicon)
+        // This is critical for M1/M2/M3 to avoid using slow E-Cores.
+        if (sysctlbyname("hw.perflevel0.physicalcpu", &core_count, &size, NULL, 0) == 0) {
+            threads = core_count;
+        }
+        // 2. Fallback: Standard Physical Cores (Intel Mac or if perflevel fails)
+        else if (sysctlbyname("hw.physicalcpu", &core_count, &size, NULL, 0) == 0) {
+            threads = core_count;
+        }
+        else {
+            // Absolute fallback
+            threads = std::thread::hardware_concurrency();
+        }
+#else  // Windows and Linux
+    unsigned int logical_cores = std::thread::hardware_concurrency();
+    threads = (logical_cores > 4) ? (int)(logical_cores / 2) : (int)logical_cores;
+#endif
+    return std::max(1, std::min(threads, 16));
+}
+
+static void OnStartup() {
+    intra_op_threads = GetOptimalIntraOpThreads();
+    std::cout << "Detected " << intra_op_threads << " Intra-Op threads." << std::endl;
+}
+
+static void OnExit() {
+    
+    if (embeddings_tokenizer) {
+        embeddings_tokenizer.reset();
+    }
+    
+    if (embeddings_session) {
+        embeddings_session.reset();
+    }
+    
+    if (embeddings_env) {
+        embeddings_env.reset();
+    }
+}
+
 void PluginMain(PA_long32 selector, PA_PluginParameters params) {
     
 	try
 	{
         switch(selector)
         {
+            case kInitPlugin :
+            case kServerInitPlugin :
+                OnStartup();
+                break;
+             
+            case kDeinitPlugin :
+            case kServerDeinitPlugin :
+                OnExit();
+                break;
+                
 			// --- Universal Document Parser
             
 			case 1 :
@@ -168,7 +248,6 @@ void Extract(PA_PluginParameters params) {
     
     input_type  it = (input_type) PA_GetLongParameter(params, 1);
     output_type ot = (output_type)PA_GetLongParameter(params, 2);
-    std::string outPath;
     
     PA_ObjectRef document = PA_GetObjectParameter(params, 3);
     if (document) {
@@ -231,11 +310,788 @@ void Extract(PA_PluginParameters params) {
     PA_ReturnObject(params, returnValue);
 }
 
+static void parse_request_embeddings(PA_ObjectRef json,
+                                     std::vector<std::string>& inputs) {
+
+
+    C_TEXT pp;
+    pp.setUTF8String((const uint8_t *)"input", 5);
+    PA_Unistring INPUT = PA_CreateUnistring((PA_Unichar *)pp.getUTF16StringPtr());//PA_DisposeUnistring
+    PA_VariableKind vk = PA_GetObjectPropertyType(json, &INPUT);
+
+    if(vk == eVK_Unistring) {
+        CUTF8String u8;
+        if(ob_get_s(json, L"input", &u8)) {
+            inputs.push_back((const char *)u8.c_str());
+        }
+    }
+    if(vk == eVK_Collection) {
+        PA_CollectionRef input = ob_get_c(json, L"input");
+        for (PA_long32 i = 0; i < PA_GetCollectionLength(input); ++i) {
+            PA_Variable v = PA_GetCollectionElement(input, i);
+            if(PA_GetVariableKind(v) == eVK_Unistring) {
+                PA_Unistring ustr = PA_GetStringVariable(v);
+                C_TEXT t;
+                t.setUTF16String(&ustr);
+                CUTF8String u8;
+                t.copyUTF8String(&u8);
+                inputs.push_back((const char *)u8.c_str());
+            }
+        }
+    }
+    PA_DisposeUnistring(&INPUT);
+}
+
+static void parse_request_contextualized_embeddings(PA_ObjectRef json,
+                                                    std::vector<std::string>& inputs) {
+    PA_CollectionRef inputs_node = ob_get_c(json, L"inputs");
+    if(!inputs_node) inputs_node = ob_get_c(json, L"input");
+    
+    if (inputs_node) {
+        for (PA_long32 i = 0; i < PA_GetCollectionLength(inputs_node); ++i) {
+            PA_Variable v = PA_GetCollectionElement(inputs_node, i);
+            if(PA_GetVariableKind(v) == eVK_Collection) {
+                
+                PA_CollectionRef chunk_array = PA_GetCollectionVariable(v);
+
+                // 1. Reconstruct the full document by concatenating its chunks
+                std::string full_document;
+                for (PA_long32 ii = 0; ii < PA_GetCollectionLength(chunk_array); ++ii) {
+                    PA_Variable vv = PA_GetCollectionElement(chunk_array, ii);
+                    if(PA_GetVariableKind(vv) == eVK_Unistring) {
+                        PA_Unistring ustr = PA_GetStringVariable(vv);
+                        C_TEXT t;
+                        t.setUTF16String(&ustr);
+                        CUTF8String u8;
+                        t.copyUTF8String(&u8);
+                        std::string chunk = (const char *)u8.c_str();
+                        full_document += chunk;
+                    }
+                }
+                // 2. Flatten the request: create a contextualized input for each chunk
+                for (PA_long32 ii = 0; ii < PA_GetCollectionLength(chunk_array); ++ii) {
+                    PA_Variable vv = PA_GetCollectionElement(chunk_array, ii);
+                    if(PA_GetVariableKind(vv) == eVK_Unistring) {
+                        PA_Unistring ustr = PA_GetStringVariable(vv);
+                        C_TEXT t;
+                        t.setUTF16String(&ustr);
+                        CUTF8String u8;
+                        t.copyUTF8String(&u8);
+                        std::string chunk = (const char *)u8.c_str();
+                        // Prepend the reconstructed document context to the specific chunk.
+                        // This allows standard ONNX models to approximate Voyage's context-awareness.
+                        inputs.push_back(full_document + "\n\n" + chunk);
+                    }
+                }
+            }
+        }
+    }
+}
+
+static void ob_append_n(PA_CollectionRef c, double value) {
+    
+    PA_Variable v = PA_CreateVariable(eVK_Real);
+    PA_SetRealVariable(&v, value);
+    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
+    PA_ClearVariable(&v);
+}
+
+static void ob_append_o(PA_CollectionRef c, PA_ObjectRef value) {
+
+    PA_Variable v = PA_CreateVariable(eVK_Object);
+    PA_SetObjectVariable(&v, value);
+    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
+    PA_ClearVariable(&v);
+}
+
+static std::vector<std::vector<float>> last_token_pooling_batch(
+    std::vector<Ort::Value>& outputs,
+    const std::vector<int64_t>& attention_mask,
+    int batch_size, int max_seq_len)
+{
+    std::vector<std::vector<float>> batch_embeddings;
+    if (outputs.empty()) return batch_embeddings;
+
+    auto shape = outputs[0].GetTensorTypeAndShapeInfo().GetShape();
+    if (shape.size() <= 2) return batch_embeddings;
+
+    int64_t hidden_size = shape[2];
+    float* floatarr = outputs[0].GetTensorMutableData<float>();
+
+    for (int b = 0; b < batch_size; ++b) {
+        Eigen::Map<const Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+            raw_matrix(floatarr + (b * max_seq_len * hidden_size), max_seq_len, hidden_size);
+
+        int last_token_index = -1;
+        for (int i = 0; i < max_seq_len; ++i) {
+            if (attention_mask[b * max_seq_len + i] == 1) {
+                last_token_index = i;   // keep updating — never break early
+            }
+        }
+
+        if (last_token_index == -1) {
+            // Entire mask is zero — degenerate input, emit a zero vector
+            batch_embeddings.push_back(std::vector<float>(hidden_size, 0.0f));
+            continue;
+        }
+
+        Eigen::VectorXf final_embedding = raw_matrix.row(last_token_index).normalized();
+        batch_embeddings.push_back(std::vector<float>(final_embedding.data(), final_embedding.data() + final_embedding.size()));
+    }
+    return batch_embeddings;
+}
+
+Eigen::MatrixXf mean_pool_batch(
+    const float* flat_hidden,   // raw ORT output pointer
+    const std::vector<int64_t>& attention_mask,
+    int                              batch_size,
+    int                              max_seq_len,
+    int                              hidden_dim
+) {
+    Eigen::MatrixXf out(batch_size, hidden_dim);
+
+#pragma omp parallel for
+    for (long i = 0; i < batch_size; ++i) {
+
+        // Zero-cost view into the correct row-slice of the flat buffer
+        Eigen::Map<const Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+            hidden(flat_hidden + i * max_seq_len * hidden_dim, max_seq_len, hidden_dim);
+
+        // Build mask vector for this item
+        Eigen::VectorXf mask_f(max_seq_len);
+        for (int j = 0; j < max_seq_len; ++j) {
+            mask_f(j) = static_cast<float>(attention_mask[i * max_seq_len + j]);
+        }
+
+        float count = mask_f.sum();
+        if (count > 1e-9f) {
+            out.row(i) = mask_f.transpose() * hidden;
+            out.row(i) /= count;
+        }
+        else {
+            out.row(i).setZero();
+        }
+    }
+
+    return out;
+}
+
+Eigen::VectorXf l2_normalize(const Eigen::Ref<const Eigen::VectorXf>& v) {
+    float norm = v.norm();
+    // Use a small epsilon to prevent division by near-zero values
+    // and ensure numerical stability.
+    if (norm > 1e-12f)
+        return v.normalized(); // Uses Eigen's optimized internal implementation
+    // If norm is effectively zero, return the original (zero) vector
+    return v;
+}
+
+static std::vector<std::vector<float>> mean_pooling_batch(
+    std::vector<Ort::Value>& outputs,
+    const std::vector<int64_t>& attention_mask,
+    int batch_size, int max_seq_len)
+{
+    std::vector<std::vector<float>> batch_embeddings;
+    if (outputs.empty()) return batch_embeddings;
+
+    auto shape = outputs[0].GetTensorTypeAndShapeInfo().GetShape();
+    if (shape.size() <= 2) return batch_embeddings;
+
+    int64_t hidden_dim = shape[2];
+    const float* floatarr = outputs[0].GetTensorMutableData<float>();
+
+    // Pass the raw pointer — no matrix copies at all
+    Eigen::MatrixXf pooled = mean_pool_batch(
+        floatarr, attention_mask, batch_size, max_seq_len, (int)hidden_dim);
+
+    for (int b = 0; b < batch_size; ++b) {
+        Eigen::VectorXf final_embedding = l2_normalize(pooled.row(b));
+        batch_embeddings.push_back(
+            std::vector<float>(final_embedding.data(),
+                final_embedding.data() + final_embedding.size()));
+    }
+    return batch_embeddings;
+}
+
+static std::vector<std::vector<float>> cls_pooling_batch(
+    std::vector<Ort::Value>& outputs,
+    const std::vector<int64_t>& attention_mask, // Not strictly needed for CLS, but kept for signature consistency
+    int batch_size, int max_seq_len)
+{
+    std::vector<std::vector<float>> batch_embeddings;
+    if (outputs.empty()) return batch_embeddings;
+
+    auto shape = outputs[0].GetTensorTypeAndShapeInfo().GetShape();
+    if (shape.size() <= 2) return batch_embeddings;
+
+    int64_t hidden_size = shape[2];
+    float* floatarr = outputs[0].GetTensorMutableData<float>();
+
+    for (int b = 0; b < batch_size; ++b) {
+        Eigen::Map<const Eigen::Matrix<float, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+            raw_matrix(floatarr + (b * max_seq_len * hidden_size), max_seq_len, hidden_size);
+
+        Eigen::VectorXf cls_vec = raw_matrix.row(0);
+        Eigen::VectorXf final_embedding = l2_normalize(cls_vec);
+        batch_embeddings.push_back(std::vector<float>(final_embedding.data(), final_embedding.data() + final_embedding.size()));
+    }
+    return batch_embeddings;
+}
+
+static void run_embeddings(PA_ObjectRef returnValue,
+                           Ort::Session* session,
+                           std::vector<std::string>& inputs,
+                           int max_position_embeddings,
+                           std::vector<const char*>& input_names_c_array,
+                           size_t num_input_nodes,
+                           std::vector<const char*>& output_names_c_array,
+                           size_t num_output_nodes,
+                           tokenizers::Tokenizer* tokenizer,
+                           PoolingMode pooling_mode,
+                           int cls_id,
+                           int sep_id,
+                           bool using_coreml = false)
+{
+    if (tokenizer == nullptr || inputs.empty()) {
+        ob_set_c(returnValue, L"embeddings", PA_CreateCollection());
+        return;
+    }
+
+    try {
+        const int cmd_4D = 1709;
+        PA_Variable prm_4D[1];
+        PA_Variable _4D = PA_ExecuteCommandByID(cmd_4D, prm_4D, 0);
+        
+        const int cmd_OB_Get = 1224;
+        PA_Variable prm_OB_Get[2];
+        prm_OB_Get[0] = _4D;
+        prm_OB_Get[1] = PA_CreateVariable(eVK_Unistring);
+        C_TEXT pp;
+        pp.setUTF8String((const uint8_t *)"Vector", 6);
+        PA_Unistring VECTOR = PA_CreateUnistring((PA_Unichar *)pp.getUTF16StringPtr());
+        PA_SetStringVariable(&prm_OB_Get[1], &VECTOR);//DO NOT call PA_DisposeUnistring
+        PA_Variable _4D_Vector = PA_ExecuteCommandByID(cmd_OB_Get, prm_OB_Get, 2);
+        PA_ClearVariable(&prm_OB_Get[1]);//BLOB belongs to variable. no need to dispose
+        PA_ObjectRef _4D_Vector_Class = PA_GetObjectVariable(_4D_Vector);
+        
+        C_TEXT mm;
+        mm.setUTF8String((const uint8_t *)"new", 3);
+        PA_Variable prm_new[1];
+        prm_new[0] = PA_CreateVariable(eVK_Collection);
+
+        int batch_size = (int)inputs.size();
+        int max_seq_len = 0;
+        std::vector<std::vector<int>> tokenized_inputs;
+        tokenized_inputs.reserve(batch_size);
+
+        // 1. Tokenize all and find the max length for padding
+        for (const auto& input : inputs) {
+            std::vector<int> ids = tokenizer->Encode(input);
+
+            ids.insert(ids.begin(), cls_id);
+            ids.push_back(sep_id);
+
+            // Handle Truncation safely
+            if (ids.size() > static_cast<size_t>(max_position_embeddings)) {
+                ids.resize(max_position_embeddings - 1);
+                ids.push_back(sep_id); // Ensure it always ends with the correct token
+            }
+
+            if ((int)ids.size() > max_seq_len) {
+                max_seq_len = (int)ids.size();
+            }
+            tokenized_inputs.push_back(std::move(ids));
+        }
+
+        if (using_coreml) {
+            max_seq_len = max_position_embeddings;  // force exact shape
+        }
+
+        // 2. Allocate flat memory for tensors (Zero initialized for padding)
+        size_t total_elements = (size_t)batch_size * max_seq_len;
+        std::vector<int64_t> flat_input_ids(total_elements, 0);
+        std::vector<int64_t> flat_attention_mask(total_elements, 0);
+        std::vector<int64_t> flat_token_type_ids(total_elements, 0);
+
+        // 3. Fill the flat arrays
+        for (int b = 0; b < batch_size; ++b) {
+            int seq_len = (int)tokenized_inputs[b].size();
+            for (int i = 0; i < seq_len; ++i) {
+                size_t idx = (size_t)(b * max_seq_len + i);
+                flat_input_ids[idx] = tokenized_inputs[b][i];
+                flat_attention_mask[idx] = 1; // 1 for real tokens, pad remains 0
+                // flat_token_type_ids remains 0
+            }
+        }
+
+        // 4. Create Tensors
+        Ort::MemoryInfo memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
+        std::vector<int64_t> input_dims = { batch_size, max_seq_len };
+        std::vector<Ort::Value> input_tensors;
+
+        input_tensors.push_back(Ort::Value::CreateTensor<int64_t>(
+            memory_info, flat_input_ids.data(), flat_input_ids.size(), input_dims.data(), input_dims.size()));
+
+        if (num_input_nodes > 1) {
+            input_tensors.push_back(Ort::Value::CreateTensor<int64_t>(
+                memory_info, flat_attention_mask.data(), flat_attention_mask.size(), input_dims.data(), input_dims.size()));
+        }
+        if (num_input_nodes > 2) {
+            input_tensors.push_back(Ort::Value::CreateTensor<int64_t>(
+                memory_info, flat_token_type_ids.data(), flat_token_type_ids.size(), input_dims.data(), input_dims.size()));
+        }
+
+        // 5. Run Batched Inference (1 Call to session->Run!)
+        auto outputs = session->Run(
+            Ort::RunOptions{ nullptr },
+            input_names_c_array.data(),
+            input_tensors.data(),
+            num_input_nodes,
+            output_names_c_array.data(),
+            num_output_nodes
+        );
+
+        // 6. Pooling & Build JSON
+        if (pooling_mode == POOLING_COLBERT) {
+//            return colbert_pooling_batch_json(outputs, flat_attention_mask, batch_size, max_seq_len);
+        }
+
+        std::vector<std::vector<float>> batch_embeddings;
+        switch (pooling_mode) {
+        case POOLING_CLS:
+            batch_embeddings = cls_pooling_batch(outputs, flat_attention_mask, batch_size, max_seq_len);
+            break;
+        case POOLING_LAST_TOKEN:
+            batch_embeddings = last_token_pooling_batch(outputs, flat_attention_mask, batch_size, max_seq_len);
+            break;
+        case POOLING_MEAN:
+        default:
+            batch_embeddings = mean_pooling_batch(outputs, flat_attention_mask, batch_size, max_seq_len);
+            break;
+        }
+
+        // Pre-size the result string to avoid repeated reallocations.
+        // Heuristic: each float ~10 chars + punctuation overhead.
+        std::string result;
+        const size_t embedding_dim = batch_embeddings.empty() ? 0 : batch_embeddings[0].size();
+        result.reserve(64 + batch_size * (32 + embedding_dim * 11));
+
+//        ob_set_s(returnValue, L"object", "list");
+        PA_CollectionRef data = PA_CreateCollection();
+        for (int b = 0; b < batch_size; ++b) {
+            PA_ObjectRef object = PA_CreateObject();
+//            ob_set_s(object, L"object", "embedding");
+            ob_set_n(object, L"index", b);
+            PA_CollectionRef embedding = PA_CreateCollection();
+            const auto& emb = batch_embeddings[b];
+            for (size_t i = 0; i < emb.size(); ++i) {
+                ob_append_n(embedding, emb[i]);
+            }
+            
+            PA_SetCollectionVariable(&prm_new[0], embedding);
+            PA_Variable vector = PA_ExecuteObjectMethod(_4D_Vector_Class,
+                                                        (PA_Unichar *)mm.getUTF16StringPtr(),
+                                                        prm_new, 1);
+            ob_set_o(object, L"embedding", PA_GetObjectVariable(vector));
+//            ob_set_c(object, L"embedding", embedding);
+            ob_append_o(data, object);
+        }
+        
+        ob_set_c(returnValue, L"embeddings", data);
+        ob_set_b(returnValue, L"success", true);
+        
+        PA_ClearVariable(&prm_new[0]);
+    }
+    catch (const std::exception& e) {
+        return; // Controller handles the JSON error formatting
+    }
+}
+
 void Embeddings(PA_PluginParameters params) {
 
+    PA_ObjectRef returnValue = PA_CreateObject();
+    ob_set_b(returnValue, L"success", false);
+    
+    if(!embedding_model_created) {
+        ob_set_s(returnValue, L"error", "model not loaded!");
+        PA_ReturnObject(params, returnValue);
+    }
+    
+    EmbeddingMode embedding_mode = (EmbeddingMode)PA_GetLongParameter(params, 2);
+    PA_ObjectRef body = PA_GetObjectParameter(params, 1);
+    if(body) {
+        std::vector<std::string> texts;
+        switch (embedding_mode) {
+            case EMBEDDING_DENSE:
+                parse_request_embeddings(body, texts);
+                break;
+            case EMBEDDING_CONTEXTUAL:
+            default:
+                parse_request_contextualized_embeddings(body, texts);
+                break;
+        }
+        
+        switch (pooling_mode) {
+            case PoolingMode::POOLING_E2E:
+                break;
+            default:
+                run_embeddings(
+                               returnValue,
+                               embeddings_session.get(),
+                               texts,
+                               max_position_embeddings,
+                               input_names_c_array,
+                               num_input_nodes,
+                               output_names_c_array,
+                               num_output_nodes,
+                               embeddings_tokenizer.get(),
+                               pooling_mode,
+                               cls_id_embeddings,
+                               sep_id_embeddings);
+                break;
+        }
+    }
+
+    PA_ReturnObject(params, returnValue);
+}
+
+namespace fs = std::filesystem;
+
+#ifdef WIN32
+static std::wstring utf8_to_wstring(const std::string& str) {
+    
+    if (str.empty()) return std::wstring();
+
+    // Get required buffer size in characters (including null terminator)
+    int size_needed = MultiByteToWideChar(
+        CP_UTF8,       // Source is UTF-8
+        0,             // Default flags
+        str.c_str(),   // Source string
+        -1,            // Null-terminated
+        nullptr,       // No output buffer yet
+        0              // Requesting size
+    );
+
+    if (size_needed <= 0) return std::wstring();
+
+    // Allocate buffer
+    std::wstring wstr(size_needed, 0);
+
+    // Perform conversion
+    MultiByteToWideChar(
+        CP_UTF8,
+        0,
+        str.c_str(),
+        -1,
+        &wstr[0],
+        size_needed
+    );
+
+    // Remove the extra null terminator added by MultiByteToWideChar
+    if (!wstr.empty() && wstr.back() == '\0') {
+        wstr.pop_back();
+    }
+
+    return wstr;
+}
+
+static std::string wchar_to_utf8(const wchar_t* wstr) {
+    
+    if (!wstr) return std::string();
+    
+    // Get required buffer size in bytes
+    int size_needed = WideCharToMultiByte(
+                                          CP_UTF8,            // convert to UTF-8
+                                          0,                  // default flags
+                                          wstr,               // source wide string
+                                          -1,                 // null-terminated
+                                          nullptr, 0,         // no output buffer yet
+                                          nullptr, nullptr
+                                          );
+    
+    if (size_needed <= 0) return std::string();
+    
+    // Allocate buffer
+    std::string utf8str(size_needed, 0);
+    
+    // Perform conversion
+    WideCharToMultiByte(
+                        CP_UTF8,
+                        0,
+                        wstr,
+                        -1,
+                        &utf8str[0],
+                        size_needed,
+                        nullptr,
+                        nullptr
+                        );
+    
+    // Remove the extra null terminator added by WideCharToMultiByte
+    if (!utf8str.empty() && utf8str.back() == '\0') {
+        utf8str.pop_back();
+    }
+    
+    return utf8str;
+}
+#endif
+
+// Simple stable FNV-1a hash implementation
+static std::string get_system_fingerprint(const std::string& model_path, const std::string& provider) {
+    
+    std::string identifier = model_path + "_" + provider;
+    uint64_t hash = 14695981039346656037ULL;
+    for (char c : identifier) {
+        hash ^= static_cast<uint64_t>(c);
+        hash *= 1099511628211ULL;
+    }
+    std::stringstream ss;
+    ss << "fp_" << std::hex << hash;
+    
+    return ss.str();
+}
+
+static std::string get_model_name(std::string model_path) {
+    
+    // 1. Create a path object
+    fs::path path(model_path);
+    
+    // 2. Handle trailing slashes (e.g., "models/phi-3/")
+    // If the path ends in a separator, filename() might return empty.
+    if (path.filename().empty()) {
+        path = path.parent_path();
+    }
+    
+    // 3. Return the folder/filename
+    // .filename() returns "phi-3.onnx" (with extension)
+    // .stem() returns "phi-3" (removes extension)
+    return path.filename().string();
+}
+
+static std::string LoadBytesFromFile(const std::string& path) {
+    
+    std::ifstream ifs(path, std::ios::in | std::ios::binary);
+    if (!ifs) throw std::runtime_error("Could not open file: " + path);
+    
+    ifs.seekg(0, std::ios::end);
+    size_t size = ifs.tellg();
+    std::string data(size, '\0');
+    ifs.seekg(0, std::ios::beg);
+    ifs.read(&data[0], size);
+    
+    return data;
+}
+
+static const std::unordered_map<std::string, RerankingMode> kModelTypeMap = {
+    {"xlm-roberta", RERANKING_ROBERTA}, {"roberta", RERANKING_ROBERTA}, {"camembert", RERANKING_ROBERTA},
+    {"bert", RERANKING_BERT}, {"mpnet", RERANKING_BERT}, {"deberta-v2", RERANKING_BERT}, {"modernbert", RERANKING_MODERNBERT},
+    {"qwen3", RERANKING_LLM}, {"qwen2", RERANKING_LLM}, {"mistral", RERANKING_LLM},
+    {"llama", RERANKING_LLM}, {"gemma", RERANKING_LLM}, {"gemma2", RERANKING_LLM}, {"phi3", RERANKING_LLM},
+};
+
+static void LoadModelConfig(const std::string& model_path,
+                            int& cls_id,
+                            int& sep_id,
+                            int& positionEmbeddings,
+                            RerankingMode& ranking_mode) {
+    
+    // --- 1. Set defaults ---
+    positionEmbeddings = 512;
+    ranking_mode       = RERANKING_ROBERTA;
+    cls_id             = 0;   // roberta default
+    sep_id             = 2;
+    
+    // --- 2. Resolve config.json path ---
+    fs::path config_path(model_path);
+    if (fs::is_directory(config_path)) {
+        config_path = config_path / "config.json";
+    }
+    if (!fs::exists(config_path) || config_path.extension() != ".json") {
+        return;
+    }
+    
+    // --- 3. Parse once ---
+    std::string json = LoadBytesFromFile(config_path.string());
+    Json::Value root;
+    Json::CharReaderBuilder builder;
+    std::string errors;
+    std::unique_ptr<Json::CharReader> reader(builder.newCharReader());
+    if (!reader->parse(json.c_str(), json.c_str() + json.size(), &root, &errors)) {
+        return;
+    }
+    if (!root.isObject()) {
+        return;
+    }
+    
+    // --- 4. Resolve ranking_mode from model_type ---
+    if (root.isMember("model_type") && root["model_type"].isString()) {
+        const std::string model_type = root["model_type"].asString();
+        auto it = kModelTypeMap.find(model_type);
+        if (it != kModelTypeMap.end()) {
+            ranking_mode = it->second;
+            std::cout << "[Config] model_type: " << model_type << std::endl;
+        } else {
+            std::cout << "[Config] model_type: '" << model_type
+            << "' unrecognized, defaulting to roberta" << std::endl;
+        }
+    }
+    
+    // --- 5. Set architecture-specific token ID defaults ---
+    switch (ranking_mode) {
+        case RERANKING_MODERNBERT:
+            cls_id = 50281;
+            sep_id = 50282;
+            break;
+        case RERANKING_ROBERTA:
+            cls_id = 0;
+            sep_id = 2;
+            break;
+        case RERANKING_BERT:
+        default:
+            cls_id = 101;
+            sep_id = 102;
+            break;
+    }
+    
+    // --- 6. Override token IDs from config if present ---
+    if (root.isMember("cls_token_id") && root["cls_token_id"].isNumeric()) {
+        cls_id = root["cls_token_id"].asInt();
+    } else if (root.isMember("bos_token_id") && root["bos_token_id"].isNumeric()) {
+        cls_id = root["bos_token_id"].asInt();
+    }
+    
+    if (root.isMember("sep_token_id") && root["sep_token_id"].isNumeric()) {
+        sep_id = root["sep_token_id"].asInt();
+    } else if (root.isMember("eos_token_id") && root["eos_token_id"].isNumeric()) {
+        sep_id = root["eos_token_id"].asInt();
+    }
+    
+    // --- 7. max_position_embeddings ---
+    if (root.isMember("max_position_embeddings") && root["max_position_embeddings"].isNumeric()) {
+        positionEmbeddings = root["max_position_embeddings"].asInt();
+    }
+    
+    std::cout << "[Config] ranking_mode=" << ranking_mode
+    << " cls=" << cls_id
+    << " sep=" << sep_id
+    << " max_pos=" << positionEmbeddings
+    << std::endl;
+}
+
+static std::unique_ptr<tokenizers::Tokenizer> LoadTokenizer(const std::string& model_path) {
+    
+    fs::path path(model_path);
+    
+    // 1. Check if the path points to a directory or a specific file
+    fs::path json_path = path;
+    fs::path model_file_path = path;
+
+    if (fs::is_directory(path)) {
+        // If user gave a folder, look for standard names
+        json_path = path / "tokenizer.json";
+        model_file_path = path / "tokenizer.model";
+    }
+
+    // 2. Try to load Hugging Face JSON first (preferred for modern models)
+    if (fs::exists(json_path) && json_path.extension() == ".json") {
+        std::string blob = LoadBytesFromFile(json_path.string());
+        return tokenizers::Tokenizer::FromBlobJSON(blob);
+    }
+    
+    // 3. Fallback to SentencePiece
+    if (fs::exists(model_file_path) && model_file_path.extension() == ".model") {
+        std::string blob = LoadBytesFromFile(model_file_path.string());
+        return tokenizers::Tokenizer::FromBlobSentencePiece(blob);
+    }
+
+    return nullptr;
+}
+
+static long long get_created_timestamp() {
+    // std::time(nullptr) returns the current time as a time_t (seconds since epoch)
+    return static_cast<long long>(std::time(nullptr));
 }
 
 void Embeddings_Setup(PA_PluginParameters params) {
 
-}
+    PA_ObjectRef returnValue = PA_CreateObject();
+    ob_set_b(returnValue, L"success", false);
+    
+    if(embedding_model_created) {
+        PA_ReturnObject(params, returnValue);
+        return;
+    }
 
+    pooling_mode = (PoolingMode)PA_GetLongParameter(params, 2);
+    PA_ObjectRef model = PA_GetObjectParameter(params, 1);
+    if (model) {
+        std::string embedding_model_path;
+        if (file_object_to_path(model, embedding_model_path)) {
+            if (fs::exists(embedding_model_path)) {
+                if (fs::is_regular_file(embedding_model_path)) {
+                    std::cerr << "[Embedding] Loading from " << embedding_model_path << std::endl;
+                    try {
+                        embeddings_env = std::make_unique<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "Embeddings");
+#ifdef WIN32
+                        embedding_modelName = get_model_name(wchar_to_utf8(fs::path(embedding_model_path).parent_path().c_str()));
+#else
+                        embedding_modelName = get_model_name(fs::path(embedding_model_path).parent_path());
+#endif
+                        Ort::SessionOptions session_options;
+                        session_options.SetIntraOpNumThreads(intra_op_threads);
+                        embedding_fingerprint = get_system_fingerprint(embedding_model_path, "CPU");
+
+                        session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
+                        session_options.AddConfigEntry("session.intra_op.allow_spinning", "0");
+                        Ort::ThrowOnError(RegisterCustomOps((OrtSessionOptions*)session_options, OrtGetApiBase()));
+#ifdef WIN32
+                    embeddings_session = std::make_unique<Ort::Session>(*embeddings_env, embedding_model_path_u16.c_str(), session_options);
+#else
+                    embeddings_session = std::make_unique<Ort::Session>(*embeddings_env, embedding_model_path.c_str(), session_options);
+#endif
+                        num_input_nodes = embeddings_session->GetInputCount();
+                        num_output_nodes = embeddings_session->GetOutputCount();
+
+                        Ort::AllocatorWithDefaultOptions allocator;
+
+                        for (size_t i = 0; i < num_input_nodes; i++) {
+                            auto input_name_ptr = embeddings_session->GetInputNameAllocated(i, allocator);
+                            input_node_names.push_back(input_name_ptr.get());
+                        }
+                        for (size_t i = 0; i < num_output_nodes; i++) {
+                            auto output_name_ptr = embeddings_session->GetOutputNameAllocated(i, allocator);
+                            output_node_names.push_back(output_name_ptr.get());
+                        }
+                        for (const auto& name : input_node_names) {
+                            input_names_c_array.push_back(name.c_str());
+                        }
+                        for (const auto& name : output_node_names) {
+                            output_names_c_array.push_back(name.c_str());
+                        }
+#ifdef WIN32
+                        LoadModelConfig(wchar_to_utf8(fs::path(embedding_model_path).parent_path().c_str()),
+                                        cls_id_embeddings,
+                                        sep_id_embeddings,
+                                        max_position_embeddings,
+                                        ranking_mode_embeddings);
+                        embeddings_tokenizer = LoadTokenizer(wchar_to_utf8(fs::path(embedding_model_path).parent_path().c_str()));
+#else
+                        LoadModelConfig(fs::path(embedding_model_path).parent_path(),
+                                        cls_id_embeddings,
+                                        sep_id_embeddings,
+                                        max_position_embeddings,
+                                        ranking_mode_embeddings);
+                        embeddings_tokenizer = LoadTokenizer(fs::path(embedding_model_path).parent_path());
+#endif
+                        embedding_model_created = get_created_timestamp();
+                        ob_set_s(returnValue, L"name", embedding_modelName.c_str());
+                        ob_set_b(returnValue, L"success", true);
+                    } catch (const std::exception& e) {
+                        std::cerr << "Failed to load model: " << e.what() << std::endl;
+                    }
+                }
+            }
+        }
+    }
+    
+    PA_ReturnObject(params, returnValue);
+}
