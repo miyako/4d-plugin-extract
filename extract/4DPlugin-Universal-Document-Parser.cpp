@@ -66,6 +66,10 @@ static void OnStartup() {
     intra_op_threads = GetOptimalIntraOpThreads();
     std::cout << "Detected " << intra_op_threads << " Intra-Op threads." << std::endl;
     embedding_model_created = 0;
+    input_node_names.clear();
+    output_node_names.clear();
+    input_names_c_array.clear();
+    output_names_c_array.clear();
 }
 
 static void OnExit() {

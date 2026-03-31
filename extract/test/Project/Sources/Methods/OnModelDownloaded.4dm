@@ -1,12 +1,31 @@
 //%attributes = {"invisible":true,"preemptive":"capable"}
-#DECLARE($params : Object; $models : cs:C1710.event.models)
+#DECLARE($params : Object; $context : Object)
 
 var $folder : 4D:C1709.Folder
-$folder:=$params.embeddings_model
 var $file : 4D:C1709.File
-$file:=$folder.file($params.embeddings_model_name)
 
-ALERT:C41(JSON Stringify:C1217({path: $file.path; pooling: $params.pooling}))
+
+Case of 
+	: (OB Instance of:C1731($context; cs:C1710.event.models))
+		
+		//this branch is executed in preemptive process
+		$folder:=$params.embeddings_model
+		$file:=$folder.file($params.embeddings_model_name)
+		
+	Else 
+		
+		//this branch is executed in application process
+		var $huggingface : cs:C1710.event.huggingface
+		$huggingface:=$params.huggingfaces.huggingfaces.first()
+		$folder:=$huggingface.folder
+		$file:=$folder.file($huggingface.name)
+		
+End case 
+
+If (Not:C34($file.exists))
+	ALERT:C41("model does not exist!")
+	return 
+End if 
 
 var $pooling : Integer
 
@@ -29,4 +48,6 @@ End case
 
 $status:=Embeddings Setup($file; $pooling)
 
-ALERT:C41(JSON Stringify:C1217($status))
+If (Not:C34($status.success))
+	ALERT:C41("failed to load model!")
+End if 
