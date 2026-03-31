@@ -15,8 +15,8 @@ This plugin designed to extract text from various document types in a chunked fo
 
 The goal is to optimise text processing in RAG pipelines: 
 
-- [`miyako/extract`](https://github.com/miyako/extract))
-- [`miyako/text-splitter`](https://github.com/miyako/text-splitter))
+- [`miyako/extract`](https://github.com/miyako/extract)
+- [`miyako/text-splitter`](https://github.com/miyako/text-splitter)
 
 ## Simple Embeddings 
 
