@@ -18,6 +18,24 @@ The goal is to optimise text processing in RAG pipelines:
 - [`miyako/extract`](https://github.com/miyako/extract)
 - [`miyako/text-splitter`](https://github.com/miyako/text-splitter)
 
+## Extract
+
+This is the main function. Pass the document type, output format, and a `task` object.
+
+### Supported Document Types
+
+|File Extension|Constant|Value
+|-|-|-:|
+|xlsx|`Extract Document XLSX`|`0`|
+
+### Supported Output Formats
+
+|Constant|Value|Description
+|:-|-:|-
+|`Extract Output Object`|`0`|Suitable for **OpenAI** style `embeddings` API 
+|`Extract Output Text`|`1`|Raw text for generic processing
+|`Extract Output Collection`|`2`|Suitable for **Voyage AI** style `contextualizedembeddings` API 
+
 ## Simple Embeddings 
 
 _Each sentence is vectorized independently._
