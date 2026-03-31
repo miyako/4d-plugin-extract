@@ -5,7 +5,7 @@ Universal Document Parser
 
 The purpose of this plugin is to extract text from various document types in a format than be passed directly to one of the following endpoints:
 
-- embeggings
+- embeddings
 - contextualizedembeddings
 
 ## Simple Embeddings 
