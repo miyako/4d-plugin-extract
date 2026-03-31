@@ -8,10 +8,15 @@ Universal Document Parser
 
 ## Abstract
 
-The purpose of this plugin is to extract text from various document types in a format than be passed directly to one of the following endpoints:
+This plugin designed to extract text from various document types in a chunked format which be passed directly to one of the following endpoints:
 
-- embeddings
-- contextualizedembeddings
+- `embeddings`
+- `contextualizedembeddings`
+
+The goal is to optimise text processing in RAG pipelines: 
+
+- [`miyako/extract`](https://github.com/miyako/extract))
+- [`miyako/text-splitter`](https://github.com/miyako/text-splitter))
 
 ## Simple Embeddings 
 
