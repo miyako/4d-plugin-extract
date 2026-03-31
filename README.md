@@ -1,6 +1,13 @@
 # 4d-plugin-extract
 Universal Document Parser
 
+## Abstract
+
+The purpose of this plugin is to extract text from various document types in a format than be passed directly to one of the following endpoints:
+
+- embeggings
+- contextualizedembeddings
+
 ## Simple Embeddings 
 
 _Each sentence is vectorized independently._
