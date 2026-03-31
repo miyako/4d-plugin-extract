@@ -13,7 +13,7 @@ Extract text from various document types in a chunked format which be passed dir
 - `embeddings`
 - `contextualizedembeddings`
 
-The goal is to optimise text processing in RAG pipelines: 
+The goal is to optimise text processing in RAG pipelines, by eliminating nodes such as: 
 
 - [`miyako/extract`](https://github.com/miyako/extract)
 - [`miyako/text-splitter`](https://github.com/miyako/text-splitter)
