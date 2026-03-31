@@ -133,7 +133,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>lib\windows64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Userenv.lib;ntdll.lib;lzma.lib;zlib.lib;onnx-genai.lib;ws2_32.lib;jsoncpp.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;tokenizers_c.lib;sentencepiece.lib;plib.lib;ortextensions.lib;ortcustomops.lib;opc.lib;onnxruntime-genai.lib;onnxruntime_providers_shared.lib;onnxruntime.lib;ocos_operators.lib;noexcep_operators.lib;mce.lib;lzma.lib;libxml2.lib;libiconv.lib;libcrypto.lib;libcharset.lib;tokenizers_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Userenv.lib;ntdll.lib;lzma.lib;zlib.lib;ws2_32.lib;jsoncpp.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;tokenizers_c.lib;sentencepiece.lib;plib.lib;ortextensions.lib;ortcustomops.lib;opc.lib;onnxruntime-genai.lib;onnxruntime_providers_shared.lib;onnxruntime.lib;ocos_operators.lib;noexcep_operators.lib;mce.lib;lzma.lib;libxml2.lib;libiconv.lib;libcrypto.lib;libcharset.lib;tokenizers_cpp.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM64'">
