@@ -128,6 +128,3 @@ extraction: $duration_extraction; \
 embeddings: $duration_embeddings; \
 count: $results.length; average: String($results.length/(($duration_extraction+$duration_embeddings)/1000); "#####.0")+" embeddings per second"}; *))
 ```
-
-ALERT(JSON Stringify({extraction: $duration_extraction; embeddings: $duration_embeddings; count: $results.length}; *))
-```
