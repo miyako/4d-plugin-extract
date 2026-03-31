@@ -11,8 +11,6 @@
 #ifndef PLUGIN_UNIVERSAL_DOCUMENT_PARSER_H
 #define PLUGIN_UNIVERSAL_DOCUMENT_PARSER_H
 
-#include <Eigen/Dense>
-
 #include "4DPluginAPI.h"
 
 #include <string>
@@ -36,13 +34,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <ort_genai.h>
-#include <onnxruntime_cxx_api.h>
-#include <onnxruntime_extensions.h>
-#include <omp.h>
-
 #include "opc-parser.h"
-#include "tokenizers_cpp.h"
 
 typedef enum {
     input_type_xlsx = 0,
@@ -53,35 +45,8 @@ typedef enum {
     input_type_ppt
 }input_type;
 
-enum PoolingMode {
-    POOLING_MEAN,         // E5, BGE, Ruri, Sentence-BERT, Sarashina
-    POOLING_COLBERT,      // JaColBERT / ColBERTv2
-    POOLING_CLS,          //BGE-M3
-    POOLING_LAST_TOKEN,   //GEMMA
-    POOLING_E2E
-};
-
-enum RerankingMode {
-    RERANKING_BERT,       // MiniLM, TinyBERT
-    RERANKING_ROBERTA,    // BGE-M3, BGE-Reranker, XLM
-    RERANKING_LLM,
-    RERANKING_MODERNBERT
-};
-
-enum EmbeddingMode {
-    EMBEDDING_DENSE,
-    EMBEDDING_CONTEXTUAL
-};
-
-#if defined(__APPLE__)
-#include <sys/types.h>
-#include <sys/sysctl.h>
-#endif
-
 #pragma mark -
 
 void Extract(PA_PluginParameters params);
-void Embeddings(PA_PluginParameters params);
-void Embeddings_Setup(PA_PluginParameters params);
 
 #endif /* PLUGIN_UNIVERSAL_DOCUMENT_PARSER_H */

@@ -6,16 +6,6 @@
             "theme": "Extract",
             "syntax": "Extract(&L;&L;&J):J",
             "threadSafe": true
-        },     
-        {
-            "theme": "Embeddings",
-            "syntax": "Embeddings(&J;&L):J",
-            "threadSafe": true
-        },
-        {
-            "theme": "Embeddings",
-            "syntax": "Embeddings Setup(&J;&L):J",
-            "threadSafe": true
         }
     ]
 }

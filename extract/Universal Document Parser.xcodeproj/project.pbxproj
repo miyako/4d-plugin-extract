@@ -20,18 +20,10 @@
 		D134D4AC1A030BA0008D14EF /* manifest.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = D134D4A91A030B06008D14EF /* manifest.json */; };
 		D17CCD0C2F7AC87900906912 /* libucd.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD022F7AC87900906912 /* libucd.a */; };
 		D17CCD0D2F7AC87900906912 /* libsentencepiece.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD032F7AC87900906912 /* libsentencepiece.a */; };
-		D17CCD0E2F7AC87900906912 /* libocos_operators.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD042F7AC87900906912 /* libocos_operators.a */; };
 		D17CCD0F2F7AC87900906912 /* libomp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD052F7AC87900906912 /* libomp.a */; };
-		D17CCD102F7AC87900906912 /* libortcustomops.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD062F7AC87900906912 /* libortcustomops.a */; };
-		D17CCD112F7AC87900906912 /* libnoexcep_operators.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD072F7AC87900906912 /* libnoexcep_operators.a */; };
-		D17CCD122F7AC87900906912 /* libeigen_lapack_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD082F7AC87900906912 /* libeigen_lapack_static.a */; };
 		D17CCD132F7AC87900906912 /* libtokenizers_c.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD092F7AC87900906912 /* libtokenizers_c.a */; };
-		D17CCD142F7AC87900906912 /* libeigen_blas_static.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD0A2F7AC87900906912 /* libeigen_blas_static.a */; };
 		D17CCD152F7AC87900906912 /* libtokenizers_cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD0B2F7AC87900906912 /* libtokenizers_cpp.a */; };
 		D17CCD172F7AC91B00906912 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD162F7AC91B00906912 /* Accelerate.framework */; };
-		D17CCD1C2F7AC97B00906912 /* libonnxruntime.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD192F7AC97B00906912 /* libonnxruntime.dylib */; };
-		D17CCD1D2F7AC97B00906912 /* libortextensions.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD1A2F7AC97B00906912 /* libortextensions.dylib */; };
-		D17CCD1E2F7AC97B00906912 /* libonnxruntime-genai.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D17CCD1B2F7AC97B00906912 /* libonnxruntime-genai.dylib */; };
 		D19BC4E02F7A1C81009A5E32 /* C_TEXT.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D19BC4DE2F7A1C81009A5E32 /* C_TEXT.cpp */; };
 		D19BC4E12F7A1C81009A5E32 /* C_TYPES.h in Headers */ = {isa = PBXBuildFile; fileRef = D19BC4DF2F7A1C81009A5E32 /* C_TYPES.h */; };
 		D19BC4E22F7A1C81009A5E32 /* C_TEXT.h in Headers */ = {isa = PBXBuildFile; fileRef = D19BC4DD2F7A1C81009A5E32 /* C_TEXT.h */; };
@@ -116,28 +108,20 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D17CCD1C2F7AC97B00906912 /* libonnxruntime.dylib in Frameworks */,
-				D17CCD1D2F7AC97B00906912 /* libortextensions.dylib in Frameworks */,
-				D17CCD1E2F7AC97B00906912 /* libonnxruntime-genai.dylib in Frameworks */,
-				D17CCD0C2F7AC87900906912 /* libucd.a in Frameworks */,
 				D17CCD172F7AC91B00906912 /* Accelerate.framework in Frameworks */,
+				D130064F12F02D9700702C0E /* Cocoa.framework in Frameworks */,
 				D17CCD152F7AC87900906912 /* libtokenizers_cpp.a in Frameworks */,
 				D17CCD0D2F7AC87900906912 /* libsentencepiece.a in Frameworks */,
 				D17CCD132F7AC87900906912 /* libtokenizers_c.a in Frameworks */,
-				D17CCD0F2F7AC87900906912 /* libomp.a in Frameworks */,
 				D19BC5072F7A3BE2009A5E32 /* libjsoncpp.a in Frameworks */,
-				D17CCD0E2F7AC87900906912 /* libocos_operators.a in Frameworks */,
-				D17CCD102F7AC87900906912 /* libortcustomops.a in Frameworks */,
-				D17CCD112F7AC87900906912 /* libnoexcep_operators.a in Frameworks */,
-				D17CCD122F7AC87900906912 /* libeigen_lapack_static.a in Frameworks */,
-				D17CCD142F7AC87900906912 /* libeigen_blas_static.a in Frameworks */,
-				D130064F12F02D9700702C0E /* Cocoa.framework in Frameworks */,
-				D19BC5082F7A3BE2009A5E32 /* libxml2.a in Frameworks */,
-				D19BC5062F7A3BE2009A5E32 /* libopc.a in Frameworks */,
-				D19BC5052F7A3BE2009A5E32 /* libplib.a in Frameworks */,
 				D19BC5032F7A3BA3009A5E32 /* libcrypto.a in Frameworks */,
+				D19BC5082F7A3BE2009A5E32 /* libxml2.a in Frameworks */,
 				D19BC5092F7A3BE2009A5E32 /* libiconv.a in Frameworks */,
+				D19BC5052F7A3BE2009A5E32 /* libplib.a in Frameworks */,
+				D19BC5062F7A3BE2009A5E32 /* libopc.a in Frameworks */,
+				D17CCD0F2F7AC87900906912 /* libomp.a in Frameworks */,
 				D19BC5042F7A3BE2009A5E32 /* libmce.a in Frameworks */,
+				D17CCD0C2F7AC87900906912 /* libucd.a in Frameworks */,
 				D19BC50A2F7A3BF4009A5E32 /* libz.tbd in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -477,13 +461,6 @@
 				LIBRARY_STYLE = Bundle;
 				MACOSX_DEPLOYMENT_TARGET = 11.5;
 				OTHER_CFLAGS = "";
-				OTHER_CPLUSPLUSFLAGS = (
-					"-DEIGEN_USE_BLAS",
-					"-flto",
-					"-Xpreprocessor",
-					"-fopenmp",
-					"-march=native",
-				);
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.4D.Universal-Document-Parser";
@@ -553,7 +530,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -604,7 +580,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -641,14 +616,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.8;
 				OBJROOT = "$(SRCROOT)/build";
-				OTHER_CPLUSPLUSFLAGS = (
-					"-DEIGEN_USE_BLAS",
-					"-flto",
-					"-Xpreprocessor",
-					"-fopenmp",
-					"-mavx2",
-					"-mfma",
-				);
 				SDKROOT = macosx;
 				SYMROOT = "$(SRCROOT)/test/Plugins";
 				WARNING_CFLAGS = (
@@ -663,7 +630,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;

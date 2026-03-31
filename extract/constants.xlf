@@ -44,39 +44,4 @@
             <source>Extract Output Collection</source>
         </trans-unit>
     </group>
-    <group resname="themes">
-        <trans-unit id="" resname="C6A8BAB0C00142509221132F6EC4F17A" translate="no">
-            <source>Extract Pooling Type</source>
-        </trans-unit>
-    </group>
-    <group restype="x-4DK#" d4:groupName="C6A8BAB0C00142509221132F6EC4F17A">
-        <trans-unit d4:value="0:L" id="C6A8BAB0C00142509221132F6EC4F17A.1">
-            <source>Extract Pooling Mean</source>
-        </trans-unit>
-        <trans-unit d4:value="1:L" id="C6A8BAB0C00142509221132F6EC4F17A.2">
-            <source>Extract Pooling Multi Vector</source>
-        </trans-unit>
-        <trans-unit d4:value="2:L" id="C6A8BAB0C00142509221132F6EC4F17A.3">
-            <source>Extract Pooling CLS</source>
-        </trans-unit>
-        <trans-unit d4:value="3:L" id="C6A8BAB0C00142509221132F6EC4F17A.4">
-            <source>Extract Pooling Last Token</source>
-        </trans-unit>
-        <trans-unit d4:value="4:L" id="C6A8BAB0C00142509221132F6EC4F17A.5">
-            <source>Extract Pooling E2E</source>
-        </trans-unit>
-    </group>
-    <group resname="themes">
-        <trans-unit id="" resname="2AD5937D90ED446BAC72E7A156710F15" translate="no">
-            <source>Embedding Type</source>
-        </trans-unit>
-    </group>
-    <group restype="x-4DK#" d4:groupName="2AD5937D90ED446BAC72E7A156710F15">
-        <trans-unit d4:value="0:L" id="2AD5937D90ED446BAC72E7A156710F15.1">
-            <source>Embedding Simple</source>
-        </trans-unit>
-        <trans-unit d4:value="1:L" id="2AD5937D90ED446BAC72E7A156710F15.2">
-            <source>Embedding Contextual</source>
-        </trans-unit>
-    </group>
 </xliff>
