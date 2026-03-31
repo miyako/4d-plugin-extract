@@ -284,7 +284,13 @@ void Extract(PA_PluginParameters params) {
         if (file) {
             if (file_object_to_path(file, path)) {
                 std::cerr << "path:" << path << std::endl;
-                FILE *f = _fopen(path.c_str(), _rb);
+#if VERSIONWIN
+                C_TEXT t;
+                t.setUTF8String((const uint8_t *)path.c_str(), path.length());
+                FILE* f = _fopen((const wchar_t *)t.getUTF16StringPtr(), _rb);
+#else
+                FILE* f = _fopen(path.c_str(), _rb);
+#endif
                 if(f) {
                     _fseek(f, 0, SEEK_END);
                     size_t len = (size_t)_ftell(f);
@@ -1052,7 +1058,7 @@ void Embeddings_Setup(PA_PluginParameters params) {
                         session_options.AddConfigEntry("session.intra_op.allow_spinning", "0");
                         Ort::ThrowOnError(RegisterCustomOps((OrtSessionOptions*)session_options, OrtGetApiBase()));
 #ifdef WIN32
-                    embeddings_session = std::make_unique<Ort::Session>(*embeddings_env, embedding_model_path_u16.c_str(), session_options);
+                    embeddings_session = std::make_unique<Ort::Session>(*embeddings_env, utf8_to_wstring(embedding_model_path).c_str(), session_options);
 #else
                     embeddings_session = std::make_unique<Ort::Session>(*embeddings_env, embedding_model_path.c_str(), session_options);
 #endif

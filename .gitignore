@@ -5,3 +5,9 @@ extract/Universal Document Parser.xcodeproj/xcuserdata/*
 extract/test/Project/DerivedData/methodAttributes.json
 extract/test/Data/*
 extract/test/Project/DerivedData/*
+extract/.vs/*
+extract/Objs/*
+extract/test/Plugins/Universal Document Parser.bundle/Contents/Windows64/Universal Document Parser.pdb
+extract/test/Plugins/Universal Document Parser.bundle/Contents/Windows64/Universal Document Parser.lib
+extract/Universa.4331e269/x64/*
+extract/test/Plugins/Universal Document Parser.bundle/Contents/Windows64/Universal Document Parser.exp
