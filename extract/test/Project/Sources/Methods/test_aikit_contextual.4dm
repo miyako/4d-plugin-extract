@@ -3,7 +3,6 @@ var $file : 4D:C1709.File
 var $extracted : Object
 
 $file:=File:C1566("/RESOURCES/sample.xlsx")
-//$file:=Folder(fk desktop folder).file("D100022700.xlsx")
 
 $task:={\
 file: $file; \
