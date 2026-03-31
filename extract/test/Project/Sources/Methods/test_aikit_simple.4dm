@@ -3,7 +3,7 @@ var $file : 4D:C1709.File
 var $extracted : Object
 
 $file:=File:C1566("/RESOURCES/sample.xlsx")
-$file:=Folder:C1567(fk desktop folder:K87:19).file("D100022700.xlsx")
+//$file:=Folder(fk desktop folder).file("D100022700.xlsx")
 
 $task:={\
 file: $file; \
@@ -47,4 +47,7 @@ If ($extracted.success)
 	$duration_embeddings:=Abs:C99(Milliseconds:C459-$start_embeddings)
 End if 
 
-ALERT:C41(JSON Stringify:C1217({extraction: $duration_extraction; embeddings: $duration_embeddings; count: $results.length}; *))
+ALERT:C41(JSON Stringify:C1217({\
+extraction: $duration_extraction; \
+embeddings: $duration_embeddings; \
+count: $results.length; average: String:C10($results.length/(($duration_extraction+$duration_embeddings)/1000); "#####.0")+" embeddings per second"}; *))
