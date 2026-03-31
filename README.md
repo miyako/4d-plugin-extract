@@ -156,3 +156,5 @@ extraction: $duration_extraction; \
 embeddings: $duration_embeddings; \
 count: $results.length; average: String($results.length/(($duration_extraction+$duration_embeddings)/1000); "#####.0")+" embeddings per second"}; *))
 ```
+
+The scope of each `inputs` array and its contents are arbitrarty. It can be sentence-paragraph, paragraph-page, or even page-document.
