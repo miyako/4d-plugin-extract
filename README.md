@@ -8,7 +8,7 @@ Universal Document Parser
 
 ## Abstract
 
-This plugin is designed to extract text from various document types in a chunked format which be passed directly to one of the following endpoints:
+Extract text from various document types in a chunked format which be passed directly to one of the following endpoints:
 
 - `embeddings`
 - `contextualizedembeddings`
