@@ -29,6 +29,9 @@ $extracted:=Extract(Extract Document XLSX; Extract Output Collection; $task)
 $duration_extraction:=Abs(Milliseconds-$start_extraction)
 
 If ($extracted.success)
+	var $AIClient : cs.AIKit.OpenAI
+	$AIClient:=cs.AIKit.OpenAI.new()
+	$AIClient.baseURL:="http://127.0.0.1:8080/v1"
 	var $results : Collection
 	$results:=[]
 	var $page : Object
@@ -38,8 +41,8 @@ If ($extracted.success)
 		$paragraphs:=$page.inputs  //paragraphs in page
 		var $paragraph : Collection
 		For each ($paragraph; $paragraphs)
-			var $batch : Object
-			$batch:=Embeddings({input: $paragraph}; Embedding Simple)
+			var $batch : cs.AIKit.OpenAIEmbeddingsResult
+			$batch:=$AIClient.embeddings.create($paragraph)
 			//result is 1 vector per sentence in paragraph, no context
 			If ($batch.success)
 				var $sentences : Collection
@@ -57,7 +60,10 @@ If ($extracted.success)
 	$duration_embeddings:=Abs(Milliseconds-$start_embeddings)
 End if 
 
-ALERT(JSON Stringify({extraction: $duration_extraction; embeddings: $duration_embeddings; count: $results.length}; *))
+ALERT(JSON Stringify({\
+extraction: $duration_extraction; \
+embeddings: $duration_embeddings; \
+count: $results.length; average: String($results.length/(($duration_extraction+$duration_embeddings)/1000); "#####.0")+" embeddings per second"}; *))
 ```
 
 ## Contextualized Embeddings
@@ -81,6 +87,9 @@ $extracted:=Extract(Extract Document XLSX; Extract Output Collection; $task)
 $duration_extraction:=Abs(Milliseconds-$start_extraction)
 
 If ($extracted.success)
+	var $AIClient : cs.AIKit.OpenAI
+	$AIClient:=cs.AIKit.OpenAI.new()
+	$AIClient.baseURL:="http://127.0.0.1:8080/v1/contextualized"
 	var $results : Collection
 	$results:=[]
 	var $page : Object
@@ -89,12 +98,12 @@ If ($extracted.success)
 	$start_embeddings:=Milliseconds
 	For each ($page; $extracted.pages)
 		$paragraphs:=$page.inputs  //paragraphs in page
-		$len:=9  //number of paragraphs to process 
+		$len:=4  //number of paragraphs to process 
 		$pos:=0  //slicing offset
 		$inputs:=$paragraphs.slice($pos; $pos+$len)
-		var $batch : Object
+		var $batch : cs.AIKit.OpenAIEmbeddingsResult
 		While ($inputs.length#0)
-			$batch:=Embeddings({input: $inputs}; Embedding Contextual)
+			$batch:=$AIClient.embeddings.create($inputs)
 			//result is 1 vector per sentence, where context=paragraph
 			If ($batch.success)
 				var $sentences : Collection
@@ -114,5 +123,8 @@ If ($extracted.success)
 	$duration_embeddings:=Abs(Milliseconds-$start_embeddings)
 End if 
 
-ALERT(JSON Stringify({extraction: $duration_extraction; embeddings: $duration_embeddings; count: $results.length}; *))
+ALERT(JSON Stringify({\
+extraction: $duration_extraction; \
+embeddings: $duration_embeddings; \
+count: $results.length; average: String($results.length/(($duration_extraction+$duration_embeddings)/1000); "#####.0")+" embeddings per second"}; *))
 ```
