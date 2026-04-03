@@ -16,7 +16,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "8D01CCC60486CAD60068D4B7"
-               BuildableName = "Name.bundle"
+               BuildableName = "Universal Document Parser.bundle"
                BlueprintName = "Universal Document Parser"
                ReferencedContainer = "container:Universal Document Parser.xcodeproj">
             </BuildableReference>
@@ -55,7 +55,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "8D01CCC60486CAD60068D4B7"
-            BuildableName = "Name.bundle"
+            BuildableName = "Universal Document Parser.bundle"
             BlueprintName = "Universal Document Parser"
             ReferencedContainer = "container:Universal Document Parser.xcodeproj">
          </BuildableReference>
