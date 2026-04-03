@@ -189,7 +189,7 @@ void Extract(PA_PluginParameters params) {
         if(ob_get_s(document, L"password", &_password))
            password = (const char *)_password.c_str();
         
-        int max_paragraph_length = 100;
+        int max_paragraph_length = -1;
         if(ob_is_defined(document, L"max_paragraph_length")) {
             int intValue = (int)ob_get_n(document, L"max_paragraph_length");
             if(intValue > 0) {

@@ -178,44 +178,55 @@ static void document_to_json_ss(Workbook& document,
                 ob_set_s(sheetMetaNode, "name", sheet.name.c_str());
                 ob_set_o(sheetNode, "meta", sheetMetaNode);
                 PA_CollectionRef paragraphs = PA_CreateCollection();
-                //no need for colIdx, rowIdx, joined
                 for (const auto &row : sheet.rows) {
                     PA_CollectionRef values = PA_CreateCollection();
-                    bool emptyRow = true;
-                    int paragraph_length = 0;
+                    std::unordered_set<std::string> seen_value;
                     std::unordered_set<std::string> seen;
+                    int paragraph_length = 0;
+                    std::string joined;
                     for (const auto &cell : row.cells) {
                         if(cell.empty())
                             continue;
-                        
-                        if ((unique_values_only) && (!seen.insert(cell).second)) {
-//                            std::cerr << "skip duplicate value:" << cell << std::endl;
+
+                        if ((unique_values_only) && (!seen_value.insert(cell).second)) {
                             continue;
                         }
-                        emptyRow = false;
-                        emptyCol = false;
+                        
+                        if(!joined.empty()) joined += " ";
+                        
+                        joined += cell;
                         ob_append_s(values, cell);
-
-                        if (max_paragraph_length > 0) {
-                            paragraph_length++;
-                            if (paragraph_length == max_paragraph_length) {
-//                                std::cerr << "abort paragraph at length:" << paragraph_length << std::endl;
-                                goto row_parsed_collection;
-                            }
-                        }
                     }
-                    if(emptyRow) {
+                    
+                    if(joined.empty())
+                        continue;
+                    
+                    if ((unique_values_only) && (!seen.insert(joined).second)) {
                         continue;
                     }
-                row_parsed_collection:
-                    ob_append_c(paragraphs, values);
+                    
+                    emptyCol = false;
+                    
+                    ob_append_s(paragraphs, joined);
+                    
+                    if (max_paragraph_length > 0) {
+                        paragraph_length++;
+                        if (paragraph_length == max_paragraph_length) {
+                            ob_append_c(pages, paragraphs);
+                            paragraph_length = 0;
+                            emptyCol = true;
+                            paragraphs = PA_CreateCollection();
+                            continue;
+                        }
+                    }
                 }
-                if (emptyCol)
+                if (emptyCol) {
+                    //empty page
                     continue;
-                ob_set_c(sheetNode, "inputs", paragraphs);
-                ob_append_o(pages, sheetNode);
+                }
+                ob_append_c(pages, paragraphs);
             }
-            ob_set_c(documentNode, L"pages", pages);
+            ob_set_c(documentNode, L"inputs", pages);
         }
             break;
         case output_type_object:
@@ -300,26 +311,27 @@ static void document_to_json(Document& document,
             for (const auto &page : document.pages) {
                 bool emptyCol = true;
                 for (const auto &paragraph : page.paragraphs) {
-                    bool emptyRow = true;
                     std::string joined;
                     for (const auto &run : paragraph.runs) {
                         if(run.text.empty())
                             continue;
                         
-                        if (!joined.empty()) joined += " ";
                         joined += run.text;
-                        emptyRow = false;
-                        emptyCol = false;
                     }
-                    if(emptyRow) {
+                    
+                    if(joined.empty())
                         continue;
-                    }
+                    
+                    emptyCol = false;
+                    
                     if (!text.empty()) text += "\n";
                     text += joined.c_str();
                 }
-                if (emptyCol)
+                if (emptyCol) {
+                    //empty page
                     continue;
-                //pagenation here if necessary
+                }
+                //pagenation here
             }
             ob_set_s(documentNode, "text", text.c_str());
         }
@@ -330,51 +342,54 @@ static void document_to_json(Document& document,
             PA_CollectionRef pages = PA_CreateCollection();
             for (const auto &page : document.pages) {
                 bool emptyCol = true;
-                PA_ObjectRef pageNode = PA_CreateObject();
                 PA_CollectionRef paragraphs = PA_CreateCollection();
-                //no need for colIdx, rowIdx, joined
+                //no need for colIdx, rowIdx
+                std::unordered_set<std::string> seen;
+                int paragraph_length = 0;
                 for (const auto &paragraph : page.paragraphs) {
-                    PA_CollectionRef values = PA_CreateCollection();
-                    bool emptyRow = true;
-                    int paragraph_length = 0;
-                    std::unordered_set<std::string> seen;
+                    std::string joined;
                     for (const auto &run : paragraph.runs) {
                         if(run.text.empty())
                             continue;
                         
-                        if ((unique_values_only) && (!seen.insert(run.text).second)) {
-//                            std::cerr << "skip duplicate value:" << cell << std::endl;
-                            continue;
-                        }
-                        emptyRow = false;
-                        emptyCol = false;
-                        ob_append_s(values, run.text);
-                        
-                        if (max_paragraph_length > 0) {
-                            paragraph_length++;
-                            if (paragraph_length == max_paragraph_length) {
-//                                std::cerr << "abort paragraph at length:" << paragraph_length << std::endl;
-                                goto row_parsed_collection;
-                            }
-                        }
+                        joined += run.text;
                     }
-                    if(emptyRow) {
+                    
+                    if(joined.empty())
+                        continue;
+                    
+                    if ((unique_values_only) && (!seen.insert(joined).second)) {
                         continue;
                     }
-                row_parsed_collection:
-                    ob_append_c(paragraphs, values);
+                    
+                    emptyCol = false;
+                    
+                    ob_append_s(paragraphs, joined);
+                    
+                    if (max_paragraph_length > 0) {
+                        paragraph_length++;
+                        if (paragraph_length == max_paragraph_length) {
+                            ob_append_c(pages, paragraphs);
+                            paragraph_length = 0;
+                            emptyCol = true;
+                            paragraphs = PA_CreateCollection();
+                            continue;
+                        }
+                    }
                 }
-                if (emptyCol)
+                if (emptyCol) {
+                    //empty page
                     continue;
-                ob_set_c(pageNode, "inputs", paragraphs);
-                ob_append_o(pages, pageNode);
+                }
+                ob_append_c(pages, paragraphs);
             }
-            ob_set_c(documentNode, L"pages", pages);
+            ob_set_c(documentNode, L"inputs", pages);
         }
             break;
         case output_type_object:
         default:
         {
+            //ignore max_paragraph_length, unique_values_only
             ob_set_s(documentNode, "type", document.type.c_str());
             PA_CollectionRef pages = PA_CreateCollection();
             int colIdx = 0;
@@ -385,45 +400,29 @@ static void document_to_json(Document& document,
                 int rowIdx = 0; // physical sheet row index, increments regardless of empty rows
                 for (const auto &paragraph : page.paragraphs) {
                     PA_ObjectRef paragraphNode = PA_CreateObject();
-                    bool emptyRow = true;
                     std::string joined;
-                    int paragraph_length = 0;
-                    std::unordered_set<std::string> seen;
                     for (const auto &run : paragraph.runs) {
                         if(run.text.empty())
                             continue;
                         
-                        if ((unique_values_only) && (!seen.insert(run.text).second)) {
-//                            std::cerr << "skip duplicate value:" << cell << std::endl;
-                            continue;
-                        }
-                        
-                        if (!joined.empty()) joined += " ";
                         joined += run.text;
-                        emptyRow = false;
-                        emptyCol = false;
-                        
-                        if (max_paragraph_length > 0) {
-                            paragraph_length++;
-                            if (paragraph_length == max_paragraph_length) {
-//                                std::cerr << "abort paragraph at length:" << paragraph_length << std::endl;
-                                goto row_parsed_object;
-                            }
-                        }
                     }
-                    if(emptyRow) {
-                        rowIdx++;
+                    
+                    if(joined.empty())
                         continue;
-                    }
-                row_parsed_object:
-                        ob_set_n(paragraphNode, "index", rowIdx++);
-                        ob_set_s(paragraphNode, "text", joined.c_str());
-                        ob_append_o(paragraphs, paragraphNode);
+                    
+                    emptyCol = false;
+                                        
+                    ob_set_n(paragraphNode, "index", rowIdx++);
+                    ob_set_s(paragraphNode, "text", joined.c_str());
+                    ob_append_o(paragraphs, paragraphNode);
                 }
                 if (emptyCol) {
+                    //empty page
                     colIdx++;
                     continue;
                 }
+                ob_set_c(pageNode, "paragraphs", paragraphs);
                 ob_set_n(pageNode, "index", colIdx++);
                 ob_append_o(pages, pageNode);
             }
