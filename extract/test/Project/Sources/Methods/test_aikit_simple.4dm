@@ -11,7 +11,7 @@ max_paragraph_length: -1}
 //$task:={file: $file.getContent()}
 
 $start_extraction:=Milliseconds:C459
-$extracted:=Extract(Extract Document XLSX; Extract Output Collection; $task)
+$extracted:=Extract(Extract Document PPTX; Extract Output Collection; $task)
 $duration_extraction:=Abs:C99(Milliseconds:C459-$start_extraction)
 
 If ($extracted.success)
