@@ -43,8 +43,8 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 |Model|Output Format|Number of generated embeddings|Embeddings per second|Seconds per document
 |:-|-:|-:|-:|-:|
-|Harrier OSS v1.0 0.6b|Text|1|`3.717`|`0.269`
-
+|Harrier OSS v1.0 0.6b|Text|`1`|`3.717`|`0.269`
+|Harrier OSS v1.0 0.6b|Collection|`84`|`3.618`|`23.213`
 
 
 
