@@ -280,13 +280,21 @@ static void document_to_json(Document& document,
             std::string text = "";
             for (const auto &page : document.pages) {
                 for (const auto &paragraph : page.paragraphs) {
-                    std::string _text;
+                    bool emptyRow = true;
+                    std::string joined;
                     for (const auto &run : paragraph.runs) {
-                        _text += run.text;
+                        if(run.text.empty())
+                            continue;
+                        
+                        if (!joined.empty()) joined += " ";
+                        joined += run.text;
+                        emptyRow = false;
                     }
-                    if(_text.length() != 0){
-                        text += _text;
+                    if(emptyRow) {
+                        continue;
                     }
+                    if (!text.empty()) text += "\n";
+                    text += joined.c_str();
                 }
             }
             ob_set_s(documentNode, "text", text.c_str());
@@ -294,6 +302,7 @@ static void document_to_json(Document& document,
             break;
         case output_type_collection:
         {
+            
         }
             break;
         case output_type_object:
@@ -307,15 +316,38 @@ static void document_to_json(Document& document,
                 int rowIdx = 0; // physical sheet row index, increments regardless of empty rows
                 for (const auto &paragraph : page.paragraphs) {
                     PA_ObjectRef paragraphNode = PA_CreateObject();
-                    std::string _text;
+                    bool emptyRow = true;
+                    std::string joined;
+                    int paragraph_length = 0;
+                    std::unordered_set<std::string> seen;
                     for (const auto &run : paragraph.runs) {
-                        _text += run.text;
+                        if(run.text.empty())
+                            continue;
+                        
+                        if ((unique_values_only) && (!seen.insert(run.text).second)) {
+//                            std::cerr << "skip duplicate value:" << cell << std::endl;
+                            continue;
+                        }
+                        
+                        if (!joined.empty()) joined += " ";
+                        joined += run.text;
+                        emptyRow = false;
+
+                        if (max_paragraph_length > 0) {
+                            paragraph_length++;
+                            if (paragraph_length == max_paragraph_length) {
+//                                std::cerr << "abort paragraph at length:" << paragraph_length << std::endl;
+                                goto row_parsed_object;
+                            }
+                        }
                     }
-                    if(_text.length() != 0){
+                    if(emptyRow) {
+                        continue;
+                    }
+                row_parsed_object:
                         ob_set_n(paragraphNode, "index", rowIdx++);
-                        ob_set_s(paragraphNode, "text", _text.c_str());
+                        ob_set_s(paragraphNode, "text", joined.c_str());
                         ob_append_o(paragraphs, paragraphNode);
-                    }
                 }
                 ob_append_o(pages, pageNode);
             }
@@ -680,7 +712,7 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                         Page _page;
                         document.pages.push_back(_page);
                         process_document(doc_root, document, "p", type);
-                        document_to_json(document, text, false);
+                        document_to_json(document, obj, mode, max_paragraph_length, unique_values_only);
                         xmlFreeDoc(xml_doc);
                     }
                 }
@@ -747,30 +779,6 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                         }
                     }
                 }
-                
-                /*
-                int i = 0;
-                opcPart slide = NULL;
-                do {
-                    i++;
-                    std::vector<char>buf(1024);
-                    snprintf(buf.data(), buf.size(), "/xl/worksheets/sheet%d.xml", i);
-                    std::string slideName(buf.data());
-                    slide = opcPartFind(container, _X(slideName.c_str()), NULL, 0);
-                    if(slide){
-                        xmlDoc *xml_slide = parse_opc_part(container, slide);
-                        if(xml_slide) {
-                            xmlNode *slide_root = xmlDocGetRootElement(xml_slide);
-                            if(slide_root) {
-                                Sheet sheet;
-                                workbook.sheets.push_back(sheet);
-                                process_worksheet(slide_root, workbook, "row", sst);
-                            }
-                            xmlFreeDoc(xml_slide);
-                        }
-                    }
-                } while (slide);
-                */
                 document_to_json_ss(workbook, obj, mode, max_paragraph_length, unique_values_only);
             }
                 break;
@@ -797,7 +805,7 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                         }
                     }
                 } while (slide);
-                document_to_json(document, text, false);
+                document_to_json(document, obj, mode, max_paragraph_length, unique_values_only);
             }
                 break;
             default:
