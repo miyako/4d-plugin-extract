@@ -164,7 +164,7 @@ static void document_to_json_ss(Workbook& document,
                     continue;
                 //pagenation here if necessary
             }
-            ob_set_s(documentNode, "text", text.c_str());
+            ob_set_s(documentNode, "input", text.c_str());
         }
             break;
         case output_type_collection:
@@ -333,7 +333,7 @@ static void document_to_json(Document& document,
                 }
                 //pagenation here
             }
-            ob_set_s(documentNode, "text", text.c_str());
+            ob_set_s(documentNode, "input", text.c_str());
         }
             break;
         case output_type_collection:
