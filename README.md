@@ -36,7 +36,8 @@ This is the main function. Pass the document type, output format, and a `task` o
 |:-|-:|-
 |`Extract Output Object`|`0`|For custom processing 
 |`Extract Output Text`|`1`|Suitable for **OpenAI** style `embeddings` API, decoder-only model 
-|`Extract Output Collection`|`2`|Suitable for **Voyage AI** style `contextualizedembeddings` API 
+|`Extract Output Collection`|`2`|Suitable for **OpenAI** style `embeddings` API, encoder-only model 
+|`Extract Output Collections`|`3`|Suitable for **Voyage AI** style `contextualizedembeddings` API 
 
 ### Performace Comparison
 
