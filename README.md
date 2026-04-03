@@ -34,7 +34,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 |Constant|Value|Description
 |:-|-:|-
-|`Extract Output Object`|`0`|Suitable for **OpenAI** style `embeddings` API, encoder-only model 
+|`Extract Output Object`|`0`|For custom processing 
 |`Extract Output Text`|`1`|Suitable for **OpenAI** style `embeddings` API, decoder-only model 
 |`Extract Output Collection`|`2`|Suitable for **Voyage AI** style `contextualizedembeddings` API 
 
