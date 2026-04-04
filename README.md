@@ -78,8 +78,10 @@ This is a distilled version of the `27b` model.
 |~`5000`|`0.3`~`1.8`|`0.2`~`1.5`|`0.2`~`1.0`|`0.1`~`0.9`
 |~`1000`|`0.1`~`0.2`|`0.16`~`0.19`|`0.05`~`0.11`|`0.04`~`0.08`
 
-`15` seconds * `1` million (documents) = `173.61` days
-
+- `15` seconds * `1` million (documents) = `173.61` days
+- `1` second * `1` million = `11.57` days
+- `0.1` seconds * `1` million = `1.15` days
+ 
 ## Example
 
 ```4d
