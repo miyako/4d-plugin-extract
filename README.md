@@ -83,8 +83,8 @@ This is a distilled version of the `27b` model.
 ```4d
 var $query : Text
 
-$q:="Intissar and Sara talks about the latest AI Kit feature"
-$query:="Instruct: Retrieve text that matches the passage\nPassage: "+$q
+$q:="Who talked about the latest 4D AI Kit feature?"
+$query:="Instruct: Retrieve text that answers the query\nQuery: "+$q
 
 var $AIClient : cs.AIKit.OpenAI
 $AIClient:=cs.AIKit.OpenAI.new()
@@ -98,42 +98,13 @@ $reranked:=[]
 
 If ($batch.success)
 	$vector:=$batch.embedding.embedding
-	var $comparison:={vector: $vector; metric: mk cosine; threshold: 0.5}
+	var $comparison:={vector: $vector; metric: mk cosine; threshold: 0.6}
 	var $results:=ds.Documents.query("embeddings > :1"; $comparison)
 	If ($results.length#0)
-		
-		var $AIReranker : cs.AIKit.Reranker
-		$AIReranker:=cs.AIKit.Reranker.new({baseURL: "http://127.0.0.1:8081/v1"})
-		var $RerankerParameters:=cs.AIKit.RerankerParameters.new({top_n: 6})
-		
-		$documents:=$results.extract("ID"; "ID"; "text.text"; "documents")
-		
-		For each ($document; $documents)
-			
-			var $RerankerQuery:=cs.AIKit.RerankerQuery.new({\
-			query: $query; \
-			documents: $document.documents})
-			
-			$batch:=$AIReranker.rerank.create($RerankerQuery; $RerankerParameters)
-			If ($batch.success)
-				For each ($result; $batch.results)
-					$reranked.push({\
-					ID: $document.ID; \
-					score: $result.relevance_score; \
-					text: $document.documents.at($result.index)})
-				End for each 
-			Else 
-				TRACE
-			End if 
-		End for each 
+		ALERT(JSON Stringify($results.text.extract("text").flat(); *))
 	End if 
 End if 
-
-$reranked:=$reranked.orderBy("score desc")
-
-ALERT(JSON Stringify($reranked; *))
 ```
 
-<img width="480" height="542" alt="Screenshot 2026-04-04 at 14 53 09" src="https://github.com/user-attachments/assets/7e7d2282-032d-48f0-b0f6-536de9783a87" />
-
+<img width="480" height="591" alt="Screenshot 2026-04-04 at 23 43 43" src="https://github.com/user-attachments/assets/abbe19a0-4aef-44cc-8834-93fff1b4f3c8" />
 
