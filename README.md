@@ -122,9 +122,6 @@ var $query : Text
 $q:="Intissar and Sara talks about the latest AI Kit feature"
 $query:="Instruct: Retrieve text that matches the passage\nPassage: "+$q
 
-$q:="Thibaud and Josh talks about the future of 4D"
-$query:="Instruct: Retrieve text that matches the passage\nPassage: "+$q
-
 var $AIClient : cs.AIKit.OpenAI
 $AIClient:=cs.AIKit.OpenAI.new()
 $AIClient.baseURL:="http://127.0.0.1:8080/v1"  // embeddings
@@ -161,16 +158,18 @@ If ($batch.success)
 					score: $result.relevance_score; \
 					text: $document.documents.at($result.index)})
 				End for each 
+			Else 
+				TRACE
 			End if 
 		End for each 
 	End if 
 End if 
 
-$reranked:=$reranked.orderBy("relevance_score desc").slice(0; 3)
+$reranked:=$reranked.orderBy("score desc")
 
 ALERT(JSON Stringify($reranked; *))
 ```
 
 <img width="480" height="542" alt="Screenshot 2026-04-04 at 14 53 09" src="https://github.com/user-attachments/assets/7e7d2282-032d-48f0-b0f6-536de9783a87" />
-<img width="480" height="542" alt="Screenshot 2026-04-04 at 14 52 50" src="https://github.com/user-attachments/assets/c947632f-7d43-4f05-982b-b148496b11cd" />
+
 
