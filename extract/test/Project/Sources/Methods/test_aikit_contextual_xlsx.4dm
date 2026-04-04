@@ -10,7 +10,7 @@ unique_values_only: True:C214; \
 max_paragraph_length: 10}
 
 $start_extraction:=Milliseconds:C459
-$extracted:=Extract(Extract Document XLSX; Extract Output Collection; $task)
+$extracted:=Extract(Extract Document XLSX; Extract Output Collections; $task)
 $duration_extraction:=Abs:C99(Milliseconds:C459-$start_extraction)
 
 If ($extracted.success)

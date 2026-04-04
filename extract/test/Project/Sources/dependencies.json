@@ -20,6 +20,10 @@
 		"onnx genai": {
 			"github": "miyako/onnx-genai",
 			"version": "latest"
+		},
+		"llama cpp": {
+			"github": "miyako/llama-cpp",
+			"version": "latest"
 		}
 	}
 }

@@ -1,4 +1,5 @@
 //%attributes = {"invisible":true}
+//harrier-oss-v1-0.6b
 var $file : 4D:C1709.File
 var $extracted : Object
 
@@ -33,10 +34,11 @@ expect collection of text
 End if 
 
 /*
+after the 1st request
 {
-"time": "11.942 seconds total",
+"time": "0.269 seconds total",
 "count": 1,
-"average": "0.083 embeddings per second"
+"average": "3.717 embeddings per second"
 }
 */
 

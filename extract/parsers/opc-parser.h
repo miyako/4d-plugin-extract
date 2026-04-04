@@ -64,7 +64,8 @@ typedef enum {
 typedef enum {
     output_type_object = 0,
     output_type_text,
-    output_type_collection
+    output_type_collection,
+    output_type_collections
 }output_type;
 
 #include "C_TEXT.h"

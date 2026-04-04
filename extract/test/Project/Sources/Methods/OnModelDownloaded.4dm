@@ -5,11 +5,19 @@ var $folder : 4D:C1709.Folder
 var $file : 4D:C1709.File
 
 Case of 
+	: (OB Instance of:C1731($context; cs:C1710.event.error))
+		
+		ALERT:C41($context.message)
+		return 
+		
 	: (OB Instance of:C1731($context; cs:C1710.event.models))
 		
-		//this branch is executed in preemptive process
-		$folder:=$params.embeddings_model
-		$file:=$folder.file($params.embeddings_model_name)
+		$file:=This:C1470.options.model  //llama-server
+		
+		If ($file=Null:C1517)  //onnx-genai
+			$folder:=This:C1470.options.embeddings_model
+			$file:=$folder.file(This:C1470.options.embeddings_model_name)
+		End if 
 		
 	Else 
 		
@@ -17,7 +25,11 @@ Case of
 		var $huggingface : cs:C1710.event.huggingface
 		$huggingface:=$params.huggingfaces.huggingfaces.first()
 		$folder:=$huggingface.folder
-		$file:=$folder.file($huggingface.name)
+		If ($huggingface.name#"")  //ONNX
+			$file:=$folder.file($huggingface.name)
+		Else 
+			$file:=$folder.file($huggingface.path)
+		End if 
 		
 End case 
 

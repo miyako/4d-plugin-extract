@@ -33,4 +33,60 @@ $text:=(($URL="@-f16") || ($URL="@-f32")) ? "model.onnx" : "model_quantized.onnx
 $huggingface:=cs:C1710.event.huggingface.new($folder; $URL; $path; "embedding"; $text)
 $huggingfaces:=cs:C1710.event.huggingfaces.new([$huggingface])
 
-$ONNX:=cs:C1710.ONNX.ONNX.new($port; $huggingfaces; $homeFolder; $options; $event)
+var $ONNX : cs:C1710.ONNX.ONNX
+//$ONNX:=cs.ONNX.ONNX.new($port; $huggingfaces; $homeFolder; $options; $event)
+
+$homeFolder:=Folder:C1567(fk home folder:K87:24).folder(".GGUF")
+
+var $max_position_embeddings; $batch_size; $parallel; $threads; $batches : Integer
+
+Case of 
+	: (False:C215)  //decoder
+		
+		$folder:=$homeFolder.folder("harrier-oss-v1-0.6b")
+		$path:="harrier-oss-v1-0.6b-Q8_0.gguf"
+		$URL:="keisuke-miyako/harrier-oss-v1-0.6b-gguf-q8_0"
+		
+		$max_position_embeddings:=32768
+		
+	: (True:C214)  //encoder
+		
+		$folder:=$homeFolder.folder("granite-embedding-english-r2")
+		$path:="granite-embedding-english-r2-Q8_0.gguf"
+		$URL:="keisuke-miyako/granite-embedding-english-r2-gguf-q8_0"
+		
+		$max_position_embeddings:=8192
+		
+End case 
+
+$batch_size:=$max_position_embeddings
+$batches:=1
+$threads:=8  // M1 Pro P-cores; don't derive this dynamically
+
+var $logFile : 4D:C1709.File
+$logFile:=$folder.file("llama.log")
+$folder.create()
+If (Not:C34($logFile.exists))
+	$logFile.setContent(4D:C1709.Blob.new())
+End if 
+
+$port:=8080
+$options:={\
+embeddings: True:C214; \
+pooling: "last"; \
+log_file: $logFile; \
+ctx_size: $max_position_embeddings*$batches; \
+batch_size: $batch_size; \
+ubatch_size: 2048; \
+parallel: $batches; \
+threads: $threads; \
+threads_batch: $threads; \
+threads_http: 2; \
+log_disable: False:C215; \
+n_gpu_layers: 0}
+
+$huggingface:=cs:C1710.event.huggingface.new($folder; $URL; $path)
+$huggingfaces:=cs:C1710.event.huggingfaces.new([$huggingface])
+
+var $llama : cs:C1710.llama.llama
+$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)

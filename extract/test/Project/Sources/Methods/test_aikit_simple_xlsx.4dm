@@ -17,7 +17,7 @@ If (True:C214)
 End if 
 
 $start_extraction:=Milliseconds:C459
-$extracted:=Extract(Extract Document XLSX; Extract Output Collection; $task)
+$extracted:=Extract(Extract Document XLSX; Extract Output Collections; $task)
 $duration_extraction:=Abs:C99(Milliseconds:C459-$start_extraction)
 
 If ($extracted.success)
