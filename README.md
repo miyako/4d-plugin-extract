@@ -48,6 +48,10 @@ This is the main function. Pass the document type, output format, and a `task` o
 |Granite Embedding English R2|Collection|`84`|`21.616`|`3.886`
 |Granite Embedding English R2|Collection|`835`|`136.728`|`6.107`
 
+#### Remarks
+
+The sample `.docx` file has `835` semantic chunks, or paragraphs. A decoder-only model can generate `1` embedding for the entire document in `0.269` seconds. This strategy prioritised speed over accuracy. An encoder-only model can generate `84` embeddings with `10%` chunks each in `3.886` seconds. This strategy balances speed and accuracy. The same encoder-only model can be configued to generate `1` embedding for each of the `835` semantic chunks in `6.107` seconds. This strategy is granular but lacks context.
+
 ### ONNX Runtime stats 
 
 |Model|Output Format|Embeddings per document|Embeddings per second|Seconds per document
@@ -55,6 +59,4 @@ This is the main function. Pass the document type, output format, and a `task` o
 |Granite Embedding English R2|Collection|`84`|`12.614`|`6.659`
 |Granite Embedding English R2|Collections|`835`|`19.108`|`43.698`
 
-#### Remarks
 
-The sample `.docx` file has `835` semantic chunks, or paragraphs. A decoder-only model can generate `1` embedding for the entire document in `0.269` seconds. This strategy prioritised speed over accuracy. An encoder-only model can generate `84` embeddings with `10%` chunks each in `3.886` seconds. This strategy balances speed and accuracy. The same encoder-only model can be configued to generate `1` embedding for each of the `835` semantic chunks in `6.107` seconds. This strategy is granular but lacks context.. 
