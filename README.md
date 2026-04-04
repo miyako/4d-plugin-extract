@@ -48,7 +48,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 - `input`: The document divided into semantic chunks. Use `unique_values_only` and `max_paragraph_length` to control sampling rules.
 
-#### `Extract Output Collection`  
+#### `Extract Output Collections`  
 
 - `inputs`: The document divided into chunks of semantic chunks. Use `unique_values_only` and `max_paragraph_length` to control sampling rules.
 
