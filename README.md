@@ -84,3 +84,11 @@ Use a ModernBERT encoder-only model with `8192` context length (e.g. Granite Emb
 Use a Qwen decoder-only model with `32768` context length (e.g. Harrier OSS v1.0 0.6b) to generate a single embedding for the entire document.
 
 For the best of both worlds, use a reranker model with `8192` context length (e.g. e.g. Granite Embedding Reranker English R2).
+
+## Example
+
+`llama-server` will consume about `7GB` of memory and `800%` CPU.
+
+<img width="740" height="384" alt="Screenshot 2026-04-04 at 13 42 40" src="https://github.com/user-attachments/assets/801c6bc2-f768-40cd-86c3-4452d3cf3af5" />
+
+
