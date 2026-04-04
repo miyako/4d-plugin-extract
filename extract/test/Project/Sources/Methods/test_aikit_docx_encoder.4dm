@@ -48,14 +48,22 @@ expect collection of text
 End if 
 
 /*
-granite
+granite onnx
+{
+"time": "13.206 seconds total",
+"count": 84,
+"average": "6.360 embeddings per second"
+}
+
+
+granite llama
 {
 "time": "4.45 seconds total",
 "count": 84,
 "average": "18.876 embeddings per second"
 }
 
-harrier
+harrier llama
 {
 "time": "23.213 seconds total",
 "count": 84,
