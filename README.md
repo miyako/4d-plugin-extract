@@ -45,7 +45,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 |:-|-:|-:|-:|-:|
 |Harrier OSS v1.0 0.6b|Text|`1`|`3.717`|`0.269`
 |Harrier OSS v1.0 0.6b|Collection|`84`|`3.618`|`23.213`
-|Granite Embedding English R2|Collection|`84`|`18.876`|`4.45`
+|Granite Embedding English R2|Collection|`84`|`21.616`|`3.886`
 
 ### ONNX Runtime stats 
 
