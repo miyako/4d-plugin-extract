@@ -27,8 +27,8 @@ This is the main function. Pass the document type, output format, and a `task` o
 |File Extension|Constant|Value
 |-|-|-:|
 |xlsx|`Extract Document XLSX`|`0`|
-|docx|`Extract Document XLSX`|`1`|
-|pptc|`Extract Document XLSX`|`2`|
+|docx|`Extract Document DOCX`|`1`|
+|pptx|`Extract Document PPTX`|`2`|
 
 ### Supported Output Formats
 
@@ -39,134 +39,118 @@ This is the main function. Pass the document type, output format, and a `task` o
 |`Extract Output Collection`|`2`|Suitable for **OpenAI** style `embeddings` API, encoder-only model 
 |`Extract Output Collections`|`3`|Suitable for **Voyage AI** style `contextualizedembeddings` API 
 
-### Performace Comparison
+#### `Extract Output Text`
+
+- `input`: The entire document text connatenated.
+- `documents`: The document divided into semantic chunks. Same as the `input` collection as `Extract Output Collection`
+
+#### `Extract Output Collection`  
+
+- `input`: The document divided into semantic chunks. Use `unique_values_only` and `max_paragraph_length` to control sampling rules.
+
+#### `Extract Output Collections`  
+
+- `inputs`: The document divided into chunks of semantic chunks. Use `unique_values_only` and `max_paragraph_length` to control sampling rules.
+
+### llama.cpp stats 
+
+#### Decoder-only Embeddings
 
 |Model|Output Format|Embeddings per document|Embeddings per second|Seconds per document
 |:-|-:|-:|-:|-:|
 |Harrier OSS v1.0 0.6b|Text|`1`|`3.717`|`0.269`
 |Harrier OSS v1.0 0.6b|Collection|`84`|`3.618`|`23.213`
-|Granite Embedding English R2|Collection|`84`|`18.876`|`4.45`
+|Harrier OSS v1.0 0.6b|Collection|`835`|`30.457`|`27.415`
 
+#### Encoder-only Embeddings
 
-## Simple Embeddings 
+|Model|Output Format|Embeddings per document|Embeddings per second|Seconds per document
+|:-|-:|-:|-:|-:|
+|Granite Embedding English R2|Collection|`84`|`21.616`|`3.886`
+|Granite Embedding English R2|Collection|`835`|`136.728`|`6.107`
 
-_Each sentence is vectorized independently._
+#### Remarks
+
+The sample `.docx` file has `835` semantic chunks, or paragraphs. 
+
+A decoder-only model can generate `1` embedding for the entire document in `0.269` seconds. This strategy prioritised speed over relevance. The same decoder-only model can generate `1` embedding for each of the `835` semantic chunks in `27.415` seconds. Using a decoder-only model with small chunks is rather wasteful.
+
+An encoder-only model can generate `84` embeddings with up to `100` chunks each in `3.886` seconds. This strategy balances speed and relevance. The same encoder-only model can generate `1` embedding for each of the `835` semantic chunks in `6.107` seconds. This strategy is granular but lacks context awareness.
+
+## Suggestion
+
+Use a ModernBERT encoder-only model with `8192` context length (e.g. Granite Embedding English R2) to generate embeddings in chunks.
+
+Use a Qwen decoder-only model with `32768` context length (e.g. Harrier OSS v1.0 0.6b) to generate a single embedding for the entire document.
+
+For the best of both worlds, use a reranker model with `8192` context length (e.g. e.g. Granite Embedding Reranker English R2).
+
+## Example
+
+- harrier-oss-v1-0.6b-Q8_0.gguf
+
+`llama-server` will consume about `7GB` of memory and `800%` CPU.
 
 ```4d
-var $file : 4D.File
-var $extracted : Object
+$batches:=1
+$threads:=8 
+$max_position_embeddings:=32768
+$pooling:="last"
+```
 
-$file:=File("/RESOURCES/sample.xlsx")
+<img width="740" height="384" alt="Screenshot 2026-04-04 at 13 42 40" src="https://github.com/user-attachments/assets/801c6bc2-f768-40cd-86c3-4452d3cf3af5" />
 
-$task:={\
-file: $file; \
-unique_values_only: True; \
-max_paragraph_length: -1}
-//$task:={file: $file.getContent()}
+```4d
+var $query : Text
 
-$start_extraction:=Milliseconds
-$extracted:=Extract(Extract Document XLSX; Extract Output Collection; $task)
-$duration_extraction:=Abs(Milliseconds-$start_extraction)
+$q:="Intissar and Sara talks about the latest AI Kit feature"
+$query:="Instruct: Retrieve text that matches the passage\nPassage: "+$q
 
-If ($extracted.success)
-	var $AIClient : cs.AIKit.OpenAI
-	$AIClient:=cs.AIKit.OpenAI.new()
-	$AIClient.baseURL:="http://127.0.0.1:8080/v1"
-	var $results : Collection
-	$results:=[]
-	var $page : Object
-	var $paragraphs : Collection
-	$start_embeddings:=Milliseconds
-	For each ($page; $extracted.pages)
-		$paragraphs:=$page.inputs  //paragraphs in page
-		var $paragraph : Collection
-		For each ($paragraph; $paragraphs)
-			var $batch : cs.AIKit.OpenAIEmbeddingsResult
-			$batch:=$AIClient.embeddings.create($paragraph)
-			//result is 1 vector per sentence in paragraph, no context
+$q:="Thibaud and Josh talks about the future of 4D"
+$query:="Instruct: Retrieve text that matches the passage\nPassage: "+$q
+
+var $AIClient : cs.AIKit.OpenAI
+$AIClient:=cs.AIKit.OpenAI.new()
+$AIClient.baseURL:="http://127.0.0.1:8080/v1"  // embeddings
+
+var $batch : Object
+$batch:=$AIClient.embeddings.create($query)
+
+var $reranked : Collection
+$reranked:=[]
+
+If ($batch.success)
+	$vector:=$batch.embedding.embedding
+	var $comparison:={vector: $vector; metric: mk cosine; threshold: 0.5}
+	var $results:=ds.Documents.query("embeddings > :1"; $comparison)
+	If ($results.length#0)
+		
+		var $AIReranker : cs.AIKit.Reranker
+		$AIReranker:=cs.AIKit.Reranker.new({baseURL: "http://127.0.0.1:8081/v1"})
+		var $RerankerParameters:=cs.AIKit.RerankerParameters.new({top_n: 6})
+		
+		$documents:=$results.extract("ID"; "ID"; "text.text"; "documents")
+		
+		For each ($document; $documents)
+			
+			var $RerankerQuery:=cs.AIKit.RerankerQuery.new({\
+			query: $query; \
+			documents: $document.documents})
+			
+			$batch:=$AIReranker.rerank.create($RerankerQuery; $RerankerParameters)
 			If ($batch.success)
-				var $sentences : Collection
-				$sentences:=$paragraph.flat()
-				var $embedding : Object
-				For each ($embedding; $batch.embeddings)
-					$vector:=$embedding.embedding
-					$index:=$embedding.index  //sentence id in batch
-					$text:=$sentences.at($index)
-					$results.push({vector: $vector; text: $text})
+				For each ($result; $batch.results)
+					$reranked.push({\
+					ID: $document.ID; \
+					score: $result.relevance_score; \
+					text: $document.documents.at($result.index)})
 				End for each 
 			End if 
 		End for each 
-	End for each 
-	$duration_embeddings:=Abs(Milliseconds-$start_embeddings)
+	End if 
 End if 
 
-ALERT(JSON Stringify({\
-extraction: $duration_extraction; \
-embeddings: $duration_embeddings; \
-count: $results.length; average: String($results.length/(($duration_extraction+$duration_embeddings)/1000); "#####.0")+" embeddings per second"}; *))
+$reranked:=$reranked.orderBy("relevance_score desc").slice(0; 3)
+
+ALERT(JSON Stringify($reranked; *))
 ```
-
-## Contextualized Embeddings
-
-_Each sentence is prefixed with paragraph context before vectorisation._
-
-```4d
-var $file : 4D.File
-var $extracted : Object
-
-$file:=File("/RESOURCES/sample.xlsx")
-
-$task:={\
-file: $file; \
-unique_values_only: True; \
-max_paragraph_length: -1}
-//$task:={file: $file.getContent()}
-
-$start_extraction:=Milliseconds
-$extracted:=Extract(Extract Document XLSX; Extract Output Collection; $task)
-$duration_extraction:=Abs(Milliseconds-$start_extraction)
-
-If ($extracted.success)
-	var $AIClient : cs.AIKit.OpenAI
-	$AIClient:=cs.AIKit.OpenAI.new()
-	$AIClient.baseURL:="http://127.0.0.1:8080/v1/contextualized"
-	var $results : Collection
-	$results:=[]
-	var $page : Object
-	var $paragraphs; $inputs : Collection
-	var $len; $pos : Integer
-	$start_embeddings:=Milliseconds
-	For each ($page; $extracted.pages)
-		$paragraphs:=$page.inputs  //paragraphs in page
-		$len:=4  //number of paragraphs to process 
-		$pos:=0  //slicing offset
-		$inputs:=$paragraphs.slice($pos; $pos+$len)
-		var $batch : cs.AIKit.OpenAIEmbeddingsResult
-		While ($inputs.length#0)
-			$batch:=$AIClient.embeddings.create($inputs)
-			//result is 1 vector per sentence, where context=paragraph
-			If ($batch.success)
-				var $sentences : Collection
-				$sentences:=$inputs.flat()
-				var $embedding : Object
-				For each ($embedding; $batch.embeddings)
-					$vector:=$embedding.embedding
-					$index:=$embedding.index  //sentence id in batch
-					$text:=$sentences.at($index)
-					$results.push({vector: $vector; text: $text})
-				End for each 
-			End if 
-			$pos+=$len
-			$inputs:=$paragraphs.slice($pos; $pos+$len)
-		End while 
-	End for each 
-	$duration_embeddings:=Abs(Milliseconds-$start_embeddings)
-End if 
-
-ALERT(JSON Stringify({\
-extraction: $duration_extraction; \
-embeddings: $duration_embeddings; \
-count: $results.length; average: String($results.length/(($duration_extraction+$duration_embeddings)/1000); "#####.0")+" embeddings per second"}; *))
-```
-
-The scope of each `inputs` array and its contents are arbitrarty. It can be sentence-paragraph, paragraph-page, or even page-document.
