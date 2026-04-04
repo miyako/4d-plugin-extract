@@ -98,20 +98,20 @@ $reranked:=[]
 
 If ($batch.success)
 	$vector:=$batch.embedding.embedding
-	var $comparison:={vector: $vector; metric: mk cosine; threshold: 0.5}
+	var $comparison:={vector: $vector; metric: mk cosine; threshold: 0.6}
 	var $results:=ds.Documents.query("embeddings > :1"; $comparison)
 	If ($results.length#0)
 		
 		var $AIReranker : cs.AIKit.Reranker
 		$AIReranker:=cs.AIKit.Reranker.new({baseURL: "http://127.0.0.1:8081/v1"})
-		var $RerankerParameters:=cs.AIKit.RerankerParameters.new({top_n: 6})
+		var $RerankerParameters:=cs.AIKit.RerankerParameters.new({top_n: 3})
 		
 		$documents:=$results.extract("ID"; "ID"; "text.text"; "documents")
 		
 		For each ($document; $documents)
 			
 			var $RerankerQuery:=cs.AIKit.RerankerQuery.new({\
-			query: $query; \
+			query: $q; \
 			documents: $document.documents})
 			
 			$batch:=$AIReranker.rerank.create($RerankerQuery; $RerankerParameters)
@@ -129,7 +129,7 @@ If ($batch.success)
 	End if 
 End if 
 
-$reranked:=$reranked.orderBy("score desc")
+$reranked:=$reranked.orderBy("score desc").slice(0; 10)
 
 ALERT(JSON Stringify($reranked; *))
 ```
