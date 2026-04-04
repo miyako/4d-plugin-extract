@@ -1,5 +1,4 @@
 //%attributes = {"invisible":true}
-//harrier-oss-v1-0.6b
 var $file : 4D:C1709.File
 var $extracted : Object
 

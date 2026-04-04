@@ -7,7 +7,12 @@ $file:=File:C1566("/RESOURCES/sample.docx")
 $task:={\
 file: $file; \
 unique_values_only: True:C214; \
-max_paragraph_length: 10}
+max_paragraph_length: 100}
+
+/*
+max_paragraph_length: n
+each [] will contain up to n paragraphs
+*/
 
 $start_extraction:=Milliseconds:C459
 $extracted:=Extract(Extract Document DOCX; Extract Output Collections; $task)
@@ -23,12 +28,11 @@ expect collection of collection of text
 */
 	var $results : Collection
 	$results:=[]
-	var $page : Object
 	var $paragraphs; $inputs : Collection
 	var $len; $pos : Integer
 	$start_embeddings:=Milliseconds:C459
 	$paragraphs:=$extracted.inputs  //paragraphs in page
-	$len:=4  //number of paragraphs to process 
+	$len:=1  //number of paragraphs to process 
 	$pos:=0  //slicing offset
 	$inputs:=$paragraphs.slice($pos; $pos+$len)
 	var $batch : cs:C1710.AIKit.OpenAIEmbeddingsResult
@@ -52,10 +56,17 @@ expect collection of collection of text
 End if 
 
 /*
+pplx
 {
-"time": "86.242 seconds total",
+"time": "1136.722 seconds total",
 "count": 835,
-"average": "9.682 embeddings per second"
+"average": "0.734 embeddings per second"
+}
+granite
+{
+"time": "43.698 seconds total",
+"count": 835,
+"average": "19.108 embeddings per second"
 }
 */
 

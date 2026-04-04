@@ -11,7 +11,7 @@ max_paragraph_length: 10}
 
 /*
 max_paragraph_length: n
-each [] will contain up to n paragraphs
+each [] will contain up to n lines
 */
 
 $start_extraction:=Milliseconds:C459
@@ -28,39 +28,52 @@ expect collection of text
 */
 	var $results : Collection
 	$results:=[]
-	var $page : Object
-	var $paragraphs : Collection
+	var $paragraphs; $input : Collection
+	var $len; $pos : Integer
 	$start_embeddings:=Milliseconds:C459
+	$paragraphs:=$extracted.input
+	$len:=4  //number of paragraphs to process 
+	$pos:=0  //slicing offset
+	$input:=$paragraphs.slice($pos; $pos+$len)
 	var $batch : cs:C1710.AIKit.OpenAIEmbeddingsResult
-	$batch:=$AIClient.embeddings.create($extracted.input)
-	If ($batch.success)
-		var $sentences : Collection
-		$sentences:=$extracted.input
-		var $embedding : Object
-		For each ($embedding; $batch.embeddings)
-			$vector:=$embedding.embedding
-			$index:=$embedding.index  //sentence id in batch
-			$text:=$sentences.at($index)
-			$results.push({vector: $vector; text: $text})
-		End for each 
-	End if 
+	While ($input.length#0)
+		$batch:=$AIClient.embeddings.create($input)
+		If ($batch.success)
+			var $sentences : Collection
+			$sentences:=$extracted.input
+			var $embedding : Object
+			For each ($embedding; $batch.embeddings)
+				$vector:=$embedding.embedding
+				$index:=$embedding.index  //sentence id in batch
+				$text:=$sentences.at($index)
+				$results.push({vector: $vector; text: $text})
+			End for each 
+		End if 
+		$pos+=$len
+		$input:=$paragraphs.slice($pos; $pos+$len)
+	End while 
 	$duration_embeddings:=Abs:C99(Milliseconds:C459-$start_embeddings)
 End if 
 
 /*
+
 granite onnx
 {
-"time": "13.206 seconds total",
+"time": "6.659 seconds total",
 "count": 84,
-"average": "6.360 embeddings per second"
+"average": "12.614 embeddings per second"
 }
-
 
 granite llama
 {
-"time": "4.45 seconds total",
+"time": "3.886 seconds total",
 "count": 84,
-"average": "18.876 embeddings per second"
+"average": "21.616 embeddings per second"
+},
+{
+"time": "6.107 seconds total",
+"count": 835,
+"average": "136.728 embeddings per second"
 }
 
 harrier llama
@@ -68,7 +81,13 @@ harrier llama
 "time": "23.213 seconds total",
 "count": 84,
 "average": "3.618 embeddings per second"
+},
+{
+"time": "27.415 seconds total",
+"count": 835,
+"average": "30.457 embeddings per second"
 }
+
 */
 
 ALERT:C41(JSON Stringify:C1217({\
