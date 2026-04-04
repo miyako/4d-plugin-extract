@@ -75,7 +75,7 @@ The sample `.docx` file has `835` semantic chunks, or paragraphs.
 
 A decoder-only model can generate `1` embedding for the entire document in `0.269` seconds if the model and graph are fully loaded in memory. Otherwise it will take longer. This strategy prioritises speed over relevance. The same decoder-only model can generate `1` embedding for each of the `835` semantic chunks, or  `84` embeddings with up to `100` chunks each in about the same time. It is more efficient to create `1` embedding for the whole document.
 
-An encoder-only model can generate `84` embeddings with up to `100` chunks each in `3.886` seconds. This strategy balances speed and relevance. The same encoder-only model can generate `1` embedding for each of the `835` semantic chunks in `6.107` seconds. This strategy is granular but lacks context awareness.
+An encoder-only model can generate `84` embeddings with up to `100` chunks each in `3.886` seconds, or `1` embedding for each of the `835` semantic chunks in `6.107` seconds. Smaller chnuks are faster to process but results is more embeddings will less context. You need to strike the right balance between speed and relevance.
 
 ## Suggestion
 
