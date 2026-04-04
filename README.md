@@ -73,7 +73,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 The sample `.docx` file has `835` semantic chunks, or paragraphs. 
 
-A decoder-only model can generate `1` embedding for the entire document in `0.269` seconds if the model and graph are fully loaded in memory. Otherwise it will take longer. This strategy prioritises speed over relevance. The same decoder-only model can generate `1` embedding for each of the `835` semantic chunks in `27.415` seconds. Using a decoder-only model with small chunks is rather wasteful.
+A decoder-only model can generate `1` embedding for the entire document in `0.269` seconds if the model and graph are fully loaded in memory. Otherwise it will take longer. This strategy prioritises speed over relevance. The same decoder-only model can generate `1` embedding for each of the `835` semantic chunks, or  `84` embeddings with up to `100` chunks each in the same time.
 
 An encoder-only model can generate `84` embeddings with up to `100` chunks each in `3.886` seconds. This strategy balances speed and relevance. The same encoder-only model can generate `1` embedding for each of the `835` semantic chunks in `6.107` seconds. This strategy is granular but lacks context awareness.
 
