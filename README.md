@@ -27,8 +27,8 @@ This is the main function. Pass the document type, output format, and a `task` o
 |File Extension|Constant|Value
 |-|-|-:|
 |xlsx|`Extract Document XLSX`|`0`|
-|docx|`Extract Document XLSX`|`1`|
-|pptc|`Extract Document XLSX`|`2`|
+|docx|`Extract Document DOCX`|`1`|
+|pptx|`Extract Document PPTX`|`2`|
 
 ### Supported Output Formats
 
