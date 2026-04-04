@@ -1,8 +1,8 @@
 //%attributes = {}
 var $query : Text
 
-$q:="Intissar and Sara talks about the latest AI Kit feature"
-$query:="Instruct: Retrieve text that matches the passage\nPassage: "+$q
+$q:="AI features integrated in 4D Write Pro"
+$query:="Instruct: Retrieve text that relates to the topic\nTopic: "+$q
 
 var $AIClient : cs:C1710.AIKit.OpenAI
 $AIClient:=cs:C1710.AIKit.OpenAI.new()
@@ -16,13 +16,15 @@ $reranked:=[]
 
 If ($batch.success)
 	$vector:=$batch.embedding.embedding
-	var $comparison:={vector: $vector; metric: mk cosine:K95:1; threshold: 0.5}
+	var $comparison:={vector: $vector; metric: mk cosine:K95:1; threshold: 0.6}
 	var $results:=ds:C1482.Documents.query("embeddings > :1"; $comparison)
 	If ($results.length#0)
 		
+		ALERT:C41(JSON Stringify:C1217($results.text.extract("text").flat(); *))
+		
 		var $AIReranker : cs:C1710.AIKit.Reranker
 		$AIReranker:=cs:C1710.AIKit.Reranker.new({baseURL: "http://127.0.0.1:8081/v1"})
-		var $RerankerParameters:=cs:C1710.AIKit.RerankerParameters.new({top_n: 6})
+		var $RerankerParameters:=cs:C1710.AIKit.RerankerParameters.new({top_n: 5})
 		
 		$documents:=$results.extract("ID"; "ID"; "text.text"; "documents")
 		
