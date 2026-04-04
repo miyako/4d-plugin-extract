@@ -14,3 +14,4 @@ extract/test/Plugins/Universal Document Parser.bundle/Contents/Windows64/Univers
 extract/tokenizers/microsoft/harrier-oss-v1-270m/tokenizer.json
 extract/include/embed_tokenizer.h
 extract/include/embed_tokenizer.h
+extract/include/embed_tokenizer.h
