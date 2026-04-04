@@ -69,44 +69,14 @@ This is a distilled version of the `27b` model.
 |~`5000`|`1.0`~`1.7`|`1.0`|`0.8`
 |~`1000`|`0.1`~`0.3`|`0.1`|`0.07`
 
-### llama.cpp stats 
+#### F16
 
-#### Decoder-only Embeddings
-
-|Model|Output Format|Embeddings per document|Embeddings per second|Seconds per document
-|:-|-:|-:|-:|-:|
-|Harrier OSS v1.0 0.6b|Text|`1`|`3.717`|`116.023`
-|Harrier OSS v1.0 0.6b|Collection|`84`|`3.618`|`23.213`
-|Harrier OSS v1.0 0.6b|Collection|`835`|`30.457`|`27.415`
-
-#### Encoder-only Embeddings
-
-|Model|Output Format|Embeddings per document|Embeddings per second|Seconds per document
-|:-|-:|-:|-:|-:|
-|Granite Embedding English R2|Collection|`84`|`21.616`|`3.886`
-|Granite Embedding English R2|Collection|`835`|`136.728`|`6.107`
-
-#### Remarks
-
-The sample `.docx` file has `835` semantic chunks, or paragraphs. The total number of tokens is `18776`.
-
-A decoder-only model can generate `1` embedding for the entire document in `116.023` seconds if the model and graph are not fully loaded in memory. It is important to not offload to the GPU unless you have plenty of memory (`40GB` or more). 
-
-~~It is also important to pad the text so that `llama-server` does not have to builds a new GGML computation graph per unique sequence length. Since `qwen3` models have a `32768` context length, it makes sense to have buckets of `512`, `1024`, `2048`, `4096`, `8192`, `16384`, and `32767`. The longest sequence (`32767`) takes `352` seconds, or `6` minutes on the first call, but the next could be fast as `0.298` seconds. Without buckets, the embedding phase may need `100000000` minutes to process the same number of documents, i.e. more than `10` months.~~
-
-On a MacBook with Apple Silicon (`10` cores `16GB` RAM...) it is probably better to use the `230m` distilled model. 
-
-This strategy prioritises speed over relevance. The same decoder-only model can generate `1` embedding for each of the `835` semantic chunks, or  `84` embeddings with up to `100` chunks each in about the same time. It is more efficient to create `1` embedding for the whole document.
-
-An encoder-only model can generate `84` embeddings with up to `100` chunks each in `3.886` seconds, or `1` embedding for each of the `835` semantic chunks in `6.107` seconds. Smaller chnuks are faster to process but results is more embeddings will less context. You need to strike the right balance between speed and relevance.
-
-## Suggestion
-
-Use a ModernBERT encoder-only model with `8192` context length (e.g. Granite Embedding English R2) to generate embeddings in chunks.
-
-Use a Qwen decoder-only model with `32768` context length (e.g. Harrier OSS v1.0 0.6b) to generate a single embedding for the entire document.
-
-For the best of both worlds, use a reranker model with `8192` context length (e.g. e.g. Granite Embedding Reranker English R2).
+|Tokens|GPU Layers:4|GPU Layers:8|GPU Layers:16
+|-:|-:|-:|-:|
+|~`30000`|`26.0`~`27.0`|`21.0`~`22.0`|`19.3`~`19.8`
+|~`10000`|`3.4`~`4.4`|`2.6`~`3.5`|`2.2`~`2.5`
+|~`5000`|`0.3`~`1.8`|`0.2`~`1.5`|`0.2`~`1.0`
+|~`1000`|`0.1`~`0.2`|`0.16`~`0.19`|`0.05`~`0.11`
 
 ## Example
 
