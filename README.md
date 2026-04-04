@@ -71,7 +71,7 @@ This is a distilled version of the `27b` model.
 
 #### F16
 
-|Tokens|GPU Layers:4|GPU Layers:8|GPU Layers:16|GPU Layers:16
+|Tokens|GPU Layers:4|GPU Layers:8|GPU Layers:16|GPU Layers:18
 |-:|-:|-:|-:|-:|
 |~`30000`|`26.0`~`27.0`|`21.0`~`22.0`|`19.3`~`19.8`|`14.7`~`15.1`
 |~`10000`|`3.4`~`4.4`|`2.6`~`3.5`|`2.2`~`2.5`|`1.8`~`2.3`
