@@ -137,3 +137,6 @@ ALERT(JSON Stringify($reranked; *))
 ```
 
 <img width="480" height="542" alt="Screenshot 2026-04-05 at 0 02 41" src="https://github.com/user-attachments/assets/accb11f4-d4f1-4efa-905f-36e02895d33b" />
+
+<img width="480" height="542" alt="Screenshot 2026-04-05 at 0 03 29" src="https://github.com/user-attachments/assets/027266b6-34c3-46ef-9835-5fe73573b4f2" />
+
