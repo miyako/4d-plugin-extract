@@ -100,6 +100,20 @@ $pooling:="last"
 
 <img width="740" height="384" alt="Screenshot 2026-04-04 at 13 42 40" src="https://github.com/user-attachments/assets/801c6bc2-f768-40cd-86c3-4452d3cf3af5" />
 
+- granite-embedding-reranker-english-r2-Q8_0.gguf
+
+`llama-server` consumes about `150MB` of memory and almost no CPU.
+
+```4d
+$batches:=1
+$threads:=8 
+$max_position_embeddings:=8192
+$pooling:="rank"
+```
+
+<img width="740" height="384" alt="Screenshot 2026-04-04 at 14 49 13" src="https://github.com/user-attachments/assets/b0da23a3-886f-48ee-8327-2e747dc5a4fc" />
+
+
 ```4d
 var $query : Text
 
