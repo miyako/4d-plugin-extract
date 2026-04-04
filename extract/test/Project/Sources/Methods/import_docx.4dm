@@ -21,6 +21,12 @@ For each ($file; $files)
 	
 	If ($extracted.success)
 		$e:=ds:C1482.Documents.new()
+/*
+alternatively you could hit 
+http://localhost:8080/tokenize
+and let llama-server tokenize 
+but here we just want an approximation 
+*/
 		ARRAY TEXT:C222($words; 0)
 		GET TEXT KEYWORDS:C1141($extracted.input; $words)
 		$e.embeddings:=$batch.embedding.embedding

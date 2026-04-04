@@ -28,6 +28,18 @@ Case of
 	: (True:C214)  //decoder
 		
 		$folder:=$homeFolder.folder("harrier-oss-v1-270m")
+		$path:="harrier-oss-v1-270m-Q8_0.gguf"
+		$URL:="keisuke-miyako/harrier-oss-v1-270m-gguf-q8_0"
+		
+		$max_position_embeddings:=32768
+		$pooling:="mean"
+		$batch_size:=$max_position_embeddings
+		$ubatch_size:=$batch_size
+		$n_gpu_layers:=4
+		
+	: (False:C215)  //decoder
+		
+		$folder:=$homeFolder.folder("harrier-oss-v1-270m")
 		$path:="harrier-oss-v1-270m-F16.gguf"
 		$URL:="keisuke-miyako/harrier-oss-v1-270m-gguf-f16"
 		
