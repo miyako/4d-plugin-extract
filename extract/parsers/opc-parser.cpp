@@ -7,23 +7,35 @@
 
 #include "opc-parser.h"
 
-extern std::unique_ptr<tokenizers::Tokenizer> tokenizer;
+//extern std::unique_ptr<tokenizers::Tokenizer> tokenizer;
+//extern std::string pad_token;
+//extern int32_t token_overhead;
 
 // Convenience inline so callers don't repeat this everywhere
-inline int32_t CountTokens(const std::string& text) {
-    if (!tokenizer) return 0;
-    return static_cast<int32_t>(tokenizer->Encode(text).size());
-}
+//inline int32_t CountTokens(const std::string& text) {
+//    if (!tokenizer) return 0;
+//    return static_cast<int32_t>(tokenizer->Encode(text).size());
+//}
 
-static const int32_t buckets[] = {512, 1024, 2048, 4096, 8192, 16384, 32768};
+/*
+static const int32_t buckets[] = {510, 1022, 2046, 4094, 8190, 16382, 32762};
 
-inline int32_t PadToBucket(int32_t token_count, bool add_bos = true) {
-    int32_t effective = token_count + (add_bos ? 1 : 0);
+inline int32_t PadToBucket(int32_t token_count) {
+    int32_t effective = token_count + 2;  // BOS + EOS
     for (int32_t b : buckets) {
         if (effective <= b) return b;
     }
-    return effective;  // exceeds 32768, use as-is
+    return -1;  // exceeds all buckets — caller must handle
 }
+*/
+
+//inline int32_t PadToBucket(int32_t token_count, bool add_bos = true) {
+//    int32_t effective = token_count + (add_bos ? 1 : 0);
+//    for (int32_t b : buckets) {
+//        if (effective <= b) return b;
+//    }
+//    return effective;  // exceeds 32768, use as-is
+//}
 
 // The ZIP magic number: 50 4B 03 04
 const std::array<opc_uint8_t, 4> ZIP_MAGIC = {0x50, 0x4B, 0x03, 0x04};
@@ -155,44 +167,38 @@ static void ob_append_c(PA_CollectionRef c, PA_CollectionRef value) {
     PA_ClearVariable(&v);
 }
 
-static int32_t pad_text_to_bucket(std::string& text) {
+/*
+inline int32_t PadToTokenCount(std::string& text) {
     
-    const char padding_char = '0';
-//    const char padding_char = '.';
-    int32_t target  = PadToBucket(CountTokens(text)) - 1;
-    int32_t current = CountTokens(text) + 1;
+    const std::string original = text;  // keep for revert
+    const char padding_char = '\r';
+    
+    int32_t count  = CountTokens(text);
+    int32_t target = PadToBucket(count);
+    int32_t current = count + token_overhead;
     int32_t needed  = target - current;
 
     if (needed > 0) {
-        // Step 1: find how many pad chars = exactly `needed` tokens in isolation
         std::string prefix;
         prefix.assign(needed, padding_char);
-        int32_t prefix_tokens = CountTokens(prefix);
 
-        while (prefix_tokens < needed) {
+        current = CountTokens(prefix + text) + token_overhead;
+
+        while (current < target) {
             prefix += padding_char;
-            prefix_tokens = CountTokens(prefix);
+            current = CountTokens(prefix + text) + token_overhead;
         }
-        while (prefix_tokens > needed) {
+        while (current > target) {
             prefix.pop_back();
-            prefix_tokens = CountTokens(prefix);
+            current = CountTokens(prefix + text) + token_overhead;
         }
 
-        // Step 2: check boundary merge once
-        std::string result = prefix + text;
-        int32_t actual = CountTokens(result) + 1;
-
-        if (actual != target) {
-            // boundary caused a merge — add or remove one char to compensate
-            if (actual < target) result = std::string(1, padding_char) + result;
-            else result.erase(0, 1);
-        }
-
-        text = result;
+        text = prefix + text;
     }
-    
-    return CountTokens(text) + 1;
+
+    return target;
 }
+ */
 
 static void document_to_json_ss(Workbook& document,
                                 PA_ObjectRef documentNode,
@@ -266,7 +272,7 @@ static void document_to_json_ss(Workbook& document,
                 ob_append_s(pages, paragraphs);
             }
 
-            ob_set_n(documentNode, "tokens", pad_text_to_bucket(text));
+//            ob_set_n(documentNode, "tokens", PadToTokenCount(text));
             ob_set_s(documentNode, "input", text.c_str());
             ob_set_c(documentNode, L"documents", pages);
         }
@@ -523,7 +529,7 @@ static void document_to_json(Document& document,
                 ob_append_s(pages, paragraphs);
             }
                    
-            ob_set_n(documentNode, "tokens", pad_text_to_bucket(text));
+//            ob_set_n(documentNode, "tokens", PadToTokenCount(text));
             ob_set_s(documentNode, "input", text.c_str());
             ob_set_c(documentNode, L"documents", pages);
         }

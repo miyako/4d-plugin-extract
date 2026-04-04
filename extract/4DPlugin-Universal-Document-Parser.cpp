@@ -12,30 +12,74 @@
 
 #pragma mark -
 
-using namespace tokenizers;
+//using namespace tokenizers;
 
-std::unique_ptr<Tokenizer> tokenizer;
+//std::unique_ptr<Tokenizer> tokenizer;
 
-std::unique_ptr<Tokenizer> LoadTokenizer() {
-    std::string blob(
-        reinterpret_cast<const char*>(qwen3_tokenizer_json),
-        qwen3_tokenizer_json_len
-    );
-    return Tokenizer::FromBlobJSON(blob);
+/*
+std::unique_ptr<Tokenizer> LoadTokenizer(const std::string& name) {
+    
+    if (name == "qwen3,small") {
+        // 0.6b model
+        std::string blob(
+                         reinterpret_cast<const char*>(qwen3_0_6b_tokenizer_json),
+                         qwen3_0_6b_tokenizer_json_len
+                         );
+        return Tokenizer::FromBlobJSON(blob);
+    }
+    
+    if (name == "qwen3,tiny") {
+        // 270m model
+        std::string blob(
+                         reinterpret_cast<const char*>(qwen3_270m_tokenizer_json),
+                         qwen3_270m_tokenizer_json_len
+                         );
+        return Tokenizer::FromBlobJSON(blob);
+    }
+
+    return nullptr;
 }
 
-static void OnStartup() {
-    tokenizer = LoadTokenizer();
-    if (tokenizer) {
-        std::cerr << "tokenizer loaded\n";
+// Find the pad token string once at startup
+static std::string FindPadUnit(Tokenizer* tok) {
+    // <pad> is token id 0 for this model per the log
+    // verify it encodes to exactly 1 token in all contexts
+    const std::vector<std::string> candidates = {"<pad>", " ", "0", "1"};
+    for (const auto& c : candidates) {
+        auto single   = tok->Encode(c);
+        auto repeated = tok->Encode(c + c + c + c + c);
+        if (single.size() == 1 && repeated.size() == 5) {
+            std::cerr << "pad unit: '" << c << "' token id: "
+                      << single[0] << "\n";
+            return c;
+        }
     }
+    // fallback — caller should handle
+    std::cerr << "WARNING: no stable pad unit found\n";
+    return " ";
+}
+ */
+
+//std::string pad_token;
+//int32_t token_overhead = 2;
+
+static void OnStartup() {
+//    tokenizer = LoadTokenizer("qwen3,tiny");
+//    if (tokenizer) {
+//        std::cerr << "tokenizer " << "qwen3,tiny" << " loaded\n";
+//        auto ids = tokenizer->Encode("hello world hello");
+//        for (auto _id : ids)
+//        {
+//            std::cerr << _id << "\n";
+//        }
+//    }
 }
 
 static void OnExit() {
-    if (tokenizer) {
-        tokenizer.reset();
-        std::cerr << "tokenizer unloaded\n";
-    }
+//    if (tokenizer) {
+//        tokenizer.reset();
+//        std::cerr << "tokenizer unloaded\n";
+//    }
 }
 
 void PluginMain(PA_long32 selector, PA_PluginParameters params) {

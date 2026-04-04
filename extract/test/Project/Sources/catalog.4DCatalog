@@ -9,18 +9,19 @@
 		</field>
 		<field name="text" uuid="0F5F84EA40294E92B61ECFF65E795C69" type="21" blob_switch_size="2147483647" never_null="true" id="3"/>
 		<field name="duration" uuid="06B877B89BAD4757946EA405D966D2E2" type="9" never_null="true" id="4"/>
-		<field name="bucket" uuid="8CC23DC4B73E4E2293791917635C56CC" type="3" never_null="true" id="5"/>
+		<field name="count" uuid="8CC23DC4B73E4E2293791917635C56CC" type="3" never_null="true" id="5"/>
 		<field name="input" uuid="9AA888C0AA8A46BAB59DC3937A636AF9" type="10" never_null="true" id="6"/>
+		<field name="error" uuid="2DA2DC6029E34D82898D89EA83147A47" type="10" never_null="true" id="7"/>
 		<primary_key field_name="ID" field_uuid="D036033A76D94FD3BDDC5969683FBC93"/>
 		<table_extra>
-			<editor_table_info displayable_fields_count="6">
+			<editor_table_info displayable_fields_count="7">
 				<color red="255" green="255" blue="255" alpha="0"/>
-				<coordinates left="85.5" top="0" width="120" height="167.33203125"/>
+				<coordinates left="85.5" top="0" width="135.59765625" height="196.4296875"/>
 			</editor_table_info>
 		</table_extra>
 	</table>
 	<index kind="regular" uuid="1F2B6F568DE74FA3B34325A835C8FBCC" type="3">
-		<field_ref uuid="8CC23DC4B73E4E2293791917635C56CC" name="bucket">
+		<field_ref uuid="8CC23DC4B73E4E2293791917635C56CC" name="count">
 			<table_ref uuid="E1FE939C82344597B0A4389796282D93" name="Documents"/>
 		</field_ref>
 	</index>

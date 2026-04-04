@@ -21,9 +21,11 @@ For each ($file; $files)
 	
 	If ($extracted.success)
 		$e:=ds:C1482.Documents.new()
+		ARRAY TEXT:C222($words; 0)
+		GET TEXT KEYWORDS:C1141($extracted.input; $words)
 		$e.embeddings:=$batch.embedding.embedding
 		$e.text:={text: $extracted.documents}
-		$e.bucket:=$extracted.tokens
+		$e.count:=Size of array:C274($words)
 		$e.input:=$extracted.input
 		$e.save()
 	End if 
@@ -34,7 +36,7 @@ var $AIClient : cs:C1710.AIKit.OpenAI
 $AIClient:=cs:C1710.AIKit.OpenAI.new()
 $AIClient.baseURL:="http://127.0.0.1:8080/v1"
 
-For each ($e; ds:C1482.Documents.all().orderBy("bucket asc"))
+For each ($e; ds:C1482.Documents.all().orderBy("count asc"))
 	var $page : Object
 	var $paragraphs; $documents : Collection
 	$input:=$e.input
@@ -46,7 +48,10 @@ For each ($e; ds:C1482.Documents.all().orderBy("bucket asc"))
 	If ($batch.success)
 		$e.embeddings:=$batch.embedding.embedding
 		$e.duration:=(?00:00:00?)+$duration
+		$e.count:=$batch.usage.prompt_tokens
 		$e.input:=Null:C1517
-		$e.save()
+	Else 
+		$e.error:=$batch.errors.extract("body.error.message").join("\r")
 	End if 
+	$e.save()
 End for each 

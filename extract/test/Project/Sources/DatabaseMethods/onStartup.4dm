@@ -27,12 +27,27 @@ var $max_position_embeddings; $batch_size; $parallel; $threads; $batches : Integ
 Case of 
 	: (True:C214)  //decoder
 		
+		$folder:=$homeFolder.folder("harrier-oss-v1-270m")
+		$path:="harrier-oss-v1-270m-F16.gguf"
+		$URL:="keisuke-miyako/harrier-oss-v1-270m-gguf-f16"
+		
+		$max_position_embeddings:=32768
+		$pooling:="mean"
+		$batch_size:=$max_position_embeddings
+		$ubatch_size:=$batch_size
+		$n_gpu_layers:=8
+		
+	: (False:C215)  //decoder (too large for 16gb macbook pro m1 2021)
+		
 		$folder:=$homeFolder.folder("harrier-oss-v1-0.6b")
-		$path:="harrier-oss-v1-0.6b-Q8_0.gguf"
-		$URL:="keisuke-miyako/harrier-oss-v1-0.6b-gguf-q8_0"
+		$path:="harrier-oss-v1-0.6b-F16.gguf"
+		$URL:="keisuke-miyako/harrier-oss-v1-0.6b-gguf-f16"
 		
 		$max_position_embeddings:=32768
 		$pooling:="last"
+		$batch_size:=$max_position_embeddings
+		$ubatch_size:=512
+		$n_gpu_layers:=2
 		
 	: (False:C215)  //encoder
 		
@@ -42,12 +57,13 @@ Case of
 		
 		$max_position_embeddings:=8192
 		$pooling:="cls"
+		$batch_size:=$max_position_embeddings
+		$ubatch_size:=512
+		$n_gpu_layers:=-1
 		
 End case 
 
-$batch_size:=$max_position_embeddings
-$ubatch_size:=512
-$batches:=1
+$batches:=2  //up to 2 requests at a time
 $threads:=8  // M1 Pro P-cores
 
 var $logFile : 4D:C1709.File
@@ -70,7 +86,8 @@ threads: $threads; \
 threads_batch: $threads; \
 threads_http: 2; \
 log_disable: False:C215; \
-n_gpu_layers: 0}
+n_gpu_layers: $n_gpu_layers; \
+swa_full: True:C214}
 
 $embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
 $huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
@@ -84,18 +101,24 @@ $URL:="keisuke-miyako/granite-embedding-reranker-english-r2-gguf-q8_0"
 
 $max_position_embeddings:=8192
 $pooling:="rank"
-
 $batch_size:=$max_position_embeddings
-$ubatch_size:=512
-$batches:=1
+$ubatch_size:=$batch_size
+$n_gpu_layers:=-1
+
+$batches:=1  //up to 1 request at a time
 $threads:=8  // M1 Pro P-cores
+
+$logFile:=$folder.file("llama.log")
+$folder.create()
+If (Not:C34($logFile.exists))
+	$logFile.setContent(4D:C1709.Blob.new())
+End if 
 
 $port:=8081
 $options:={\
 embeddings: True:C214; \
 pooling: $pooling; \
 log_file: $logFile; \
-fit: "on"; \
 ctx_size: $max_position_embeddings*$batches; \
 batch_size: $batch_size; \
 ubatch_size: $ubatch_size; \
@@ -104,7 +127,7 @@ threads: $threads; \
 threads_batch: $threads; \
 threads_http: 2; \
 log_disable: False:C215; \
-n_gpu_layers: -1}
+n_gpu_layers: $n_gpu_layers}
 
 $rerank:=cs:C1710.event.huggingface.new($folder; $URL; $path)
 $huggingfaces:=cs:C1710.event.huggingfaces.new([$rerank])
