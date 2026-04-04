@@ -41,7 +41,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 #### `Extract Output Text`
 
-- `input`: The entire document text connatenated.
+- `input`: The entire document text concatenated.
 - `documents`: The document divided into semantic chunks. Same as the `input` collection as `Extract Output Collection`
 
 #### `Extract Output Collection`  
