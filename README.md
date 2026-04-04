@@ -27,14 +27,26 @@ This is the main function. Pass the document type, output format, and a `task` o
 |File Extension|Constant|Value
 |-|-|-:|
 |xlsx|`Extract Document XLSX`|`0`|
+|docx|`Extract Document XLSX`|`1`|
+|pptc|`Extract Document XLSX`|`2`|
 
 ### Supported Output Formats
 
 |Constant|Value|Description
 |:-|-:|-
-|`Extract Output Object`|`0`|Suitable for **OpenAI** style `embeddings` API 
-|`Extract Output Text`|`1`|Raw text for generic processing
-|`Extract Output Collection`|`2`|Suitable for **Voyage AI** style `contextualizedembeddings` API 
+|`Extract Output Object`|`0`|For custom processing 
+|`Extract Output Text`|`1`|Suitable for **OpenAI** style `embeddings` API, decoder-only model 
+|`Extract Output Collection`|`2`|Suitable for **OpenAI** style `embeddings` API, encoder-only model 
+|`Extract Output Collections`|`3`|Suitable for **Voyage AI** style `contextualizedembeddings` API 
+
+### Performace Comparison
+
+|Model|Output Format|Embeddings per document|Embeddings per second|Seconds per document
+|:-|-:|-:|-:|-:|
+|Harrier OSS v1.0 0.6b|Text|`1`|`3.717`|`0.269`
+|Harrier OSS v1.0 0.6b|Collection|`84`|`3.618`|`23.213`
+|Granite Embedding English R2|Collection|`84`|`18.876`|`4.45`
+
 
 ## Simple Embeddings 
 
