@@ -41,7 +41,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 #### `Extract Output Text`
 
-- `input`: The entire document text connatenated.
+- `input`: The entire document text concatenated.
 - `documents`: The document divided into semantic chunks. Same as the `input` collection as `Extract Output Collection`
 
 #### `Extract Output Collection`  
@@ -58,7 +58,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 |Model|Output Format|Embeddings per document|Embeddings per second|Seconds per document
 |:-|-:|-:|-:|-:|
-|Harrier OSS v1.0 0.6b|Text|`1`|`3.717`|`0.269`
+|Harrier OSS v1.0 0.6b|Text|`1`|`3.717`|`116.023`
 |Harrier OSS v1.0 0.6b|Collection|`84`|`3.618`|`23.213`
 |Harrier OSS v1.0 0.6b|Collection|`835`|`30.457`|`27.415`
 
@@ -71,11 +71,13 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 #### Remarks
 
-The sample `.docx` file has `835` semantic chunks, or paragraphs. 
+The sample `.docx` file has `835` semantic chunks, or paragraphs. The total number of tokens is `18776`.
 
-A decoder-only model can generate `1` embedding for the entire document in `0.269` seconds. This strategy prioritised speed over relevance. The same decoder-only model can generate `1` embedding for each of the `835` semantic chunks in `27.415` seconds. Using a decoder-only model with small chunks is rather wasteful.
+A decoder-only model can generate `1` embedding for the entire document in `116.023` seconds if the model and graph are not fully loaded in memory. It is important to not offload to the GPU unless you have plenty of memory (`40GB` or more). It is also important to pad the text so that `llama-server` does not have to builds a new GGML computation graph per unique sequence length. Since `qwen3` models have a `32768` context length, it makes sense to have buckets of `512`, `1024`, `2048`, `4096`, `8192`, `16384`, and `32767`. The longest sequence (`32767`) takes `352` seconds, or `6` minutes on the first call, but the next could be fast as `0.298` seconds. Without buckets, the embedding phase may need `100000000` minutes to process the same number of documents, i.e. more than `10` months.
 
-An encoder-only model can generate `84` embeddings with up to `100` chunks each in `3.886` seconds. This strategy balances speed and relevance. The same encoder-only model can generate `1` embedding for each of the `835` semantic chunks in `6.107` seconds. This strategy is granular but lacks context awareness.
+This strategy prioritises speed over relevance. The same decoder-only model can generate `1` embedding for each of the `835` semantic chunks, or  `84` embeddings with up to `100` chunks each in about the same time. It is more efficient to create `1` embedding for the whole document.
+
+An encoder-only model can generate `84` embeddings with up to `100` chunks each in `3.886` seconds, or `1` embedding for each of the `835` semantic chunks in `6.107` seconds. Smaller chnuks are faster to process but results is more embeddings will less context. You need to strike the right balance between speed and relevance.
 
 ## Suggestion
 
@@ -89,7 +91,7 @@ For the best of both worlds, use a reranker model with `8192` context length (e.
 
 - harrier-oss-v1-0.6b-Q8_0.gguf
 
-`llama-server` will consume about `7GB` of memory and `800%` CPU.
+`llama-server` will consume about `7GB` of memory and `800%` CPU at peak inference.
 
 ```4d
 $batches:=1
@@ -99,6 +101,20 @@ $pooling:="last"
 ```
 
 <img width="740" height="384" alt="Screenshot 2026-04-04 at 13 42 40" src="https://github.com/user-attachments/assets/801c6bc2-f768-40cd-86c3-4452d3cf3af5" />
+
+- granite-embedding-reranker-english-r2-Q8_0.gguf
+
+`llama-server` consumes about `150MB` of memory.
+
+```4d
+$batches:=1
+$threads:=8 
+$max_position_embeddings:=8192
+$pooling:="rank"
+```
+
+<img width="740" height="384" alt="Screenshot 2026-04-04 at 14 49 13" src="https://github.com/user-attachments/assets/b0da23a3-886f-48ee-8327-2e747dc5a4fc" />
+
 
 ```4d
 var $query : Text
@@ -154,3 +170,7 @@ $reranked:=$reranked.orderBy("relevance_score desc").slice(0; 3)
 
 ALERT(JSON Stringify($reranked; *))
 ```
+
+<img width="480" height="542" alt="Screenshot 2026-04-04 at 14 53 09" src="https://github.com/user-attachments/assets/7e7d2282-032d-48f0-b0f6-536de9783a87" />
+<img width="480" height="542" alt="Screenshot 2026-04-04 at 14 52 50" src="https://github.com/user-attachments/assets/c947632f-7d43-4f05-982b-b148496b11cd" />
+
