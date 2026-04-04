@@ -81,6 +81,7 @@ This is a distilled version of the `27b` model.
 - `15` seconds * `1` million (documents) = `173.61` days
 - `1` second * `1` million = `11.57` days
 - `0.1` seconds * `1` million = `1.15` days
+- `0.05` seconds * `1` million = `13.89` hours
  
 ## Example
 
