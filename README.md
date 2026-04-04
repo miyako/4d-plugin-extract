@@ -89,7 +89,7 @@ For the best of both worlds, use a reranker model with `8192` context length (e.
 
 - harrier-oss-v1-0.6b-Q8_0.gguf
 
-`llama-server` will consume about `7GB` of memory and `800%` CPU.
+`llama-server` will consume about `7GB` of memory and `800%` CPU at peak inference.
 
 ```4d
 $batches:=1
@@ -102,7 +102,7 @@ $pooling:="last"
 
 - granite-embedding-reranker-english-r2-Q8_0.gguf
 
-`llama-server` consumes about `150MB` of memory and almost no CPU.
+`llama-server` consumes about `150MB` of memory.
 
 ```4d
 $batches:=1
