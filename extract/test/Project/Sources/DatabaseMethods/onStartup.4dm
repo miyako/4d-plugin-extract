@@ -104,7 +104,7 @@ threads: $threads; \
 threads_batch: $threads; \
 threads_http: 2; \
 log_disable: False:C215; \
-n_gpu_layers: -14}
+n_gpu_layers: -1}
 
 $rerank:=cs:C1710.event.huggingface.new($folder; $URL; $path)
 $huggingfaces:=cs:C1710.event.huggingfaces.new([$rerank])

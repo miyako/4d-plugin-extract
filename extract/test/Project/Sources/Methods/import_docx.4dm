@@ -8,12 +8,7 @@ var $extracted : Object
 $files:=Folder:C1567("/RESOURCES/docx").files(fk ignore invisible:K87:22 | fk recursive:K87:7)\
 .query("extension == :1"; ".docx")
 
-$task:={\
-file: $file; \
-unique_values_only: True:C214; \
-max_paragraph_length: 10}
-
-$extracted:=Extract(Extract Document DOCX; Extract Output Text; $task)
+var $e : cs:C1710.DocumentsEntity
 
 For each ($file; $files)
 	
@@ -25,24 +20,33 @@ For each ($file; $files)
 	$extracted:=Extract(Extract Document DOCX; Extract Output Text; $task)
 	
 	If ($extracted.success)
-		var $AIClient : cs:C1710.AIKit.OpenAI
-		$AIClient:=cs:C1710.AIKit.OpenAI.new()
-		$AIClient.baseURL:="http://127.0.0.1:8080/v1"
-		var $page : Object
-		var $paragraphs; $documents : Collection
-		$input:=$extracted.input
-		$documents:=$extracted.documents
-		$start:=Milliseconds:C459
-		var $batch : cs:C1710.AIKit.OpenAIEmbeddingsResult
-		$batch:=$AIClient.embeddings.create($input)
-		$duration:=(Milliseconds:C459-$start)/1000
-		If ($batch.success)
-			var $e : cs:C1710.DocumentsEntity
-			$e:=ds:C1482.Documents.new()
-			$e.embeddings:=$batch.embedding.embedding
-			$e.text:={text: $documents}
-			$e.duration:=(?00:00:00?)+$duration
-			$e.save()
-		End if 
+		$e:=ds:C1482.Documents.new()
+		$e.embeddings:=$batch.embedding.embedding
+		$e.text:={text: $extracted.documents}
+		$e.bucket:=$extracted.tokens
+		$e.input:=$extracted.input
+		$e.save()
+	End if 
+	
+End for each 
+
+var $AIClient : cs:C1710.AIKit.OpenAI
+$AIClient:=cs:C1710.AIKit.OpenAI.new()
+$AIClient.baseURL:="http://127.0.0.1:8080/v1"
+
+For each ($e; ds:C1482.Documents.all().orderBy("bucket asc"))
+	var $page : Object
+	var $paragraphs; $documents : Collection
+	$input:=$e.input
+	$documents:=$e.text.documents
+	$start:=Milliseconds:C459
+	var $batch : cs:C1710.AIKit.OpenAIEmbeddingsResult
+	$batch:=$AIClient.embeddings.create($input)
+	$duration:=(Milliseconds:C459-$start)/1000
+	If ($batch.success)
+		$e.embeddings:=$batch.embedding.embedding
+		$e.duration:=(?00:00:00?)+$duration
+		$e.input:=Null:C1517
+		$e.save()
 	End if 
 End for each 

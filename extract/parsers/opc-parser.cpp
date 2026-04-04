@@ -155,6 +155,45 @@ static void ob_append_c(PA_CollectionRef c, PA_CollectionRef value) {
     PA_ClearVariable(&v);
 }
 
+static int32_t pad_text_to_bucket(std::string& text) {
+    
+    const char padding_char = '0';
+//    const char padding_char = '.';
+    int32_t target  = PadToBucket(CountTokens(text)) - 1;
+    int32_t current = CountTokens(text) + 1;
+    int32_t needed  = target - current;
+
+    if (needed > 0) {
+        // Step 1: find how many pad chars = exactly `needed` tokens in isolation
+        std::string prefix;
+        prefix.assign(needed, padding_char);
+        int32_t prefix_tokens = CountTokens(prefix);
+
+        while (prefix_tokens < needed) {
+            prefix += padding_char;
+            prefix_tokens = CountTokens(prefix);
+        }
+        while (prefix_tokens > needed) {
+            prefix.pop_back();
+            prefix_tokens = CountTokens(prefix);
+        }
+
+        // Step 2: check boundary merge once
+        std::string result = prefix + text;
+        int32_t actual = CountTokens(result) + 1;
+
+        if (actual != target) {
+            // boundary caused a merge — add or remove one char to compensate
+            if (actual < target) result = std::string(1, padding_char) + result;
+            else result.erase(0, 1);
+        }
+
+        text = result;
+    }
+    
+    return CountTokens(text) + 1;
+}
+
 static void document_to_json_ss(Workbook& document,
                                 PA_ObjectRef documentNode,
                                 output_type mode,
@@ -227,7 +266,7 @@ static void document_to_json_ss(Workbook& document,
                 ob_append_s(pages, paragraphs);
             }
 
-            ob_set_n(documentNode, "tokens", PadToBucket(CountTokens(text)));
+            ob_set_n(documentNode, "tokens", pad_text_to_bucket(text));
             ob_set_s(documentNode, "input", text.c_str());
             ob_set_c(documentNode, L"documents", pages);
         }
@@ -423,45 +462,6 @@ static void document_to_json_ss(Workbook& document,
         }
             break;
     }
-}
-
-static int32_t pad_text_to_bucket(std::string& text) {
-    
-    const char padding_char = '0';
-//    const char padding_char = '.';
-    int32_t target  = PadToBucket(CountTokens(text)) - 1;
-    int32_t current = CountTokens(text) + 1;
-    int32_t needed  = target - current;
-
-    if (needed > 0) {
-        // Step 1: find how many pad chars = exactly `needed` tokens in isolation
-        std::string prefix;
-        prefix.assign(needed, padding_char);
-        int32_t prefix_tokens = CountTokens(prefix);
-
-        while (prefix_tokens < needed) {
-            prefix += padding_char;
-            prefix_tokens = CountTokens(prefix);
-        }
-        while (prefix_tokens > needed) {
-            prefix.pop_back();
-            prefix_tokens = CountTokens(prefix);
-        }
-
-        // Step 2: check boundary merge once
-        std::string result = prefix + text;
-        int32_t actual = CountTokens(result) + 1;
-
-        if (actual != target) {
-            // boundary caused a merge — add or remove one char to compensate
-            if (actual < target) result = std::string(1, padding_char) + result;
-            else result.erase(0, 1);
-        }
-
-        text = result;
-    }
-    
-    return CountTokens(text) + 1;
 }
 
 static void document_to_json(Document& document,

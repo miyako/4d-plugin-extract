@@ -9,6 +9,8 @@
 		</field>
 		<field name="text" uuid="0F5F84EA40294E92B61ECFF65E795C69" type="21" blob_switch_size="2147483647" never_null="true" id="3"/>
 		<field name="duration" uuid="06B877B89BAD4757946EA405D966D2E2" type="9" never_null="true" id="4"/>
+		<field name="bucket" uuid="8CC23DC4B73E4E2293791917635C56CC" type="3" never_null="true" id="5"/>
+		<field name="input" uuid="9AA888C0AA8A46BAB59DC3937A636AF9" type="10" never_null="true" id="6"/>
 		<primary_key field_name="ID" field_uuid="D036033A76D94FD3BDDC5969683FBC93"/>
 		<table_extra>
 			<editor_table_info displayable_fields_count="6">
@@ -17,6 +19,11 @@
 			</editor_table_info>
 		</table_extra>
 	</table>
+	<index kind="regular" uuid="1F2B6F568DE74FA3B34325A835C8FBCC" type="3">
+		<field_ref uuid="8CC23DC4B73E4E2293791917635C56CC" name="bucket">
+			<table_ref uuid="E1FE939C82344597B0A4389796282D93" name="Documents"/>
+		</field_ref>
+	</index>
 	<index kind="regular" uuid="B4FDD58808FD405682C1867E039D42A1" type="3">
 		<field_ref uuid="0F5F84EA40294E92B61ECFF65E795C69" name="text">
 			<table_ref uuid="E1FE939C82344597B0A4389796282D93" name="Documents"/>
