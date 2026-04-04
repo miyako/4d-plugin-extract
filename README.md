@@ -85,6 +85,8 @@ This is a distilled version of the `27b` model.
 
 Even though the model supports up to `32768` tokens, the time required to generate embeddings increases quadratically.
 
+To generate embeddings in less than `0.05` seconds the chunk can be no longer than `1000` tokens. 
+
 ## Example
 
 ```4d
