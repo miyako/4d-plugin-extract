@@ -71,7 +71,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 #### Remarks
 
-The sample `.docx` file has `835` semantic chunks, or paragraphs. 
+The sample `.docx` file has `835` semantic chunks, or paragraphs. It is `18776` tokens long.
 
 A decoder-only model can generate `1` embedding for the entire document in `0.269` seconds if the model and graph are fully loaded in memory. Otherwise it will take longer. This strategy prioritises speed over relevance. The same decoder-only model can generate `1` embedding for each of the `835` semantic chunks, or  `84` embeddings with up to `100` chunks each in about the same time. It is more efficient to create `1` embedding for the whole document.
 
