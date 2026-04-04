@@ -52,14 +52,13 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 - `inputs`: The document divided into chunks of semantic chunks. Use `unique_values_only` and `max_paragraph_length` to control sampling rules.
 
-# T.B.C.
-
-## MacBook Pro M1 2021
-
-**Decoder-only Embedding Model**: Harrier OSS v1.0 230m
+## Harrier OSS v1.0 230m
 
 This is a distilled version of the `27b` model. 
 
+|Parameters|Dimensions|Context Length|
+|-:|-:|-:
+|`268098816`|`640`|`32768`|
 
 
 
