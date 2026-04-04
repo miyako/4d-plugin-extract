@@ -12,12 +12,30 @@
 
 #pragma mark -
 
-static void OnStartup() {
+using namespace tokenizers;
 
+std::unique_ptr<Tokenizer> tokenizer;
+
+std::unique_ptr<Tokenizer> LoadTokenizer() {
+    std::string blob(
+        reinterpret_cast<const char*>(qwen3_tokenizer_json),
+        qwen3_tokenizer_json_len
+    );
+    return Tokenizer::FromBlobJSON(blob);
+}
+
+static void OnStartup() {
+    tokenizer = LoadTokenizer();
+    if (tokenizer) {
+        std::cerr << "tokenizer loaded\n";
+    }
 }
 
 static void OnExit() {
-
+    if (tokenizer) {
+        tokenizer.reset();
+        std::cerr << "tokenizer unloaded\n";
+    }
 }
 
 void PluginMain(PA_long32 selector, PA_PluginParameters params) {
@@ -245,20 +263,4 @@ void Extract(PA_PluginParameters params) {
         }
     }
     PA_ReturnObject(params, returnValue);
-}
-
-static void ob_append_n(PA_CollectionRef c, double value) {
-    
-    PA_Variable v = PA_CreateVariable(eVK_Real);
-    PA_SetRealVariable(&v, value);
-    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
-    PA_ClearVariable(&v);
-}
-
-static void ob_append_o(PA_CollectionRef c, PA_ObjectRef value) {
-
-    PA_Variable v = PA_CreateVariable(eVK_Object);
-    PA_SetObjectVariable(&v, value);
-    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
-    PA_ClearVariable(&v);
 }

@@ -35,6 +35,7 @@
 #include <stdlib.h>
 
 #include "opc-parser.h"
+#include "embed_tokenizer.h"
 
 typedef enum {
     input_type_xlsx = 0,

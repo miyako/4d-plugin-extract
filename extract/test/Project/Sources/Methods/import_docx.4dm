@@ -8,6 +8,13 @@ var $extracted : Object
 $files:=Folder:C1567("/RESOURCES/docx").files(fk ignore invisible:K87:22 | fk recursive:K87:7)\
 .query("extension == :1"; ".docx")
 
+$task:={\
+file: $file; \
+unique_values_only: True:C214; \
+max_paragraph_length: 10}
+
+$extracted:=Extract(Extract Document DOCX; Extract Output Text; $task)
+
 For each ($file; $files)
 	
 	$task:={\
@@ -25,13 +32,16 @@ For each ($file; $files)
 		var $paragraphs; $documents : Collection
 		$input:=$extracted.input
 		$documents:=$extracted.documents
+		$start:=Milliseconds:C459
 		var $batch : cs:C1710.AIKit.OpenAIEmbeddingsResult
 		$batch:=$AIClient.embeddings.create($input)
+		$duration:=(Milliseconds:C459-$start)/1000
 		If ($batch.success)
 			var $e : cs:C1710.DocumentsEntity
 			$e:=ds:C1482.Documents.new()
 			$e.embeddings:=$batch.embedding.embedding
 			$e.text:={text: $documents}
+			$e.duration:=(?00:00:00?)+$duration
 			$e.save()
 		End if 
 	End if 

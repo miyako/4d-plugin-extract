@@ -7,6 +7,24 @@
 
 #include "opc-parser.h"
 
+extern std::unique_ptr<tokenizers::Tokenizer> tokenizer;
+
+// Convenience inline so callers don't repeat this everywhere
+inline int32_t CountTokens(const std::string& text) {
+    if (!tokenizer) return 0;
+    return static_cast<int32_t>(tokenizer->Encode(text).size());
+}
+
+static const int32_t buckets[] = {512, 1024, 2048, 4096, 8192, 16384, 32768};
+
+inline int32_t PadToBucket(int32_t token_count, bool add_bos = true) {
+    int32_t effective = token_count + (add_bos ? 1 : 0);
+    for (int32_t b : buckets) {
+        if (effective <= b) return b;
+    }
+    return effective;  // exceeds 32768, use as-is
+}
+
 // The ZIP magic number: 50 4B 03 04
 const std::array<opc_uint8_t, 4> ZIP_MAGIC = {0x50, 0x4B, 0x03, 0x04};
 
@@ -101,6 +119,14 @@ struct Workbook {
     std::string type;
     std::vector<Sheet> sheets;
 };
+
+static void ob_append_n(PA_CollectionRef c, double value) {
+    
+    PA_Variable v = PA_CreateVariable(eVK_Real);
+    PA_SetRealVariable(&v, value);
+    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
+    PA_ClearVariable(&v);
+}
 
 static void ob_append_s(PA_CollectionRef c, const std::string& value) {
     
@@ -200,6 +226,8 @@ static void document_to_json_ss(Workbook& document,
                 
                 ob_append_s(pages, paragraphs);
             }
+
+            ob_set_n(documentNode, "tokens", PadToBucket(CountTokens(text)));
             ob_set_s(documentNode, "input", text.c_str());
             ob_set_c(documentNode, L"documents", pages);
         }
@@ -397,12 +425,51 @@ static void document_to_json_ss(Workbook& document,
     }
 }
 
+static int32_t pad_text_to_bucket(std::string& text) {
+    
+    const char padding_char = '0';
+//    const char padding_char = '.';
+    int32_t target  = PadToBucket(CountTokens(text)) - 1;
+    int32_t current = CountTokens(text) + 1;
+    int32_t needed  = target - current;
+
+    if (needed > 0) {
+        // Step 1: find how many pad chars = exactly `needed` tokens in isolation
+        std::string prefix;
+        prefix.assign(needed, padding_char);
+        int32_t prefix_tokens = CountTokens(prefix);
+
+        while (prefix_tokens < needed) {
+            prefix += padding_char;
+            prefix_tokens = CountTokens(prefix);
+        }
+        while (prefix_tokens > needed) {
+            prefix.pop_back();
+            prefix_tokens = CountTokens(prefix);
+        }
+
+        // Step 2: check boundary merge once
+        std::string result = prefix + text;
+        int32_t actual = CountTokens(result) + 1;
+
+        if (actual != target) {
+            // boundary caused a merge — add or remove one char to compensate
+            if (actual < target) result = std::string(1, padding_char) + result;
+            else result.erase(0, 1);
+        }
+
+        text = result;
+    }
+    
+    return CountTokens(text) + 1;
+}
+
 static void document_to_json(Document& document,
                              PA_ObjectRef documentNode,
                              output_type mode,
                              int max_paragraph_length,
                              bool unique_values_only) {
-    
+
     switch (mode) {
         case output_type_text:
         {
@@ -455,6 +522,8 @@ static void document_to_json(Document& document,
                 }
                 ob_append_s(pages, paragraphs);
             }
+                   
+            ob_set_n(documentNode, "tokens", pad_text_to_bucket(text));
             ob_set_s(documentNode, "input", text.c_str());
             ob_set_c(documentNode, L"documents", pages);
         }
@@ -916,7 +985,8 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
     Workbook workbook;
     opcPart part = OPC_PART_INVALID;
     opcContainer *container = NULL;
-    
+    opcRelation rel = OPC_RELATION_INVALID;
+
     if(!sanitize_docx_buffer(data)) {
         std::cerr << "not a valid input!" << std::endl;
         goto unfortunately;
@@ -947,7 +1017,32 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
         type = document_type_pptx;
         goto reader;
     }
-        
+    
+    rel = opcRelationFind(
+        container,
+        OPC_PART_INVALID,
+        NULL,
+        _X("http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument")
+    );
+
+    if (OPC_RELATION_INVALID != rel) {
+        part = opcRelationGetInternalTarget(container, OPC_PART_INVALID, rel);
+           if (OPC_PART_INVALID != part) {
+               const xmlChar *ct = opcPartGetType(container, part);
+               if (0 == xmlStrcmp(ct, _X("application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"))) {
+                   document.type = "docx";
+                   type = document_type_docx;
+               } else if (0 == xmlStrcmp(ct, _X("application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"))) {
+                   document.type = "pptx";
+                   type = document_type_pptx;
+               } else if (0 == xmlStrcmp(ct, _X("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"))) {
+                   document.type = "xlsx";
+                   type = document_type_xlsx;
+               }
+               goto reader;
+           }
+    }
+    
     reader:
     
     if(part) {

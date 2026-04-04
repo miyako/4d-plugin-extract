@@ -46,7 +46,7 @@ Case of
 End case 
 
 $batch_size:=$max_position_embeddings
-$ubatch_size:=2048
+$ubatch_size:=512
 $batches:=1
 $threads:=8  // M1 Pro P-cores
 
@@ -64,7 +64,7 @@ pooling: $pooling; \
 log_file: $logFile; \
 ctx_size: $max_position_embeddings*$batches; \
 batch_size: $batch_size; \
-ubatch_size: 2048; \
+ubatch_size: $ubatch_size; \
 parallel: $batches; \
 threads: $threads; \
 threads_batch: $threads; \
@@ -86,7 +86,7 @@ $max_position_embeddings:=8192
 $pooling:="rank"
 
 $batch_size:=$max_position_embeddings
-$ubatch_size:=8192
+$ubatch_size:=512
 $batches:=1
 $threads:=8  // M1 Pro P-cores
 
@@ -104,7 +104,7 @@ threads: $threads; \
 threads_batch: $threads; \
 threads_http: 2; \
 log_disable: False:C215; \
-n_gpu_layers: -1}
+n_gpu_layers: -14}
 
 $rerank:=cs:C1710.event.huggingface.new($folder; $URL; $path)
 $huggingfaces:=cs:C1710.event.huggingfaces.new([$rerank])

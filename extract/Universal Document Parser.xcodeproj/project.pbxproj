@@ -13,6 +13,9 @@
 		18B684FA06944F2000CC6A1E /* PrivateTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 18B684F306944F2000CC6A1E /* PrivateTypes.h */; };
 		18B684FB06944F2000CC6A1E /* PublicTypes.h in Headers */ = {isa = PBXBuildFile; fileRef = 18B684F406944F2000CC6A1E /* PublicTypes.h */; };
 		8D01CCCA0486CAD60068D4B7 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
+		D1037FAF2F80F05A0026408F /* libtokenizers_c.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1037FAC2F80F05A0026408F /* libtokenizers_c.a */; };
+		D1037FB02F80F05A0026408F /* libtokenizers_cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1037FAD2F80F05A0026408F /* libtokenizers_cpp.a */; };
+		D1037FB12F80F05A0026408F /* libsentencepiece.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1037FAE2F80F05A0026408F /* libsentencepiece.a */; };
 		D130064F12F02D9700702C0E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D130064E12F02D9700702C0E /* Cocoa.framework */; };
 		D13116A91A03ACB700DE1322 /* 4DPluginAPI.c in Sources */ = {isa = PBXBuildFile; fileRef = D13116A81A03ACB700DE1322 /* 4DPluginAPI.c */; settings = {COMPILER_FLAGS = "-Wno-multichar"; }; };
 		D134D4AC1A030BA0008D14EF /* manifest.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = D134D4A91A030B06008D14EF /* manifest.json */; };
@@ -60,6 +63,9 @@
 		18B684F306944F2000CC6A1E /* PrivateTypes.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PrivateTypes.h; sourceTree = "<group>"; };
 		18B684F406944F2000CC6A1E /* PublicTypes.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = PublicTypes.h; sourceTree = "<group>"; };
 		8D01CCD10486CAD60068D4B7 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		D1037FAC2F80F05A0026408F /* libtokenizers_c.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtokenizers_c.a; path = a/libtokenizers_c.a; sourceTree = "<group>"; };
+		D1037FAD2F80F05A0026408F /* libtokenizers_cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtokenizers_cpp.a; path = a/libtokenizers_cpp.a; sourceTree = "<group>"; };
+		D1037FAE2F80F05A0026408F /* libsentencepiece.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsentencepiece.a; path = a/libsentencepiece.a; sourceTree = "<group>"; };
 		D130064E12F02D9700702C0E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		D13116A81A03ACB700DE1322 /* 4DPluginAPI.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = 4DPluginAPI.c; sourceTree = "<group>"; };
 		D134D4A91A030B06008D14EF /* manifest.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
@@ -90,6 +96,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D1037FAF2F80F05A0026408F /* libtokenizers_c.a in Frameworks */,
+				D1037FB02F80F05A0026408F /* libtokenizers_cpp.a in Frameworks */,
+				D1037FB12F80F05A0026408F /* libsentencepiece.a in Frameworks */,
 				D1D974892F7BA6EE0081DFC5 /* libplib.a in Frameworks */,
 				D1D9748A2F7BA6EE0081DFC5 /* libxml2.a in Frameworks */,
 				D1D9748B2F7BA6EE0081DFC5 /* libomp.a in Frameworks */,
@@ -186,6 +195,9 @@
 		D16FBB3C22A4C07E008F0416 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D1037FAE2F80F05A0026408F /* libsentencepiece.a */,
+				D1037FAC2F80F05A0026408F /* libtokenizers_c.a */,
+				D1037FAD2F80F05A0026408F /* libtokenizers_cpp.a */,
 				D1D974922F7BA7150081DFC5 /* liblzma.tbd */,
 				D1D974912F7BA7010081DFC5 /* libz.tbd */,
 				D1D974862F7BA6EE0081DFC5 /* libcrypto.a */,
@@ -227,6 +239,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 42D60B3F0A9DDBC8002ABB42 /* Build configuration list for PBXNativeTarget "Universal Document Parser" */;
 			buildPhases = (
+				D1037FAB2F80EEAC0026408F /* ShellScript */,
 				8D01CCC70486CAD60068D4B7 /* Headers */,
 				8D01CCC90486CAD60068D4B7 /* Resources */,
 				D134D4AB1A030B7A008D14EF /* CopyFiles */,
@@ -301,6 +314,23 @@
 /* End PBXRezBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		D1037FAB2F80EEAC0026408F /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#!/bin/bash\nset -e\n\nINPUT=\"$PROJECT_DIR/tokenizers/microsoft/harrier-oss-v1-0.6b/tokenizer.json\"\nOUTPUT=\"$PROJECT_DIR/include/embed_tokenizer.h\"\n\n# Bail early if tokenizer hasn't changed\nif [ -f \"$OUTPUT\" ] && [ \"$INPUT\" -ot \"$OUTPUT\" ]; then\n    echo \"embed_tokenizer.h is up to date, skipping.\"\n    exit 0\nfi\n\nmkdir -p \"$PROJECT_DIR/include\"\n\n# xxd -i emits a C array named after the filename with slashes/dots replaced\n# We want a stable symbol name regardless of path, so we pipe stdin instead\n# and name it ourselves\nxxd -i < \"$INPUT\" > \"$OUTPUT.tmp\"\n\n# xxd stdin mode emits the array as `unsigned char stdin_` - rename to something clean\nsed 's/unsigned char stdin__\\[\\]/const unsigned char qwen3_tokenizer_json[]/g' \"$OUTPUT.tmp\" > \"$OUTPUT.tmp2\"\nsed 's/unsigned int stdin___len/const size_t qwen3_tokenizer_json_len/g' \"$OUTPUT.tmp2\" >> /dev/null\n\n# Rebuild cleanly with correct symbol names\n{\n    echo \"/* Auto-generated by embed_tokenizer.sh — do not edit */\"\n    echo \"#pragma once\"\n    echo \"#include <stddef.h>\"\n    echo \"\"\n    echo \"static const unsigned char qwen3_tokenizer_json[] = {\"\n    xxd -i < \"$INPUT\" | grep -v 'unsigned' | grep -v '};' | grep -v '^$'\n    echo \"};\"\n    echo \"\"\n    # Extract the length value from xxd output and emit it cleanly\n    LENGTH=$(wc -c < \"$INPUT\" | tr -d ' ')\n    echo \"static const size_t qwen3_tokenizer_json_len = ${LENGTH};\"\n} > \"$OUTPUT\"\n\nrm -f \"$OUTPUT.tmp\" \"$OUTPUT.tmp2\"\n\necho \"Generated $OUTPUT (${LENGTH} bytes)\"\n";
+		};
 		D1292E7B22C4A91E00CB5A8C /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

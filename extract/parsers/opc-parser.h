@@ -70,17 +70,12 @@ typedef enum {
 
 #include "C_TEXT.h"
 #include "4DPlugin-JSON.h"
+#include "tokenizers_cpp.h"
 
-//#ifdef __cplusplus
-//extern "C" {
-//#endif
 extern bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                            output_type mode,
                            int max_paragraph_length,
                            bool unique_values_only,
                            std::string password);
-//#ifdef __cplusplus
-//}
-//#endif
 
 #endif  /* __OPC_PARSER_H__ */

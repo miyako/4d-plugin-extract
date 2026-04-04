@@ -8,11 +8,12 @@
 			<field_extra class_id="4D.Vector"/>
 		</field>
 		<field name="text" uuid="0F5F84EA40294E92B61ECFF65E795C69" type="21" blob_switch_size="2147483647" never_null="true" id="3"/>
+		<field name="duration" uuid="06B877B89BAD4757946EA405D966D2E2" type="9" never_null="true" id="4"/>
 		<primary_key field_name="ID" field_uuid="D036033A76D94FD3BDDC5969683FBC93"/>
 		<table_extra>
 			<editor_table_info displayable_fields_count="6">
 				<color red="255" green="255" blue="255" alpha="0"/>
-				<coordinates left="241.87109375" top="179.12109375" width="120" height="167.33203125"/>
+				<coordinates left="85.5" top="0" width="120" height="167.33203125"/>
 			</editor_table_info>
 		</table_extra>
 	</table>
