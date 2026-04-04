@@ -56,11 +56,18 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 This is a distilled version of the `27b` model. 
 
-|Parameters|Dimensions|Context Length|
-|-:|-:|-:
-|`268098816`|`640`|`32768`|
+|Parameters|Dimensions|Context Length|Hidden Layers
+|-:|-:|-:|-:
+|`268098816`|`640`|`32768`|`18`
 
+#### Q8_0
 
+|Tokens|GPU Layers:8|GPU Layers:16|GPU Layers:18
+|-:|-:|-:|-:|
+|~`30000`|`22.0`~`28.0`|`18.0`~`19.0`|`13.0`~`14.0`
+|~`10000`|`2.0`~`3.0`|`1.8`~`2.6`|`1.6`~`2.4`
+|~`5000`|`1.0`~`1.7`|`1.0`|`0.8`
+|~`1000`|`0.1`~`0.3`|`0.1`|`0.07`
 
 ### llama.cpp stats 
 
