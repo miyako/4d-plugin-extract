@@ -83,8 +83,8 @@ This is a distilled version of the `27b` model.
 ```4d
 var $query : Text
 
-$q:="Who talked about the latest 4D AI Kit feature?"
-$query:="Instruct: Retrieve text that answers the query\nQuery: "+$q
+$q:="AI features integrated in 4D Write Pro"
+$query:="Instruct: Retrieve text that relates to the topic\nTopic: "+$q
 
 var $AIClient : cs.AIKit.OpenAI
 $AIClient:=cs.AIKit.OpenAI.new()
@@ -101,10 +101,39 @@ If ($batch.success)
 	var $comparison:={vector: $vector; metric: mk cosine; threshold: 0.6}
 	var $results:=ds.Documents.query("embeddings > :1"; $comparison)
 	If ($results.length#0)
+		
 		ALERT(JSON Stringify($results.text.extract("text").flat(); *))
+		
+		var $AIReranker : cs.AIKit.Reranker
+		$AIReranker:=cs.AIKit.Reranker.new({baseURL: "http://127.0.0.1:8081/v1"})
+		var $RerankerParameters:=cs.AIKit.RerankerParameters.new({top_n: 5})
+		
+		$documents:=$results.extract("ID"; "ID"; "text.text"; "documents")
+		
+		For each ($document; $documents)
+			
+			var $RerankerQuery:=cs.AIKit.RerankerQuery.new({\
+			query: $query; \
+			documents: $document.documents})
+			
+			$batch:=$AIReranker.rerank.create($RerankerQuery; $RerankerParameters)
+			If ($batch.success)
+				For each ($result; $batch.results)
+					$reranked.push({\
+					ID: $document.ID; \
+					score: $result.relevance_score; \
+					text: $document.documents.at($result.index)})
+				End for each 
+			Else 
+				TRACE
+			End if 
+		End for each 
 	End if 
 End if 
+
+$reranked:=$reranked.orderBy("score desc")
+
+ALERT(JSON Stringify($reranked; *))
 ```
 
-<img width="480" height="591" alt="Screenshot 2026-04-04 at 23 43 43" src="https://github.com/user-attachments/assets/abbe19a0-4aef-44cc-8834-93fff1b4f3c8" />
-
+<img width="480" height="542" alt="Screenshot 2026-04-05 at 0 02 41" src="https://github.com/user-attachments/assets/accb11f4-d4f1-4efa-905f-36e02895d33b" />
