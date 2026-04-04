@@ -83,8 +83,8 @@ This is a distilled version of the `27b` model.
 ```4d
 var $query : Text
 
-$q:="Intissar and Sara talks about the latest AI Kit feature"
-$query:="Instruct: Retrieve text that matches the passage\nPassage: "+$q
+$q:="Who talked about the latest 4D AI Kit feature?"
+$query:="Instruct: Retrieve text that answers the query\nQuery: "+$q
 
 var $AIClient : cs.AIKit.OpenAI
 $AIClient:=cs.AIKit.OpenAI.new()
@@ -104,7 +104,7 @@ If ($batch.success)
 		
 		var $AIReranker : cs.AIKit.Reranker
 		$AIReranker:=cs.AIKit.Reranker.new({baseURL: "http://127.0.0.1:8081/v1"})
-		var $RerankerParameters:=cs.AIKit.RerankerParameters.new({top_n: 3})
+		var $RerankerParameters:=cs.AIKit.RerankerParameters.new({top_n: 5})
 		
 		$documents:=$results.extract("ID"; "ID"; "text.text"; "documents")
 		
@@ -129,7 +129,7 @@ If ($batch.success)
 	End if 
 End if 
 
-$reranked:=$reranked.orderBy("score desc").slice(0; 10)
+$reranked:=$reranked.orderBy("score desc").slice(0; 3)
 
 ALERT(JSON Stringify($reranked; *))
 ```
