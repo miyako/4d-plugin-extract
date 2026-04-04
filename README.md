@@ -51,5 +51,5 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 |Model|Output Format|Embeddings per document|Embeddings per second|Seconds per document
 |:-|-:|-:|-:|-:|
-|Granite Embedding English R2|Collection|`84`|`6.360`|`13.206`
+|Granite Embedding English R2|Collection|`84`|`12.614`|`6.659`
 |Granite Embedding English R2|Collections|`835`|`19.108`|`43.698`
