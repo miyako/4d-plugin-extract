@@ -62,3 +62,5 @@ An encoder-only model can generate `84` embeddings with `10%` chunks each in `3.
 Use a ModernBERT encoder-only model with `8192` context length (e.g. Granite Embedding English R2) to generate embeddings in chunks.
 
 Use a Qwen decoder-only model with `32768` context length (e.g. Harrier OSS v1.0 0.6b) to generate a single embedding for the entire document.
+
+For the best of both worlds, use a reranker model with `8192` context length (e.g. e.g. Granite Embedding Reranker English R2).
