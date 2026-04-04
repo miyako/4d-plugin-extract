@@ -140,10 +140,15 @@ static void document_to_json_ss(Workbook& document,
         {
             //ignore max_paragraph_length, unique_values_only
             std::string text = "";
+            PA_CollectionRef pages = PA_CreateCollection();
             for (const auto &sheet : document.sheets) {
                 bool emptyCol = true;
+                std::string paragraphs;
                 for (const auto &row : sheet.rows) {
                     bool emptyRow = true;
+                    std::unordered_set<std::string> seen_value;
+                    std::unordered_set<std::string> seen;
+                    int paragraph_length = 0;
                     std::string joined;
                     for (const auto &cell : row.cells) {
                         if(cell.empty())
@@ -153,18 +158,50 @@ static void document_to_json_ss(Workbook& document,
                         joined += cell;
                         emptyRow = false;
                         emptyCol = false;
+                        
+                        if ((unique_values_only) && (!seen_value.insert(cell).second)) {
+                            continue;
+                        }
+                        
+                        if(!joined.empty()) joined += " ";
+                        
+                        joined += cell;
                     }
+                    
                     if(emptyRow) {
                         continue;
                     }
+                    
                     if (!text.empty()) text += "\n";
                     text += joined.c_str();
+                    
+                    if ((unique_values_only) && (!seen.insert(joined).second)) {
+                        continue;
+                    }
+                    
+                    emptyCol = false;
+                    
+                    if(!paragraphs.empty()) paragraphs += "\n";
+                    paragraphs += joined;
+                    
+                    if (max_paragraph_length > 0) {
+                        paragraph_length++;
+                        if (paragraph_length == max_paragraph_length) {
+                            ob_append_s(pages, paragraphs);
+                            paragraph_length = 0;
+                            emptyCol = true;
+                            paragraphs.clear();
+                            continue;
+                        }
+                    }
                 }
                 if (emptyCol)
                     continue;
-                //pagenation here if necessary
+                
+                ob_append_s(pages, paragraphs);
             }
             ob_set_s(documentNode, "input", text.c_str());
+            ob_set_c(documentNode, L"documents", pages);
         }
             break;
         case output_type_collection:
@@ -371,8 +408,12 @@ static void document_to_json(Document& document,
         {
             //ignore max_paragraph_length, unique_values_only
             std::string text = "";
+            PA_CollectionRef pages = PA_CreateCollection();
             for (const auto &page : document.pages) {
                 bool emptyCol = true;
+                std::string paragraphs;
+                std::unordered_set<std::string> seen;
+                int paragraph_length = 0;
                 for (const auto &paragraph : page.paragraphs) {
                     std::string joined;
                     for (const auto &run : paragraph.runs) {
@@ -389,14 +430,33 @@ static void document_to_json(Document& document,
                     
                     if (!text.empty()) text += "\n";
                     text += joined.c_str();
+                    
+                    if ((unique_values_only) && (!seen.insert(joined).second)) {
+                        continue;
+                    }
+                    
+                    if(!paragraphs.empty()) paragraphs += "\n";
+                    paragraphs += joined;
+                    
+                    if (max_paragraph_length > 0) {
+                        paragraph_length++;
+                        if (paragraph_length == max_paragraph_length) {
+                            ob_append_s(pages, paragraphs);
+                            paragraph_length = 0;
+                            emptyCol = true;
+                            paragraphs.clear();
+                            continue;
+                        }
+                    }
                 }
                 if (emptyCol) {
                     //empty page
                     continue;
                 }
-                //pagenation here
+                ob_append_s(pages, paragraphs);
             }
             ob_set_s(documentNode, "input", text.c_str());
+            ob_set_c(documentNode, L"documents", pages);
         }
             break;
         case output_type_collection:

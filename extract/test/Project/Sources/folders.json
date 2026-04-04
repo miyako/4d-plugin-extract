@@ -1,9 +1,4 @@
 {
-	"onnx": {
-		"methods": [
-			"test_aikit_docx_contextual",
-			"test_aikit_xlsx_contextual"
-		]
-	},
+	"onnx": {},
 	"trash": {}
 }

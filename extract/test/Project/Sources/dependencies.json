@@ -1,10 +1,6 @@
 {
 	"version": 2100,
 	"dependencies": {
-		"4D AIKit": {
-			"github": "4d/4D-AIKit",
-			"version": "4d"
-		},
 		"workers": {
 			"github": "miyako/workers",
 			"version": "latest"
@@ -17,12 +13,12 @@
 			"github": "miyako/event",
 			"version": "latest"
 		},
-		"onnx genai": {
-			"github": "miyako/onnx-genai",
-			"version": "latest"
-		},
 		"llama cpp": {
 			"github": "miyako/llama-cpp",
+			"version": "latest"
+		},
+		"aikit": {
+			"github": "miyako/aikit",
 			"version": "latest"
 		}
 	}
