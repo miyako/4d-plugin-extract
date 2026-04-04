@@ -73,7 +73,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 The sample `.docx` file has `835` semantic chunks, or paragraphs. The total number of tokens is `18776`.
 
-A decoder-only model can generate `1` embedding for the entire document in `116.023` seconds if the model and graph are not fully loaded in memory. It is important to not offload to the GPU unless you have plenty of memory (`40GB` or more). 
+A decoder-only model can generate `1` embedding for the entire document in `116.023` seconds if the model and graph are not fully loaded in memory. It is important to not offload to the GPU unless you have plenty of memory (`40GB` or more). It is also important to pad the text so that `llama-server` does not have to builds a new GGML computation graph per unique sequence length. Since `qwen3` models have a `32768` context length, it makes sense to have buckets of `512`, `1024`, `2048`, `4096`, `8192`, `16384`, and `32767`. The longest sequence (`32767`) takes `352` seconds, or `6` minutes on the first call, but the next could be fast as `0.298` seconds.
 
 This strategy prioritises speed over relevance. The same decoder-only model can generate `1` embedding for each of the `835` semantic chunks, or  `84` embeddings with up to `100` chunks each in about the same time. It is more efficient to create `1` embedding for the whole document.
 
