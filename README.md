@@ -83,7 +83,7 @@ This is a distilled version of the `27b` model.
 - `0.1` seconds * `1` million = `1.15` days
 - `0.05` seconds * `1` million = `13.89` hours
 
-Even though the model supports up to `32768` tokens, the time required to generate embeddings increases quadratically. The time to process `4000` tokens is much more than `4*1000` tokens.
+Even though the model supports up to `32768` tokens, the time required to generate embeddings increases quadratically.
 
 ## Example
 
