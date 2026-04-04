@@ -168,3 +168,7 @@ $reranked:=$reranked.orderBy("relevance_score desc").slice(0; 3)
 
 ALERT(JSON Stringify($reranked; *))
 ```
+
+<img width="480" height="542" alt="Screenshot 2026-04-04 at 14 53 09" src="https://github.com/user-attachments/assets/7e7d2282-032d-48f0-b0f6-536de9783a87" />
+<img width="480" height="542" alt="Screenshot 2026-04-04 at 14 52 50" src="https://github.com/user-attachments/assets/c947632f-7d43-4f05-982b-b148496b11cd" />
+
