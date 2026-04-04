@@ -41,11 +41,18 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 ### llama.cpp stats 
 
+#### Decoder-only Embeddings
+
 |Model|Output Format|Embeddings per document|Embeddings per second|Seconds per document
 |:-|-:|-:|-:|-:|
 |Harrier OSS v1.0 0.6b|Text|`1`|`3.717`|`0.269`
 |Harrier OSS v1.0 0.6b|Collection|`84`|`3.618`|`23.213`
 |Harrier OSS v1.0 0.6b|Collection|`835`|`30.457`|`27.415`
+
+#### Encoder-only Embeddings
+
+|Model|Output Format|Embeddings per document|Embeddings per second|Seconds per document
+|:-|-:|-:|-:|-:|
 |Granite Embedding English R2|Collection|`84`|`21.616`|`3.886`
 |Granite Embedding English R2|Collection|`835`|`136.728`|`6.107`
 
