@@ -58,7 +58,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 |Model|Output Format|Embeddings per document|Embeddings per second|Seconds per document
 |:-|-:|-:|-:|-:|
-|Harrier OSS v1.0 0.6b|Text|`1`|`3.717`|`90.124`
+|Harrier OSS v1.0 0.6b|Text|`1`|`3.717`|`116.023`
 |Harrier OSS v1.0 0.6b|Collection|`84`|`3.618`|`23.213`
 |Harrier OSS v1.0 0.6b|Collection|`835`|`30.457`|`27.415`
 
@@ -71,9 +71,9 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 #### Remarks
 
-The sample `.docx` file has `835` semantic chunks, or paragraphs. It is `18776` tokens long.
+The sample `.docx` file has `835` semantic chunks, or paragraphs. The total number of tokens is `18776`.
 
-A decoder-only model can generate `1` embedding for the entire document in `0.269` seconds if the model and graph are fully loaded in memory. Otherwise it will take longer. This strategy prioritises speed over relevance. The same decoder-only model can generate `1` embedding for each of the `835` semantic chunks, or  `84` embeddings with up to `100` chunks each in about the same time. It is more efficient to create `1` embedding for the whole document.
+A decoder-only model can generate `1` embedding for the entire document in `116.023` seconds if the model and graph are not fully loaded in memory. This strategy prioritises speed over relevance. The same decoder-only model can generate `1` embedding for each of the `835` semantic chunks, or  `84` embeddings with up to `100` chunks each in about the same time. It is more efficient to create `1` embedding for the whole document.
 
 An encoder-only model can generate `84` embeddings with up to `100` chunks each in `3.886` seconds, or `1` embedding for each of the `835` semantic chunks in `6.107` seconds. Smaller chnuks are faster to process but results is more embeddings will less context. You need to strike the right balance between speed and relevance.
 
