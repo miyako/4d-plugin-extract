@@ -39,6 +39,19 @@ This is the main function. Pass the document type, output format, and a `task` o
 |`Extract Output Collection`|`2`|Suitable for **OpenAI** style `embeddings` API, encoder-only model 
 |`Extract Output Collections`|`3`|Suitable for **Voyage AI** style `contextualizedembeddings` API 
 
+#### `Extract Output Text`
+
+- `input`: The entire document text connatenated.
+- `documents`: The document divided into semantic chunks. Same as the `input` collection as `Extract Output Collection`
+
+#### `Extract Output Collection`  
+
+- `input`: The document divided into semantic chunks. Use `unique_values_only` and `max_paragraph_length` to control sampling rules.
+
+#### `Extract Output Collection`  
+
+- `inputs`: The document divided into chunks of semantic chunks. Use `unique_values_only` and `max_paragraph_length` to control sampling rules.
+
 ### llama.cpp stats 
 
 #### Decoder-only Embeddings
