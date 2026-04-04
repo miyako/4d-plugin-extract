@@ -39,13 +39,19 @@ This is the main function. Pass the document type, output format, and a `task` o
 |`Extract Output Collection`|`2`|Suitable for **OpenAI** style `embeddings` API, encoder-only model 
 |`Extract Output Collections`|`3`|Suitable for **Voyage AI** style `contextualizedembeddings` API 
 
-### Performace Comparison
+### llama.cpp stats 
 
 |Model|Output Format|Embeddings per document|Embeddings per second|Seconds per document
 |:-|-:|-:|-:|-:|
 |Harrier OSS v1.0 0.6b|Text|`1`|`3.717`|`0.269`
 |Harrier OSS v1.0 0.6b|Collection|`84`|`3.618`|`23.213`
 |Granite Embedding English R2|Collection|`84`|`18.876`|`4.45`
+
+### ONNX Runtime stats 
+
+|Model|Output Format|Embeddings per document|Embeddings per second|Seconds per document
+|:-|-:|-:|-:|-:|
+|Granite Embedding English R2|Collection|`84`|`5.874`|`14.298`
 
 
 ## Simple Embeddings 
