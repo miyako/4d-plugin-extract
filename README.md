@@ -56,7 +56,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 - The architecture requires the `batch_size` to equal `max_position_embeddings` for long context.
 - This is a distilled version of the `27b` model and uses the same tokenizer as `27b`.
-- `F16` excels at short context but `Q8_0` is slightly faster at long context.
+- `F16` excels over `Q8_0` at short context but the margin narrows as the context get longer.
 
 |Parameters|Dimensions|Context Length|Hidden Layers
 |-:|-:|-:|-:
