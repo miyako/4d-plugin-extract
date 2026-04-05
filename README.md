@@ -86,12 +86,12 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 #### Q4_k_m
 
-|Tokens|GPU Layers:0|
-|-:|-:|
-|~`30000`||
-|~`10000`||
-|~`5000`|`40.9`|
-|~`1000`|`1.8`|
+|Tokens|GPU Layers:0|GPU Layers:8
+|-:|-:|-:|
+|~`30000`|||
+|~`10000`|||
+|~`5000`|`40.9`||
+|~`1000`|`1.8`|`0.9`|
 
 ---
 
