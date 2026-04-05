@@ -54,7 +54,8 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 ## Harrier OSS v1.0 230m
 
-This is a distilled version of the `27b` model. 
+- The architecture requires the `batch_size` to equal `max_position_embeddings` for long context.
+- This is a distilled version of the `27b` model and uses the same tokenizer as `27b`.
 
 |Parameters|Dimensions|Context Length|Hidden Layers
 |-:|-:|-:|-:
@@ -62,12 +63,12 @@ This is a distilled version of the `27b` model.
 
 #### Q8_0
 
-|Tokens|GPU Layers:8|GPU Layers:16|GPU Layers:18
-|-:|-:|-:|-:|
-|~`30000`|`22.0`~`28.0`|`18.0`~`19.0`|`13.0`~`14.0`
-|~`10000`|`2.0`~`3.0`|`1.8`~`2.6`|`1.6`~`2.4`
-|~`5000`|`1.0`~`1.7`|`1.0`|`0.8`
-|~`1000`|`0.1`~`0.3`|`0.1`|`0.07`
+|Tokens|GPU Layers:0|GPU Layers:8|GPU Layers:16|GPU Layers:18
+|-:|-:|-:|-:|-:|
+|~`30000`|`32.5`|`25.0`|`18.5`|`13.5`
+|~`10000`|`4.6`|`2.5`|`2.1`|`2.0`
+|~`5000`|`2.6`|`1.6`|`1.0`|`0.8`
+|~`1000`|`0.4`|`0.3`|`0.2`|`0.1`|`0.07`
 
 #### F16
 
