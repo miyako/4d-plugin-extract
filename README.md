@@ -84,7 +84,11 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 - On a MacBook Pro M1 2021 with `10` cores and `16GB` memory, `1000` tokens is the practical limit.
 - GPU offloading eases the CPU but the **the result is magnitudes slower** due to context switching.
- 
+
+ |Parameters|Dimensions|Context Length|Hidden Layers
+|-:|-:|-:|-:
+|`596049920`|`1024`|`32768`|`28`
+
 #### Q4_k_m
 
 |Tokens|GPU Layers:0|GPU Layers:8
