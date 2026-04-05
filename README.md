@@ -83,9 +83,7 @@ This is a distilled version of the `27b` model.
 - `0.1` seconds * `1` million = `1.15` days
 - `0.05` seconds * `1` million = `13.89` hours
 
-Even though the model supports up to `32768` tokens, the time required to generate embeddings increases quadratically.
-
-To generate embeddings in less than `0.05` seconds the chunk can be no longer than `1000` tokens. 
+Even though the model supports up to `32768` tokens, the time required to generate embeddings increases **quadratically**. To generate a single token locally without stress, `10000` tokens is about the limit. To generate a batch of long context embeddings it is essential to **rent a GPU cluster**.
 
 ## Example
 
