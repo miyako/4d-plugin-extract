@@ -54,7 +54,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 ## Harrier OSS v1.0 230m
 
-- The architecture requires the `batch_size` to equal `max_position_embeddings` for long context.
+- The architecture requires the `ubatch_size` to match `max_position_embeddings` for full context.
 - This is a distilled version of the `27b` model and uses the same tokenizer as `27b`.
 - `F16` is almost the same as `Q8_0` regardless of cache data type or number of GPU layers.
 
