@@ -56,7 +56,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 - The architecture requires the `batch_size` to equal `max_position_embeddings` for long context.
 - This is a distilled version of the `27b` model and uses the same tokenizer as `27b`.
-- `F16` excels over `Q8_0` at short context but the margin narrows as the context get longer.
+- `F16` is almost the same as `Q8_0` regardless of cache data type or number of GPU layers.
 
 |Parameters|Dimensions|Context Length|Hidden Layers
 |-:|-:|-:|-:
@@ -75,10 +75,10 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 |Tokens|GPU Layers:0|GPU Layers:8|GPU Layers:16|GPU Layers:18
 |-:|-:|-:|-:|-:|
-|~`30000`|`30.0`|`21.5`|`19.5`|`14.9`
-|~`10000`|`4.3`|`3.0`|`2.4`|`2.0`
-|~`5000`|`2.5`|`0.8`|`0.6`|`0.5`
-|~`1000`|`0.4`|`0.2`|`0.08`|`0.06`
+|~`30000`|`30.0`|`21.4`|`19.5`|`14.9`
+|~`10000`|`4.3`|`2.8`|`2.4`|`2.0`
+|~`5000`|`2.5`|`1.6`|`0.6`|`0.5`
+|~`1000`|`0.4`|`0.3`|`0.08`|`0.06`
 
 - `15` seconds * `1` million documents = `173.61` days
 - `1` second * `1` million documents = `11.57` days
