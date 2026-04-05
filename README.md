@@ -57,7 +57,6 @@ This is the main function. Pass the document type, output format, and a `task` o
 - The architecture requires the `ubatch_size` to match `max_position_embeddings` for full context.
 - This is a distilled version of the `27b` model and uses the same tokenizer as `27b`.
 - `F16` is almost the same as `Q8_0` regardless of cache data type or number of GPU layers.
-- Token-padding to fixed length is difficult; the model is not using `tokenizer.json`.
 
 |Parameters|Dimensions|Context Length|Hidden Layers|`tokenizer.ggml.model`
 |-:|-:|-:|-:|-:
@@ -85,6 +84,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 - On a MacBook Pro M1 2021 with `10` cores and `16GB` memory, `1000` tokens is the practical limit.
 - GPU offloading eases the CPU but the **the result is magnitudes slower** due to context switching.
+- Token padding to fixed bucket size increases performance
 
  |Parameters|Dimensions|Context Length|Hidden Layers|`tokenizer.ggml.model`	
 |-:|-:|-:|-:|-:
