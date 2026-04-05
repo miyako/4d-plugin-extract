@@ -57,6 +57,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 - The architecture requires the `ubatch_size` to match `max_position_embeddings` for full context.
 - This is a distilled version of the `27b` model and uses the same tokenizer as `27b`.
 - `F16` is almost the same as `Q8_0` regardless of cache data type or number of GPU layers.
+- Token-padding to fixed length is difficult; the model is not using `tokenizer.json`.
 
 |Parameters|Dimensions|Context Length|Hidden Layers
 |-:|-:|-:|-:
@@ -94,7 +95,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 |Tokens|GPU Layers:0|GPU Layers:8
 |-:|-:|-:|
 |~`30000`|||
-|~`10000`|||
+|~`10000`|`647.0`||
 |~`5000`|`40.9`||
 |~`1000`|`1.8`|`0.9`|
 
