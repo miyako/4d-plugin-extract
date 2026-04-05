@@ -56,6 +56,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 - The architecture requires the `batch_size` to equal `max_position_embeddings` for long context.
 - This is a distilled version of the `27b` model and uses the same tokenizer as `27b`.
+- `F16` excels at short context but `Q8_0` is slightly faster at long context.
 
 |Parameters|Dimensions|Context Length|Hidden Layers
 |-:|-:|-:|-:
@@ -65,26 +66,26 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 |Tokens|GPU Layers:0|GPU Layers:8|GPU Layers:16|GPU Layers:18
 |-:|-:|-:|-:|-:|
-|~`30000`|`32.5`|`25.0`|`18.5`|`13.5`
+|~`30000`|`32.5`|`25.0`|`18.5`|`15.6`
 |~`10000`|`4.6`|`2.5`|`2.1`|`2.0`
 |~`5000`|`2.6`|`1.6`|`1.0`|`0.8`
 |~`1000`|`0.4`|`0.3`|`0.2`|`0.1`|`0.07`
 
 #### F16
 
-|Tokens|GPU Layers:4|GPU Layers:8|GPU Layers:16|GPU Layers:18
+|Tokens|GPU Layers:0|GPU Layers:8|GPU Layers:16|GPU Layers:18
 |-:|-:|-:|-:|-:|
-|~`30000`|`26.0`~`27.0`|`21.0`~`22.0`|`19.3`~`19.8`|`14.7`~`15.1`
-|~`10000`|`3.4`~`4.4`|`2.6`~`3.5`|`2.2`~`2.5`|`1.8`~`2.3`
-|~`5000`|`0.3`~`1.8`|`0.2`~`1.5`|`0.2`~`1.0`|`0.1`~`0.9`
-|~`1000`|`0.1`~`0.2`|`0.16`~`0.19`|`0.05`~`0.11`|`0.04`~`0.08`
+|~`30000`|`30.0`|`21.5`|`19.5`|`14.9`
+|~`10000`|`4.3`|`3.0`|`2.4`|`2.0`
+|~`5000`|`2.5`|`0.8`|`0.6`|`0.5`
+|~`1000`|`0.4`|`0.2`|`0.08`|`0.06`
 
-- `15` seconds * `1` million (documents) = `173.61` days
-- `1` second * `1` million = `11.57` days
-- `0.1` seconds * `1` million = `1.15` days
-- `0.05` seconds * `1` million = `13.89` hours
+- `15` seconds * `1` million documents = `173.61` days
+- `1` second * `1` million documents = `11.57` days
+- `0.1` seconds * `1` million documents = `1.15` days
+- `0.05` seconds * `1` million documents = `13.89` hours
 
-Even though the model supports up to `32768` tokens, the time required to generate embeddings increases **quadratically**. To generate a single token locally without stress, `10000` tokens is about the limit. To generate a batch of long context embeddings it is essential to **rent a GPU cluster**.
+Even though the model supports up to `32768` tokens, the time required to generate embeddings increases **quadratically**. To generate a single token locally without stress, `10000` tokens is about the limit. To generate a batch of long context embeddings it is essential to **rent a GPU cluster**. Processing millions of document locally on a standard PC would take months.
 
 ## Example
 
