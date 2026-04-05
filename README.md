@@ -80,6 +80,19 @@ This is the main function. Pass the document type, output format, and a `task` o
 |~`5000`|`2.5`|`1.6`|`0.6`|`0.5`
 |~`1000`|`0.4`|`0.3`|`0.08`|`0.06`
 
+## Harrier OSS v1.0 0.6b
+
+- On a MacBook Pro M1 2021 with `10` cores and `16GB` memory, `1000` tokens is the practical limit.
+
+|Tokens|GPU Layers:0|
+|-:|-:|-:|-:|-:|
+|~`30000`||
+|~`10000`||
+|~`5000`|`40.9`|
+|~`1000`|`1.8`|
+
+---
+
 - `15` seconds * `1` million documents = `173.61` days
 - `1` second * `1` million documents = `11.57` days
 - `0.1` seconds * `1` million documents = `1.15` days
