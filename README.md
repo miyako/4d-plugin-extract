@@ -84,8 +84,10 @@ This is the main function. Pass the document type, output format, and a `task` o
 
 - On a MacBook Pro M1 2021 with `10` cores and `16GB` memory, `1000` tokens is the practical limit.
 
+#### Q4_k_m
+
 |Tokens|GPU Layers:0|
-|-:|-:|-:|-:|-:|
+|-:|-:|
 |~`30000`||
 |~`10000`||
 |~`5000`|`40.9`|
