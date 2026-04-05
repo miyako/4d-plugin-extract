@@ -95,7 +95,7 @@ This is the main function. Pass the document type, output format, and a `task` o
 |Tokens|GPU Layers:0|GPU Layers:8
 |-:|-:|-:|
 |~`30000`|||
-|~`10000`|`647.0`||
+|~`10000`|`547.0`||
 |~`5000`|`40.9`||
 |~`1000`|`1.8`|`0.9`|
 
