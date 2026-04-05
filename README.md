@@ -59,9 +59,9 @@ This is the main function. Pass the document type, output format, and a `task` o
 - `F16` is almost the same as `Q8_0` regardless of cache data type or number of GPU layers.
 - Token-padding to fixed length is difficult; the model is not using `tokenizer.json`.
 
-|Parameters|Dimensions|Context Length|Hidden Layers
-|-:|-:|-:|-:
-|`268098816`|`640`|`32768`|`18`
+|Parameters|Dimensions|Context Length|Hidden Layers|`tokenizer.ggml.model`
+|-:|-:|-:|-:|-:
+|`268098816`|`640`|`32768`|`18`|`gpt2`
 
 #### Q8_0
 
@@ -86,9 +86,9 @@ This is the main function. Pass the document type, output format, and a `task` o
 - On a MacBook Pro M1 2021 with `10` cores and `16GB` memory, `1000` tokens is the practical limit.
 - GPU offloading eases the CPU but the **the result is magnitudes slower** due to context switching.
 
- |Parameters|Dimensions|Context Length|Hidden Layers
-|-:|-:|-:|-:
-|`596049920`|`1024`|`32768`|`28`
+ |Parameters|Dimensions|Context Length|Hidden Layers|`tokenizer.ggml.model`	
+|-:|-:|-:|-:|-:
+|`596049920`|`1024`|`32768`|`28`|`gpt2`
 
 #### Q4_k_m
 
