@@ -193,7 +193,7 @@ If ($batch.success)
 	$vector:=$batch.embedding.embedding
 	
 	/*
-		fetch matching documents; accept some false positives
+		fetch matching documents; allow some false positives
 	*/
 	
 	var $comparison:={vector: $vector; metric: mk cosine; threshold: 0.6}
