@@ -9,14 +9,11 @@ $AIClient.baseURL:="http://127.0.0.1:8080/v1"  // embeddings
 var $batch : Object
 $batch:=$AIClient.embeddings.create($query)
 
-var $reranked : Collection
-$reranked:=[]
-
 If ($batch.success)
 	$vector:=$batch.embedding.embedding
 	
 /*
-fetch matching documents; accept some false positives
+fetch matching documents; allow some false positives
 */
 	
 	var $comparison:={vector: $vector; metric: mk cosine:K95:1; threshold: 0.6}
