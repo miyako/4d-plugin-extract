@@ -26,7 +26,7 @@ Extract SET OPTION(Extract Option Tokenizer File; $file)
 This is the main function. Pass the document type, output format, and a `task` object.
 
 ```4d
-	$task:={file: $file; \
+$task:={file: $file; \
 	text_as_tokens: False; \
 	tokens_length: 1022; \
 	overlap_ratio: 0.09; \
