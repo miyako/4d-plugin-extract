@@ -27,6 +27,7 @@
     </ClCompile>
     <ClCompile Include="4D Plugin API\Classes\C_TEXT.cpp" />
     <ClCompile Include="4DPlugin-Universal-Document-Parser.cpp" />
+    <ClCompile Include="chunker.cpp" />
     <ClCompile Include="parsers\opc-parser.cpp" />
     <ClCompile Include="parsers\pdfium-parser.cpp" />
     <ClCompile Include="support\4DPlugin-JSON.cpp" />
@@ -40,6 +41,7 @@
     <ClInclude Include="4D Plugin API\PrivateTypes.h" />
     <ClInclude Include="4D Plugin API\PublicTypes.h" />
     <ClInclude Include="4DPlugin-Universal-Document-Parser.h" />
+    <ClInclude Include="chunker.h" />
     <ClInclude Include="parsers\opc-parser.h" />
     <ClInclude Include="parsers\pdfium-parser.h" />
     <ClInclude Include="support\4DPlugin-JSON.h" />
@@ -216,7 +218,7 @@
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <AdditionalDependencies>crypt32.lib;ws2_32.lib;pdfium.dll.lib;libcharset.lib;lzma.lib;libiconv.lib;libxml2.lib;mce.lib;zlib.lib;opc.lib;jsoncpp.lib;libcrypto.lib;comctl32.lib;Shlwapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ggml-base.lib;ggml.lib;ggml-cpu.lib;llama.lib;crypt32.lib;ws2_32.lib;pdfium.dll.lib;libcharset.lib;lzma.lib;libiconv.lib;libxml2.lib;mce.lib;zlib.lib;opc.lib;jsoncpp.lib;libcrypto.lib;comctl32.lib;Shlwapi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(ProjectDir)lib\windows64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

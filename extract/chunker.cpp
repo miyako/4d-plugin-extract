@@ -1,4 +1,4 @@
-// ─────────────────────────────────────────────
+﻿// ─────────────────────────────────────────────
 //  llama_chunker.cpp
 //  Depends on: libllama.a, llama.h, llama-cpp.h
 //  Build (macOS arm64):
