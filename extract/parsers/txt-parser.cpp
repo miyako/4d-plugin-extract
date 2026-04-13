@@ -1,5 +1,4 @@
 //
-//  main.cpp
 //  txt-parser
 //
 //  Created by miyako on 2025/10/02.
@@ -137,6 +136,15 @@ extern bool txt_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                      token_padding,
                      pooling_mode,
                      overlap_ratio);
+    
+    goto finally;
+    
+//unfortunately:
+//
+//    ob_set_a(obj, L"type", L"unknown");
+//    return false;
+        
+finally:
     
     ob_set_b(obj, L"success", true);
     return true;
