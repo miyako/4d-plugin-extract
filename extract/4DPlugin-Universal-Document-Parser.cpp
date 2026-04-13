@@ -16,7 +16,7 @@ chunker::ChunkerPtr gchunker;
 int32_t gpadtoken_id;
 
 static void OnStartup() {
-
+    FPDF_InitLibrary();
 }
 
 void PluginMain(PA_long32 selector, PA_PluginParameters params) {
@@ -550,6 +550,19 @@ void Extract(PA_PluginParameters params) {
                                        overlap_ratio,
                                        password);
                         break;
+                    case input_type_pdf:
+                        pdfium_parse_data(data,
+                                          returnValue,
+                                          ot,
+                                          max_paragraph_length,
+                                          unique_values_only,
+                                          text_as_tokens,
+                                          tokens_length,
+                                          token_padding,
+                                          (int)pooling_mode,
+                                          overlap_ratio,
+                                          password);
+                        break;
                     default:
                         break;
                 }
@@ -564,4 +577,6 @@ static void OnExit() {
     if (gchunker) {
         gchunker.reset();
     }
+    
+    FPDF_DestroyLibrary();
 }

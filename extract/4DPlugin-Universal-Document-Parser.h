@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "pdfium-parser.h"
 #include "opc-parser.h"
 #include "chunker.h"
 
@@ -47,7 +48,8 @@ typedef enum {
     input_type_pptx,
     input_type_xls,
     input_type_doc,
-    input_type_ppt
+    input_type_ppt,
+    input_type_pdf
 }input_type;
 
 typedef enum {

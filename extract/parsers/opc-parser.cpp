@@ -71,36 +71,40 @@ static void extract_text_nodes(xmlNode *node, std::string& text) {
     }
 }
 
-struct Run {
-    std::string text;
-};
+namespace opc {
+    struct Run {
+        std::string text;
+    };
 
-struct Paragraph {
-    std::vector<Run> runs;
-};
+    struct Paragraph {
+        std::vector<Run> runs;
+    };
 
-struct Page {
-    std::vector<Paragraph> paragraphs;
-};
+    struct Page {
+        std::vector<Paragraph> paragraphs;
+    };
 
-struct Document {
-    std::string type;
-    std::vector<Page> pages;
-};
+    struct Document {
+        std::string type;
+        std::vector<Page> pages;
+    };
 
-struct Row {
-    std::vector<std::string> cells;
-};
+    struct Row {
+        std::vector<std::string> cells;
+    };
 
-struct Sheet {
-    std::string name;
-    std::vector<Row> rows;
-};
+    struct Sheet {
+        std::string name;
+        std::vector<Row> rows;
+    };
 
-struct Workbook {
-    std::string type;
-    std::vector<Sheet> sheets;
-};
+    struct Workbook {
+        std::string type;
+        std::vector<Sheet> sheets;
+    };
+}
+
+using namespace opc;
 
 static void ob_append_s(PA_CollectionRef c, const std::string& value) {
     
@@ -537,8 +541,6 @@ static void document_to_json(Document& document,
             std::vector<std::string> texts;
             for (const auto &page : document.pages) {
                 bool emptyCol = true;
-//                PA_CollectionRef paragraphs = PA_CreateCollection();
-                //no need for colIdx, rowIdx
                 std::unordered_set<std::string> seen;
                 int paragraph_length = 0;
                 for (const auto &paragraph : page.paragraphs) {
@@ -568,6 +570,7 @@ static void document_to_json(Document& document,
                             ob_append_c(pages, matrix);
                             paragraph_length = 0;
                             emptyCol = true;
+                            texts.clear();
                             continue;
                         }
                     }
@@ -578,6 +581,7 @@ static void document_to_json(Document& document,
                 }
                 PA_CollectionRef matrix = process_paragraphs(texts, tokens_length, token_padding, !text_as_tokens, overlap_ratio, pooling_mode);
                 ob_append_c(pages, matrix);
+                texts.clear();
             }
             ob_set_c(documentNode, L"inputs", pages);
         }
@@ -890,7 +894,7 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                     float overlap_ratio,
                     std::string password) {
     
-    std::string text;
+//    std::string text;
     
     if(password.length()) {
 
