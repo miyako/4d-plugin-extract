@@ -91,9 +91,9 @@ class File {
 	template<class T>
 	void setHandle(const T& name, std::ios::openmode mode)
 	{
-		DWORD access = GENERIC_READ;
-		DWORD disposition = OPEN_EXISTING;
-		DWORD share = FILE_SHARE_READ | FILE_SHARE_WRITE;
+		::DWORD access = GENERIC_READ;
+		::DWORD disposition = OPEN_EXISTING;
+		::DWORD share = FILE_SHARE_READ | FILE_SHARE_WRITE;
 		if (mode & std::ios::out) {
 			access = GENERIC_WRITE;
 			disposition = CREATE_ALWAYS;

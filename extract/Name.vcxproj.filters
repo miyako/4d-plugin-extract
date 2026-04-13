@@ -12,6 +12,7 @@
     <ClCompile Include="support\4DPlugin-JSON.cpp" />
     <ClCompile Include="parsers\pdfium-parser.cpp" />
     <ClCompile Include="chunker.cpp" />
+    <ClCompile Include="parsers\xls-parser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="4D Plugin API\4DPluginAPI.h">
@@ -40,6 +41,7 @@
     <ClInclude Include="support\4DPlugin-JSON.h" />
     <ClInclude Include="parsers\pdfium-parser.h" />
     <ClInclude Include="chunker.h" />
+    <ClInclude Include="parsers\xls-parser.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="4D Plugin API">

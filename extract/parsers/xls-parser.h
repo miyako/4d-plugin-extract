@@ -29,6 +29,12 @@
     }output_type;
 #endif
 
+#ifdef _WIN32
+#define NOMINMAX
+#define _SSIZE_T_DEFINED 1
+#include <Windows.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -39,12 +45,6 @@
 
 #include "xls.h"
 #include <iconv.h>
-
-#ifdef _WIN32
-    #define NOMINMAX
-    #define _SSIZE_T_DEFINED 1
-    #include <Windows.h>
-#endif
 
 #include <json/json.h>
 #include "4DPluginAPI.h"
