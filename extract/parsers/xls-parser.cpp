@@ -351,6 +351,7 @@ bool xls_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
         errorCode = xls_parseWorkBook(pWB);
         if(errorCode) {
             std::cerr << "fail:xls_parseWorkBook(" << errorCode << ")" << xls_getError(errorCode) << std::endl;
+            goto unfortunately;
         }else{
             for (uint16_t i = 0; i < pWB->sheets.count; ++i) {
                 xlsWorkSheet* pWS = xls_getWorkSheet(pWB, i);
@@ -391,6 +392,7 @@ bool xls_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
         xls_close_WB(pWB);
     }else{
         std::cerr << "fail:xls_open_buffer(" << errorCode << ")" << xls_getError(errorCode) << std::endl;
+        goto unfortunately;
     }
         
     document_to_json(document,
