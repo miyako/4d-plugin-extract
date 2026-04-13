@@ -74,8 +74,9 @@ $task:={file: $file; \
 
 |Option|Description
 |-|-|
-|`password`||Password to open DOCX, XLSX, PPTX
-|`charset`||Charset to open XLS
+|`password`|Password to open DOCX, XLSX, PPTX
+|`charset`|charset to open XLS
+|`codepage`|codepage to open DOC or PPT
 |`text_as_tokens`|Return chunks as collection of token IDs instead of text (for debug)
 |`unique_values_only`|Skip duplicate values at row or paragraph/column level (default:`false`)
 |`max_paragraph_length`|Limit paragraphs per page/slide ( default:`-1`)
