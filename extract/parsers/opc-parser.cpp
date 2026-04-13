@@ -106,33 +106,6 @@ namespace opc {
 
 using namespace opc;
 
-static void ob_append_s(PA_CollectionRef c, const std::string& value) {
-    
-    C_TEXT t;
-    t.setUTF8String((const uint8_t *)value.c_str(), (uint32_t)value.length());
-    PA_Variable v = PA_CreateVariable(eVK_Unistring);
-    PA_Unistring u = PA_CreateUnistring((PA_Unichar *)t.getUTF16StringPtr());
-    PA_SetStringVariable(&v, &u);
-    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
-    PA_ClearVariable(&v);
-}
-
-static void ob_append_o(PA_CollectionRef c, PA_ObjectRef value) {
-
-    PA_Variable v = PA_CreateVariable(eVK_Object);
-    PA_SetObjectVariable(&v, value);
-    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
-    PA_ClearVariable(&v);
-}
-
-static void ob_append_c(PA_CollectionRef c, PA_CollectionRef value) {
-
-    PA_Variable v = PA_CreateVariable(eVK_Collection);
-    PA_SetCollectionVariable(&v, value);
-    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
-    PA_ClearVariable(&v);
-}
-
 static void document_to_json_ss(Workbook& document,
                                 PA_ObjectRef documentNode,
                                 output_type mode,

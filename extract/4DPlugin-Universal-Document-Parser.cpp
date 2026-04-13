@@ -174,69 +174,8 @@ static bool folder_object_to_path(PA_ObjectRef f, std::string& path) {
 
 #pragma mark -
 
-// Pick the smallest bucket that fits token_count, with a penalty
-// that discourages crossing the performance cliff.
-//
-// Scoring: score = fill_ratio - cliff_penalty * (bucket > cliff ? 1 : 0)
-// The bucket with the highest score that still fits is chosen.
-//
-// cliff_penalty=0.15 means a sub-cliff bucket must be at least 15% less
-// efficient before the picker crosses the cliff.  At 0.0 it always picks
-// the smallest fitting bucket regardless of cliff.
-
-/*
-static uint32_t pick_bucket(uint32_t token_count,
-                             uint32_t cliff        = 1000,
-                             float    cliff_penalty = 0.15f)
-{
-    static constexpr uint32_t kBuckets[] =
-        { 256, 512, 768, 1024, 2048, 3072, 4096, 8192, 16384 };
-
-    uint32_t best       = 0;
-    float    best_score = -1.0f;
-
-    for (uint32_t b : kBuckets) {
-        if (b < token_count) continue;          // doesn't fit
-        float fill       = static_cast<float>(token_count) / b;
-        float over_cliff = (b > cliff) ? 1.0f : 0.0f;
-        float score      = fill - cliff_penalty * over_cliff;
-        if (score > best_score) { best_score = score; best = b; }
-    }
-
-    // token_count > 32768: caller must split first
-    return best;
-}
-*/
-
-static void ob_append_n(PA_CollectionRef c, double value) {
-    
-    PA_Variable v = PA_CreateVariable(eVK_Real);
-    PA_SetRealVariable(&v, value);
-    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
-    PA_ClearVariable(&v);
-}
-
-static void ob_append_c(PA_CollectionRef c, PA_CollectionRef value) {
-
-    PA_Variable v = PA_CreateVariable(eVK_Collection);
-    PA_SetCollectionVariable(&v, value);
-    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
-    PA_ClearVariable(&v);
-}
-
 using TokenArray = std::vector<int>;
 using TokenMatrix = std::vector<TokenArray>;
-
-static void ob_append_s(PA_CollectionRef c, const std::string& value) {
-    
-    C_TEXT t;
-    t.setUTF8String((const uint8_t *)value.c_str(), (uint32_t)value.length());
-    PA_Variable v = PA_CreateVariable(eVK_Unistring);
-    PA_Unistring u = PA_CreateUnistring((PA_Unichar *)t.getUTF16StringPtr());
-    PA_SetStringVariable(&v, &u);
-    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
-    PA_ClearVariable(&v);
-}
 
 // Internal representation before conversion to PA_Collection
 struct Chunk {
@@ -621,4 +560,39 @@ static void OnExit() {
     }
     
     FPDF_DestroyLibrary();
+}
+
+void ob_append_s(PA_CollectionRef c, const std::string& value) {
+    
+    C_TEXT t;
+    t.setUTF8String((const uint8_t *)value.c_str(), (uint32_t)value.length());
+    PA_Variable v = PA_CreateVariable(eVK_Unistring);
+    PA_Unistring u = PA_CreateUnistring((PA_Unichar *)t.getUTF16StringPtr());
+    PA_SetStringVariable(&v, &u);
+    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
+    PA_ClearVariable(&v);
+}
+
+void ob_append_o(PA_CollectionRef c, PA_ObjectRef value) {
+
+    PA_Variable v = PA_CreateVariable(eVK_Object);
+    PA_SetObjectVariable(&v, value);
+    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
+    PA_ClearVariable(&v);
+}
+
+void ob_append_c(PA_CollectionRef c, PA_CollectionRef value) {
+
+    PA_Variable v = PA_CreateVariable(eVK_Collection);
+    PA_SetCollectionVariable(&v, value);
+    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
+    PA_ClearVariable(&v);
+}
+
+void ob_append_n(PA_CollectionRef c, double value) {
+    
+    PA_Variable v = PA_CreateVariable(eVK_Real);
+    PA_SetRealVariable(&v, value);
+    PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);
+    PA_ClearVariable(&v);
 }

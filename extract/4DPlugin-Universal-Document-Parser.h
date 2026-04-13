@@ -96,4 +96,9 @@ PA_CollectionRef process_paragraphs(
 static void OnStartup();
 static void OnExit();
 
+void ob_append_s(PA_CollectionRef c, const std::string& value);
+void ob_append_o(PA_CollectionRef c, PA_ObjectRef value);
+void ob_append_c(PA_CollectionRef c, PA_CollectionRef value);
+void ob_append_n(PA_CollectionRef c, double value);
+
 #endif /* PLUGIN_UNIVERSAL_DOCUMENT_PARSER_H */
