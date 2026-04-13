@@ -8,7 +8,7 @@ Universal Document Parser
 
 ## Abstract
 
-Extract text from various document types in a chunked format can which be passed directly to one of the following endpoints:
+Extract text from various document types in a chunked format which can be passed directly to one of the following endpoints:
 
 - `embeddings`
 - `contextualizedembeddings`
