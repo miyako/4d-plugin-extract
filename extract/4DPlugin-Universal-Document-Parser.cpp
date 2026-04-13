@@ -593,6 +593,18 @@ void Extract(PA_PluginParameters params) {
                                        (int)pooling_mode,
                                        overlap_ratio);
                         break;
+                    case input_type_html:
+                        tidy_parse_data(data,
+                                        returnValue,
+                                        ot,
+                                        max_paragraph_length,
+                                        unique_values_only,
+                                        text_as_tokens,
+                                        tokens_length,
+                                        token_padding,
+                                        (int)pooling_mode,
+                                        overlap_ratio);
+                        break;
                     default:
                         break;
                 }

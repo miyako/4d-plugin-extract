@@ -42,6 +42,7 @@
 #include "opc-parser.h"
 #include "xls-parser.h"
 #include "txt-parser.h"
+#include "tidy-parser.h"
 #include "chunker.h"
 
 typedef enum {
