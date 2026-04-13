@@ -43,6 +43,7 @@
 #include "xls-parser.h"
 #include "txt-parser.h"
 #include "tidy-parser.h"
+#include "olecf-parser.h"
 #include "chunker.h"
 
 typedef enum {
@@ -68,6 +69,10 @@ typedef enum {
 
 void Extract(PA_PluginParameters params);
 void Extract_SET_OPTION(PA_PluginParameters params);
+
+#ifdef _WIN32
+    extern HMODULE ghmodule;
+#endif
 
 enum class PoolingMode {
     Mean,       // encoder-only, mean pool  – no padding needed

@@ -204,6 +204,8 @@ extern bool pdfium_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                               float overlap_ratio,
                               std::string password) {
     
+    bool success = false;
+    
     Document document;
     FPDF_DOCUMENT doc = FPDF_LoadMemDocument(
                                              data.data(),
@@ -291,21 +293,18 @@ extern bool pdfium_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                          overlap_ratio);
         
         FPDF_CloseDocument(doc);
+        
+        success = true;
+        
     }else{
         std::cerr << "Failed to load PDF!" << std::endl;
-        goto unfortunately;
     }
         
-    goto finally;
-    
-unfortunately:
-
-    ob_set_a(obj, L"type", L"unknown");
-    return false;
-        
-finally:
-    
-    ob_set_b(obj, L"success", true);
-    return true;
+    if(!success) {
+        ob_set_a(obj, L"type", L"unknown");
+    }
+            
+    ob_set_b(obj, L"success", success);
+    return success;
     
 }

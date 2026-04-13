@@ -14,9 +14,15 @@
 
 chunker::ChunkerPtr gchunker;
 int32_t gpadtoken_id;
+#ifdef _WIN32
+    HMODULE ghmodule;
+#endif
 
 static void OnStartup() {
     FPDF_InitLibrary();
+#ifdef _WIN32
+    ghmodule = LoadLibrary(L"Riched20.dll");
+#endif
 }
 
 void PluginMain(PA_long32 selector, PA_PluginParameters params) {
@@ -414,6 +420,14 @@ void Extract(PA_PluginParameters params) {
         if(ob_get_s(document, L"charset", &_charset))
             charset = (const char *)_charset.c_str();
         
+        int codepage = 1252;
+        if(ob_is_defined(document, L"codepage")) {
+            int intValue = (int)ob_get_n(document, L"codepage");
+            if(intValue > 0) {
+                codepage = intValue;
+            }
+        }
+        
         int max_paragraph_length = -1;
         if(ob_is_defined(document, L"max_paragraph_length")) {
             int intValue = (int)ob_get_n(document, L"max_paragraph_length");
@@ -544,6 +558,19 @@ void Extract(PA_PluginParameters params) {
                                         (int)pooling_mode,
                                         overlap_ratio);
                         break;
+                    case input_type_doc:
+                        olecf_parse_data(data,
+                                         returnValue,
+                                         ot,
+                                         max_paragraph_length,
+                                         unique_values_only,
+                                         text_as_tokens,
+                                         tokens_length,
+                                         token_padding,
+                                         (int)pooling_mode,
+                                         overlap_ratio,
+                                         codepage);
+                        break;
                     default:
                         break;
                 }
@@ -558,6 +585,14 @@ static void OnExit() {
     if (gchunker) {
         gchunker.reset();
     }
+    
+#ifdef _WIN32
+    if (ghmodule) {
+        FreeLibrary(ghmodule);
+        ghmodule = NULL;
+    }
+    
+#endif
     
     FPDF_DestroyLibrary();
 }

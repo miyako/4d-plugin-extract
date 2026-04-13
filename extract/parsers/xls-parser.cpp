@@ -71,9 +71,6 @@ static void document_to_json(Document& document,
                         continue;
                     }
                     
-//                    if (!text.empty()) text += "\n";
-//                    text += joined.c_str();
-                    
                     if ((unique_values_only) && (!seen.insert(joined).second)) {
                         continue;
                     }
@@ -99,8 +96,6 @@ static void document_to_json(Document& document,
                 
                 ob_append_s(pages, paragraphs);
             }
-//            PA_CollectionRef matrix = process_paragraph(text, tokens_length, token_padding, !text_as_tokens, overlap_ratio, pooling_mode);
-//            ob_set_c(documentNode, "input", matrix);
             ob_set_c(documentNode, L"documents", pages);
         }
             break;
@@ -338,6 +333,8 @@ bool xls_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                     float overlap_ratio,
                     std::string charset) {
        
+    bool success = false;
+    
     Document document;
     
     xls_error_t errorCode;
@@ -351,6 +348,8 @@ bool xls_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
         errorCode = xls_parseWorkBook(pWB);
         if(errorCode) {
             std::cerr << "fail:xls_parseWorkBook(" << errorCode << ")" << xls_getError(errorCode) << std::endl;
+            xls_close_WB(pWB);
+            goto finally;
         }else{
             for (uint16_t i = 0; i < pWB->sheets.count; ++i) {
                 xlsWorkSheet* pWS = xls_getWorkSheet(pWB, i);
@@ -391,6 +390,7 @@ bool xls_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
         xls_close_WB(pWB);
     }else{
         std::cerr << "fail:xls_open_buffer(" << errorCode << ")" << xls_getError(errorCode) << std::endl;
+        goto finally;
     }
         
     document_to_json(document,
@@ -404,15 +404,15 @@ bool xls_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                      pooling_mode,
                      overlap_ratio);
 
-    goto finally;
-    
-unfortunately:
+    success = true;
 
-    ob_set_a(obj, L"type", L"unknown");
-    return false;
-        
 finally:
     
-    ob_set_b(obj, L"success", true);
-    return true;
+    if(!success) {
+        ob_set_a(obj, L"type", L"unknown");
+    }
+
+    ob_set_b(obj, L"success", success);
+    
+    return success;
 }

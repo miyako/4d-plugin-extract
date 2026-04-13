@@ -111,6 +111,8 @@ extern bool tidy_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                             int pooling_mode,
                             float overlap_ratio) {
     
+    bool success = false;
+    
     Document document;
     
     TidyDoc tdoc = tidyCreate();
@@ -149,12 +151,9 @@ extern bool tidy_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
             print_text(tdoc, body, document.text);
         }
     } else {
-        goto unfortunately;
+        goto finally;
     }
-    
-    tidyRelease(tdoc);
-    tidyBufFree(&errbuf);
-    
+        
     document_to_json(document,
                      obj,
                      mode,
@@ -166,16 +165,18 @@ extern bool tidy_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                      pooling_mode,
                      overlap_ratio);
         
-    goto finally;
-    
-unfortunately:
+    success = true;
 
-    ob_set_a(obj, L"type", L"unknown");
-    return false;
-        
 finally:
     
-    ob_set_b(obj, L"success", true);
-    return true;
+    tidyRelease(tdoc);
+    tidyBufFree(&errbuf);
+    
+    if(!success) {
+        ob_set_a(obj, L"type", L"unknown");
+    }
+    
+    ob_set_b(obj, L"success", success);
+    return success;
     
 }

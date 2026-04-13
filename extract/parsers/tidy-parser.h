@@ -4,7 +4,7 @@
 #ifndef FILE_MACROS_H
     #define FILE_MACROS_H
     #define BUFLEN 4096
-    #if VERSIONMAC
+    #ifdef __APPLE__
         #define _fopen fopen
         #define _fseek fseek
         #define _ftell ftell

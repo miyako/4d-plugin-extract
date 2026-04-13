@@ -151,10 +151,7 @@ static void document_to_json_ss(Workbook& document,
                     if(emptyRow) {
                         continue;
                     }
-                    
-//                    if (!text.empty()) text += "\n";
-//                    text += joined.c_str();
-                    
+                                        
                     if ((unique_values_only) && (!seen.insert(joined).second)) {
                         continue;
                     }
@@ -180,8 +177,6 @@ static void document_to_json_ss(Workbook& document,
                 
                 ob_append_s(pages, paragraphs);
             }
-//            PA_CollectionRef matrix = process_paragraph(text, tokens_length, token_padding, !text_as_tokens, overlap_ratio, pooling_mode);
-//            ob_set_c(documentNode, "input", matrix);
             ob_set_c(documentNode, L"documents", pages);
         }
             break;
@@ -401,7 +396,6 @@ static void document_to_json(Document& document,
     switch (mode) {
         case output_type_text:
         {
-//            std::string text = "";
             PA_CollectionRef pages = PA_CreateCollection();
             for (const auto &page : document.pages) {
                 bool emptyCol = true;
@@ -419,15 +413,12 @@ static void document_to_json(Document& document,
                     
                     if(joined.empty())
                         continue;
-                    
-                    emptyCol = false;
-                    
-//                    if (!text.empty()) text += "\n";
-//                    text += joined.c_str();
-                    
+                                        
                     if ((unique_values_only) && (!seen.insert(joined).second)) {
                         continue;
                     }
+                    
+                    emptyCol = false;
                     
                     if(!paragraphs.empty()) paragraphs += "\n";
                     paragraphs += joined;
@@ -449,8 +440,6 @@ static void document_to_json(Document& document,
                 }
                 ob_append_s(pages, paragraphs);
             }
-//            PA_CollectionRef matrix = process_paragraph(text, tokens_length, token_padding, !text_as_tokens, overlap_ratio, pooling_mode);
-//            ob_set_c(documentNode, "input", matrix);
             ob_set_c(documentNode, L"documents", pages);
         }
             break;
@@ -865,7 +854,9 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                     int pooling_mode,
                     float overlap_ratio,
                     std::string password) {
-        
+    
+    bool success = false;
+    
     if(password.length()) {
 
         ms::Format format;
@@ -921,14 +912,14 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
 
     if(!sanitize_docx_buffer(data)) {
         std::cerr << "not a valid input!" << std::endl;
-        goto unfortunately;
+        goto finally;
     }
     
     container = opcContainerOpenMem(_X(data.data()), (opc_uint32_t)data.size(), OPC_OPEN_READ_ONLY, NULL);
     
     if(!container) {
         std::cerr << "not a valid input!" << std::endl;
-        goto unfortunately;
+        goto finally;
     }
         
     part = opcPartFind(container, _X("/word/document.xml"), NULL, 0);
@@ -998,8 +989,9 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                                          token_padding,
                                          pooling_mode,
                                          overlap_ratio);
-                        xmlFreeDoc(xml_doc);
+                        success = true;
                     }
+                    xmlFreeDoc(xml_doc);
                 }
             }
                 break;
@@ -1074,6 +1066,7 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                                     token_padding,
                                     pooling_mode,
                                     overlap_ratio);
+                success = true;
             }
                 break;
             case document_type_pptx:
@@ -1109,6 +1102,7 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                                  token_padding,
                                  pooling_mode,
                                  overlap_ratio);
+                success = true;
             }
                 break;
             default:
@@ -1117,16 +1111,14 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
     }
     
     opcContainerClose(container, OPC_CLOSE_NOW);
-
-    goto finally;
     
-unfortunately:
-
-    ob_set_a(obj, L"type", L"unknown");
-    return false;
-        
 finally:
     
-    ob_set_b(obj, L"success", true);
-    return true;
+    if (!success) {
+        ob_set_a(obj, L"type", L"unknown");
+    }
+
+    ob_set_b(obj, L"success", success);
+    
+    return success;
 }
