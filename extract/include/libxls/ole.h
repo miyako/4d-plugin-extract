@@ -38,7 +38,9 @@
 
 #ifdef _MSC_VER
 #include <BaseTsd.h>
+#ifndef ssize_t
 typedef SSIZE_T ssize_t;
+#endif
 #endif
 
 #include <stdio.h>			// FILE *

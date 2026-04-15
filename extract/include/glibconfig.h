@@ -10,7 +10,9 @@
 
 #include <limits.h>
 #include <float.h>
+#ifdef __APPLE__
 #define GLIB_HAVE_ALLOCA_H
+#endif
 
 /* Specifies that GLib's g_print*() functions wrap the
  * system printf functions.  This is useful to know, for example,
@@ -111,9 +113,9 @@ typedef unsigned long guintptr;
 #define GLIB_MAJOR_VERSION 2
 #define GLIB_MINOR_VERSION 68
 #define GLIB_MICRO_VERSION 0
-
+#ifdef __APPLE__
 #define G_OS_UNIX
-
+#endif
 #define G_VA_COPY va_copy
 
 

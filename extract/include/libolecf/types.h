@@ -122,7 +122,9 @@ extern "C" {
 #define HAVE_SSIZE_T
 
 #if defined( _WIN64 )
+#ifndef ssize_t
 typedef __int64 ssize_t;
+#endif
 #else
 typedef __int32 ssize_t;
 #endif

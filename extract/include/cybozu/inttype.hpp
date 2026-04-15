@@ -23,7 +23,9 @@
 	#ifndef CYBOZU_DEFINED_SSIZE_T
 		#define CYBOZU_DEFINED_SSIZE_T
 		#ifdef _WIN64
+#ifndef ssize_t
 			typedef int64_t ssize_t;
+#endif
 		#else
 			typedef int32_t ssize_t;
 		#endif
