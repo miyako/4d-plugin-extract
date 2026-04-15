@@ -23,6 +23,8 @@ static void OnStartup() {
 #ifdef _WIN32
     ghmodule = LoadLibrary(L"Riched20.dll");
 #endif
+    
+    g_mime_init();
 }
 
 void PluginMain(PA_long32 selector, PA_PluginParameters params) {
@@ -452,6 +454,10 @@ void Extract(PA_PluginParameters params) {
                 tokens_length = intValue;
             }
         }
+        bool break_by_section = true;
+        if(ob_is_defined(document, L"break_by_section")) {
+            break_by_section = ob_get_b(document, L"break_by_section");
+        }
         bool token_padding = false;
         if(ob_is_defined(document, L"token_padding")) {
             token_padding = ob_get_b(document, L"token_padding");
@@ -559,6 +565,8 @@ void Extract(PA_PluginParameters params) {
                                         overlap_ratio);
                         break;
                     case input_type_doc:
+                    case input_type_ppt:
+                    case input_type_msg:
                         olecf_parse_data(data,
                                          returnValue,
                                          ot,
@@ -570,6 +578,31 @@ void Extract(PA_PluginParameters params) {
                                          (int)pooling_mode,
                                          overlap_ratio,
                                          codepage);
+                        break;
+                    case input_type_md:
+                        md_parse_data(data,
+                                      returnValue,
+                                      ot,
+                                      max_paragraph_length,
+                                      unique_values_only,
+                                      text_as_tokens,
+                                      tokens_length,
+                                      token_padding,
+                                      (int)pooling_mode,
+                                      overlap_ratio,
+                                      break_by_section);
+                        break;
+                    case input_type_eml:
+                        gmime_parse_data(data,
+                                         returnValue,
+                                         ot,
+                                         max_paragraph_length,
+                                         unique_values_only,
+                                         text_as_tokens,
+                                         tokens_length,
+                                         token_padding,
+                                         (int)pooling_mode,
+                                         overlap_ratio);
                         break;
                     default:
                         break;
@@ -591,10 +624,10 @@ static void OnExit() {
         FreeLibrary(ghmodule);
         ghmodule = NULL;
     }
-    
 #endif
     
     FPDF_DestroyLibrary();
+    g_mime_shutdown();
 }
 
 void ob_append_s(PA_CollectionRef c, const std::string& value) {

@@ -16,9 +16,28 @@
 		D1037FAF2F80F05A0026408F /* libtokenizers_c.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1037FAC2F80F05A0026408F /* libtokenizers_c.a */; };
 		D1037FB02F80F05A0026408F /* libtokenizers_cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1037FAD2F80F05A0026408F /* libtokenizers_cpp.a */; };
 		D1037FB12F80F05A0026408F /* libsentencepiece.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1037FAE2F80F05A0026408F /* libsentencepiece.a */; };
+		D10B9C792F8F2845008EBFF5 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D10B9C782F8F2845008EBFF5 /* libresolv.tbd */; };
+		D10B9C7B2F8F2850008EBFF5 /* libpcre.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D10B9C7A2F8F2850008EBFF5 /* libpcre.tbd */; };
 		D130064F12F02D9700702C0E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D130064E12F02D9700702C0E /* Cocoa.framework */; };
 		D13116A91A03ACB700DE1322 /* 4DPluginAPI.c in Sources */ = {isa = PBXBuildFile; fileRef = D13116A81A03ACB700DE1322 /* 4DPluginAPI.c */; settings = {COMPILER_FLAGS = "-Wno-multichar"; }; };
 		D134D4AC1A030BA0008D14EF /* manifest.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = D134D4A91A030B06008D14EF /* manifest.json */; };
+		D187F5DB2F8F1BFE008E6A56 /* mime-parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D187F5DA2F8F1BFE008E6A56 /* mime-parser.cpp */; };
+		D187F5DC2F8F1BFE008E6A56 /* mime-parser.h in Headers */ = {isa = PBXBuildFile; fileRef = D187F5D92F8F1BFE008E6A56 /* mime-parser.h */; };
+		D187F5EC2F8F20ED008E6A56 /* libassuan.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5DD2F8F20ED008E6A56 /* libassuan.a */; };
+		D187F5ED2F8F20ED008E6A56 /* libgmodule-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5DE2F8F20ED008E6A56 /* libgmodule-2.0.a */; };
+		D187F5EE2F8F20ED008E6A56 /* libgpgme.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5DF2F8F20ED008E6A56 /* libgpgme.a */; };
+		D187F5EF2F8F20ED008E6A56 /* libgio-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E02F8F20ED008E6A56 /* libgio-2.0.a */; };
+		D187F5F02F8F20ED008E6A56 /* libidn.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E12F8F20ED008E6A56 /* libidn.a */; };
+		D187F5F12F8F20ED008E6A56 /* libintl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E22F8F20ED008E6A56 /* libintl.a */; };
+		D187F5F22F8F20ED008E6A56 /* libgmime-3.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E32F8F20ED008E6A56 /* libgmime-3.0.a */; };
+		D187F5F32F8F20ED008E6A56 /* libglib-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E42F8F20ED008E6A56 /* libglib-2.0.a */; };
+		D187F5F42F8F20ED008E6A56 /* libgobject-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E52F8F20ED008E6A56 /* libgobject-2.0.a */; };
+		D187F5F52F8F20ED008E6A56 /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E62F8F20ED008E6A56 /* libffi.a */; };
+		D187F5F62F8F20ED008E6A56 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E72F8F20ED008E6A56 /* libz.a */; };
+		D187F5F72F8F20ED008E6A56 /* libidn2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E82F8F20ED008E6A56 /* libidn2.a */; };
+		D187F5F82F8F20ED008E6A56 /* libgthread-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E92F8F20ED008E6A56 /* libgthread-2.0.a */; };
+		D187F5F92F8F20ED008E6A56 /* libunistring.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5EA2F8F20ED008E6A56 /* libunistring.a */; };
+		D187F5FA2F8F20ED008E6A56 /* libgpg-error.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5EB2F8F20ED008E6A56 /* libgpg-error.a */; };
 		D198EFDA2F828EEA008D4A65 /* chunker.h in Headers */ = {isa = PBXBuildFile; fileRef = D198EFD92F828EEA008D4A65 /* chunker.h */; };
 		D198EFE02F828FD3008D4A65 /* libggml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D198EFDB2F828FD2008D4A65 /* libggml.a */; };
 		D198EFE12F828FD3008D4A65 /* libggml-blas.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D198EFDC2F828FD2008D4A65 /* libggml-blas.a */; };
@@ -40,6 +59,8 @@
 		D1A442292F8CC84D00337528 /* olecf-parser.h in Headers */ = {isa = PBXBuildFile; fileRef = D1A442282F8CC84D00337528 /* olecf-parser.h */; };
 		D1A4422B2F8CCA2200337528 /* olecf-parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1A4422A2F8CCA2200337528 /* olecf-parser.cpp */; };
 		D1B7DEEF2F8CE33400A57A28 /* libolecf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1B7DEEE2F8CE33400A57A28 /* libolecf.a */; };
+		D1B7DEF12F8D24BA00A57A28 /* md-parser.h in Headers */ = {isa = PBXBuildFile; fileRef = D1B7DEF02F8D24BA00A57A28 /* md-parser.h */; };
+		D1B7DEF32F8D24EA00A57A28 /* md-parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1B7DEF22F8D24EA00A57A28 /* md-parser.cpp */; };
 		D1D3DE912F8C76310034E941 /* pdfium-parser.h in Headers */ = {isa = PBXBuildFile; fileRef = D1D3DE8F2F8C76310034E941 /* pdfium-parser.h */; };
 		D1D3DE922F8C76310034E941 /* pdfium-parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D1D3DE902F8C76310034E941 /* pdfium-parser.cpp */; };
 		D1D3DE942F8C80BA0034E941 /* libpdfium.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D1D3DE932F8C80BA0034E941 /* libpdfium.dylib */; };
@@ -90,10 +111,29 @@
 		D1037FAC2F80F05A0026408F /* libtokenizers_c.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtokenizers_c.a; path = a/libtokenizers_c.a; sourceTree = "<group>"; };
 		D1037FAD2F80F05A0026408F /* libtokenizers_cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtokenizers_cpp.a; path = a/libtokenizers_cpp.a; sourceTree = "<group>"; };
 		D1037FAE2F80F05A0026408F /* libsentencepiece.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsentencepiece.a; path = a/libsentencepiece.a; sourceTree = "<group>"; };
+		D10B9C782F8F2845008EBFF5 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
+		D10B9C7A2F8F2850008EBFF5 /* libpcre.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libpcre.tbd; path = usr/lib/libpcre.tbd; sourceTree = SDKROOT; };
 		D130064E12F02D9700702C0E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		D13116A81A03ACB700DE1322 /* 4DPluginAPI.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = 4DPluginAPI.c; sourceTree = "<group>"; };
 		D134D4A91A030B06008D14EF /* manifest.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
 		D14D10DD1A03A8A5008B3411 /* constants.xlf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = constants.xlf; sourceTree = "<group>"; };
+		D187F5D92F8F1BFE008E6A56 /* mime-parser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "mime-parser.h"; path = "parsers/mime-parser.h"; sourceTree = "<group>"; };
+		D187F5DA2F8F1BFE008E6A56 /* mime-parser.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = "mime-parser.cpp"; path = "parsers/mime-parser.cpp"; sourceTree = "<group>"; };
+		D187F5DD2F8F20ED008E6A56 /* libassuan.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libassuan.a; path = a/libassuan.a; sourceTree = "<group>"; };
+		D187F5DE2F8F20ED008E6A56 /* libgmodule-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgmodule-2.0.a"; path = "a/libgmodule-2.0.a"; sourceTree = "<group>"; };
+		D187F5DF2F8F20ED008E6A56 /* libgpgme.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgpgme.a; path = a/libgpgme.a; sourceTree = "<group>"; };
+		D187F5E02F8F20ED008E6A56 /* libgio-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgio-2.0.a"; path = "a/libgio-2.0.a"; sourceTree = "<group>"; };
+		D187F5E12F8F20ED008E6A56 /* libidn.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libidn.a; path = a/libidn.a; sourceTree = "<group>"; };
+		D187F5E22F8F20ED008E6A56 /* libintl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libintl.a; path = a/libintl.a; sourceTree = "<group>"; };
+		D187F5E32F8F20ED008E6A56 /* libgmime-3.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgmime-3.0.a"; path = "a/libgmime-3.0.a"; sourceTree = "<group>"; };
+		D187F5E42F8F20ED008E6A56 /* libglib-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libglib-2.0.a"; path = "a/libglib-2.0.a"; sourceTree = "<group>"; };
+		D187F5E52F8F20ED008E6A56 /* libgobject-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgobject-2.0.a"; path = "a/libgobject-2.0.a"; sourceTree = "<group>"; };
+		D187F5E62F8F20ED008E6A56 /* libffi.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libffi.a; path = a/libffi.a; sourceTree = "<group>"; };
+		D187F5E72F8F20ED008E6A56 /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = a/libz.a; sourceTree = "<group>"; };
+		D187F5E82F8F20ED008E6A56 /* libidn2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libidn2.a; path = a/libidn2.a; sourceTree = "<group>"; };
+		D187F5E92F8F20ED008E6A56 /* libgthread-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgthread-2.0.a"; path = "a/libgthread-2.0.a"; sourceTree = "<group>"; };
+		D187F5EA2F8F20ED008E6A56 /* libunistring.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libunistring.a; path = a/libunistring.a; sourceTree = "<group>"; };
+		D187F5EB2F8F20ED008E6A56 /* libgpg-error.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgpg-error.a"; path = "a/libgpg-error.a"; sourceTree = "<group>"; };
 		D198EFD92F828EEA008D4A65 /* chunker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = chunker.h; sourceTree = "<group>"; };
 		D198EFDB2F828FD2008D4A65 /* libggml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libggml.a; path = a/libggml.a; sourceTree = "<group>"; };
 		D198EFDC2F828FD2008D4A65 /* libggml-blas.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libggml-blas.a"; path = "a/libggml-blas.a"; sourceTree = "<group>"; };
@@ -115,6 +155,8 @@
 		D1A442282F8CC84D00337528 /* olecf-parser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "olecf-parser.h"; path = "parsers/olecf-parser.h"; sourceTree = "<group>"; };
 		D1A4422A2F8CCA2200337528 /* olecf-parser.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = "olecf-parser.cpp"; path = "parsers/olecf-parser.cpp"; sourceTree = "<group>"; };
 		D1B7DEEE2F8CE33400A57A28 /* libolecf.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libolecf.a; path = a/libolecf.a; sourceTree = "<group>"; };
+		D1B7DEF02F8D24BA00A57A28 /* md-parser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "md-parser.h"; path = "parsers/md-parser.h"; sourceTree = "<group>"; };
+		D1B7DEF22F8D24EA00A57A28 /* md-parser.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = "md-parser.cpp"; path = "parsers/md-parser.cpp"; sourceTree = "<group>"; };
 		D1D3DE8F2F8C76310034E941 /* pdfium-parser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "pdfium-parser.h"; path = "parsers/pdfium-parser.h"; sourceTree = "<group>"; };
 		D1D3DE902F8C76310034E941 /* pdfium-parser.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = "pdfium-parser.cpp"; path = "parsers/pdfium-parser.cpp"; sourceTree = "<group>"; };
 		D1D3DE932F8C80BA0034E941 /* libpdfium.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libpdfium.dylib; path = "test/Plugins/Universal Document Parser.bundle/Contents/MacOS/libpdfium.dylib"; sourceTree = "<group>"; };
@@ -144,6 +186,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D10B9C7B2F8F2850008EBFF5 /* libpcre.tbd in Frameworks */,
+				D10B9C792F8F2845008EBFF5 /* libresolv.tbd in Frameworks */,
+				D187F5EC2F8F20ED008E6A56 /* libassuan.a in Frameworks */,
+				D187F5ED2F8F20ED008E6A56 /* libgmodule-2.0.a in Frameworks */,
+				D187F5EE2F8F20ED008E6A56 /* libgpgme.a in Frameworks */,
+				D187F5EF2F8F20ED008E6A56 /* libgio-2.0.a in Frameworks */,
+				D187F5F02F8F20ED008E6A56 /* libidn.a in Frameworks */,
+				D187F5F12F8F20ED008E6A56 /* libintl.a in Frameworks */,
+				D187F5F22F8F20ED008E6A56 /* libgmime-3.0.a in Frameworks */,
+				D187F5F32F8F20ED008E6A56 /* libglib-2.0.a in Frameworks */,
+				D187F5F42F8F20ED008E6A56 /* libgobject-2.0.a in Frameworks */,
+				D187F5F52F8F20ED008E6A56 /* libffi.a in Frameworks */,
+				D187F5F62F8F20ED008E6A56 /* libz.a in Frameworks */,
+				D187F5F72F8F20ED008E6A56 /* libidn2.a in Frameworks */,
+				D187F5F82F8F20ED008E6A56 /* libgthread-2.0.a in Frameworks */,
+				D187F5F92F8F20ED008E6A56 /* libunistring.a in Frameworks */,
+				D187F5FA2F8F20ED008E6A56 /* libgpg-error.a in Frameworks */,
 				D1B7DEEF2F8CE33400A57A28 /* libolecf.a in Frameworks */,
 				D1A442272F8CB0A600337528 /* libtidy.a in Frameworks */,
 				D1A4421D2F8C9E4200337528 /* libxlsreader.a in Frameworks */,
@@ -211,12 +270,16 @@
 				D1D9747C2F7BA6000081DFC5 /* C_TEXT.cpp */,
 				D1D9747B2F7BA6000081DFC5 /* C_TEXT.h */,
 				D1D9747D2F7BA6000081DFC5 /* C_TYPES.h */,
-				D1A4422A2F8CCA2200337528 /* olecf-parser.cpp */,
-				D1A442282F8CC84D00337528 /* olecf-parser.h */,
 				D1D974702F7BA5B40081DFC5 /* 4DPlugin-Universal-Document-Parser.cpp */,
 				D1D9746F2F7BA5B40081DFC5 /* 4DPlugin-Universal-Document-Parser.h */,
 				D1D974782F7BA5EA0081DFC5 /* 4DPlugin-JSON.cpp */,
 				D1D974772F7BA5EA0081DFC5 /* 4DPlugin-JSON.h */,
+				D187F5DA2F8F1BFE008E6A56 /* mime-parser.cpp */,
+				D187F5D92F8F1BFE008E6A56 /* mime-parser.h */,
+				D1B7DEF22F8D24EA00A57A28 /* md-parser.cpp */,
+				D1B7DEF02F8D24BA00A57A28 /* md-parser.h */,
+				D1A4422A2F8CCA2200337528 /* olecf-parser.cpp */,
+				D1A442282F8CC84D00337528 /* olecf-parser.h */,
 				D1D3DE902F8C76310034E941 /* pdfium-parser.cpp */,
 				D1D3DE8F2F8C76310034E941 /* pdfium-parser.h */,
 				D1A4421F2F8CA49500337528 /* txt-parser.cpp */,
@@ -267,6 +330,23 @@
 		D16FBB3C22A4C07E008F0416 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D10B9C7A2F8F2850008EBFF5 /* libpcre.tbd */,
+				D10B9C782F8F2845008EBFF5 /* libresolv.tbd */,
+				D187F5DD2F8F20ED008E6A56 /* libassuan.a */,
+				D187F5E62F8F20ED008E6A56 /* libffi.a */,
+				D187F5E02F8F20ED008E6A56 /* libgio-2.0.a */,
+				D187F5E42F8F20ED008E6A56 /* libglib-2.0.a */,
+				D187F5E32F8F20ED008E6A56 /* libgmime-3.0.a */,
+				D187F5DE2F8F20ED008E6A56 /* libgmodule-2.0.a */,
+				D187F5E52F8F20ED008E6A56 /* libgobject-2.0.a */,
+				D187F5EB2F8F20ED008E6A56 /* libgpg-error.a */,
+				D187F5DF2F8F20ED008E6A56 /* libgpgme.a */,
+				D187F5E92F8F20ED008E6A56 /* libgthread-2.0.a */,
+				D187F5E12F8F20ED008E6A56 /* libidn.a */,
+				D187F5E82F8F20ED008E6A56 /* libidn2.a */,
+				D187F5E22F8F20ED008E6A56 /* libintl.a */,
+				D187F5EA2F8F20ED008E6A56 /* libunistring.a */,
+				D187F5E72F8F20ED008E6A56 /* libz.a */,
 				D1B7DEEE2F8CE33400A57A28 /* libolecf.a */,
 				D1A442262F8CB0A600337528 /* libtidy.a */,
 				D1A4421C2F8C9E4200337528 /* libxlsreader.a */,
@@ -303,6 +383,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D1B7DEF12F8D24BA00A57A28 /* md-parser.h in Headers */,
 				D1D974752F7BA5CC0081DFC5 /* opc-parser.h in Headers */,
 				18B684F706944F2000CC6A1E /* 4DPluginAPI.h in Headers */,
 				D1A442202F8CA49500337528 /* txt-parser.h in Headers */,
@@ -311,6 +392,7 @@
 				D1D9747F2F7BA6000081DFC5 /* C_TYPES.h in Headers */,
 				D1D974792F7BA5EA0081DFC5 /* 4DPlugin-JSON.h in Headers */,
 				D1A442292F8CC84D00337528 /* olecf-parser.h in Headers */,
+				D187F5DC2F8F1BFE008E6A56 /* mime-parser.h in Headers */,
 				D198EFDA2F828EEA008D4A65 /* chunker.h in Headers */,
 				18B684F906944F2000CC6A1E /* Flags.h in Headers */,
 				D1A442242F8CAEFD00337528 /* tidy-parser.h in Headers */,
@@ -443,7 +525,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				D1A442252F8CAEFD00337528 /* tidy-parser.cpp in Sources */,
+				D1B7DEF32F8D24EA00A57A28 /* md-parser.cpp in Sources */,
 				D1A4421B2F8C99B400337528 /* xls-parser.cpp in Sources */,
+				D187F5DB2F8F1BFE008E6A56 /* mime-parser.cpp in Sources */,
 				D198EFEC2F8298D1008D4A65 /* chunker.cpp in Sources */,
 				D1D9747A2F7BA5EA0081DFC5 /* 4DPlugin-JSON.cpp in Sources */,
 				D1D974802F7BA6000081DFC5 /* C_TEXT.cpp in Sources */,
@@ -498,7 +582,11 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = include;
+				HEADER_SEARCH_PATHS = (
+					include,
+					"include/gmime-3.0",
+					"include/glib-2.0",
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
 				LIBRARY_SEARCH_PATHS = (
@@ -550,7 +638,11 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = include;
+				HEADER_SEARCH_PATHS = (
+					include,
+					"include/gmime-3.0",
+					"include/glib-2.0",
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
 				LIBRARY_SEARCH_PATHS = (
@@ -600,7 +692,11 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = include;
+				HEADER_SEARCH_PATHS = (
+					include,
+					"include/gmime-3.0",
+					"include/glib-2.0",
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
 				LIBRARY_SEARCH_PATHS = (
@@ -630,7 +726,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -677,7 +772,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -724,7 +818,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;

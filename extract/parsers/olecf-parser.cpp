@@ -1830,6 +1830,7 @@ bool olecf_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                                          pooling_mode,
                                          overlap_ratio,
                                          hwnd);
+                    success = true;
                 }
                 if(document.type == "doc"){
                     document_to_json_doc(document,
@@ -1843,6 +1844,7 @@ bool olecf_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                                          pooling_mode,
                                          overlap_ratio,
                                          hwnd);
+                    success = true;
                 }
             }else{
                 std::cerr << "Failed to get MSG root item!" << std::endl;

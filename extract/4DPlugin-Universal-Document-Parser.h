@@ -38,12 +38,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "mime-parser.h"
 #include "pdfium-parser.h"
 #include "opc-parser.h"
 #include "xls-parser.h"
 #include "txt-parser.h"
 #include "tidy-parser.h"
 #include "olecf-parser.h"
+#include "md-parser.h"
 #include "chunker.h"
 
 typedef enum {
@@ -58,7 +60,8 @@ typedef enum {
     input_type_eml,
     input_type_rtf,
     input_type_html,
-    input_type_txt
+    input_type_txt,
+    input_type_md
 }input_type;
 
 typedef enum {
