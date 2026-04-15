@@ -38,6 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "mime-parser.h"
 #include "pdfium-parser.h"
 #include "opc-parser.h"
 #include "xls-parser.h"

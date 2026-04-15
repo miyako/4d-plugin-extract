@@ -63,11 +63,6 @@
 #include <tidy.h>
 #include <tidybuffio.h>
 
-//#define LEXBOR_STATIC
-//#include <lexbor/html/html.h>
-//#include <lexbor/dom/dom.h>
-//#include <lexbor/core/str.h>
-
 #ifdef _WIN32
 #define _unlink DeleteFile
 #define _libolecf_file_open libolecf_file_open_wide

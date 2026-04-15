@@ -23,6 +23,8 @@ static void OnStartup() {
 #ifdef _WIN32
     ghmodule = LoadLibrary(L"Riched20.dll");
 #endif
+    
+    g_mime_init();
 }
 
 void PluginMain(PA_long32 selector, PA_PluginParameters params) {
@@ -590,6 +592,18 @@ void Extract(PA_PluginParameters params) {
                                       overlap_ratio,
                                       break_by_section);
                         break;
+                    case input_type_eml:
+                        gmime_parse_data(data,
+                                         returnValue,
+                                         ot,
+                                         max_paragraph_length,
+                                         unique_values_only,
+                                         text_as_tokens,
+                                         tokens_length,
+                                         token_padding,
+                                         (int)pooling_mode,
+                                         overlap_ratio);
+                        break;
                     default:
                         break;
                 }
@@ -610,10 +624,10 @@ static void OnExit() {
         FreeLibrary(ghmodule);
         ghmodule = NULL;
     }
-    
 #endif
     
     FPDF_DestroyLibrary();
+    g_mime_shutdown();
 }
 
 void ob_append_s(PA_CollectionRef c, const std::string& value) {

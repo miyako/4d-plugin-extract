@@ -19,6 +19,23 @@
 		D130064F12F02D9700702C0E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D130064E12F02D9700702C0E /* Cocoa.framework */; };
 		D13116A91A03ACB700DE1322 /* 4DPluginAPI.c in Sources */ = {isa = PBXBuildFile; fileRef = D13116A81A03ACB700DE1322 /* 4DPluginAPI.c */; settings = {COMPILER_FLAGS = "-Wno-multichar"; }; };
 		D134D4AC1A030BA0008D14EF /* manifest.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = D134D4A91A030B06008D14EF /* manifest.json */; };
+		D187F5DB2F8F1BFE008E6A56 /* mime-parser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D187F5DA2F8F1BFE008E6A56 /* mime-parser.cpp */; };
+		D187F5DC2F8F1BFE008E6A56 /* mime-parser.h in Headers */ = {isa = PBXBuildFile; fileRef = D187F5D92F8F1BFE008E6A56 /* mime-parser.h */; };
+		D187F5EC2F8F20ED008E6A56 /* libassuan.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5DD2F8F20ED008E6A56 /* libassuan.a */; };
+		D187F5ED2F8F20ED008E6A56 /* libgmodule-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5DE2F8F20ED008E6A56 /* libgmodule-2.0.a */; };
+		D187F5EE2F8F20ED008E6A56 /* libgpgme.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5DF2F8F20ED008E6A56 /* libgpgme.a */; };
+		D187F5EF2F8F20ED008E6A56 /* libgio-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E02F8F20ED008E6A56 /* libgio-2.0.a */; };
+		D187F5F02F8F20ED008E6A56 /* libidn.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E12F8F20ED008E6A56 /* libidn.a */; };
+		D187F5F12F8F20ED008E6A56 /* libintl.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E22F8F20ED008E6A56 /* libintl.a */; };
+		D187F5F22F8F20ED008E6A56 /* libgmime-3.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E32F8F20ED008E6A56 /* libgmime-3.0.a */; };
+		D187F5F32F8F20ED008E6A56 /* libglib-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E42F8F20ED008E6A56 /* libglib-2.0.a */; };
+		D187F5F42F8F20ED008E6A56 /* libgobject-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E52F8F20ED008E6A56 /* libgobject-2.0.a */; };
+		D187F5F52F8F20ED008E6A56 /* libffi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E62F8F20ED008E6A56 /* libffi.a */; };
+		D187F5F62F8F20ED008E6A56 /* libz.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E72F8F20ED008E6A56 /* libz.a */; };
+		D187F5F72F8F20ED008E6A56 /* libidn2.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E82F8F20ED008E6A56 /* libidn2.a */; };
+		D187F5F82F8F20ED008E6A56 /* libgthread-2.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5E92F8F20ED008E6A56 /* libgthread-2.0.a */; };
+		D187F5F92F8F20ED008E6A56 /* libunistring.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5EA2F8F20ED008E6A56 /* libunistring.a */; };
+		D187F5FA2F8F20ED008E6A56 /* libgpg-error.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D187F5EB2F8F20ED008E6A56 /* libgpg-error.a */; };
 		D198EFDA2F828EEA008D4A65 /* chunker.h in Headers */ = {isa = PBXBuildFile; fileRef = D198EFD92F828EEA008D4A65 /* chunker.h */; };
 		D198EFE02F828FD3008D4A65 /* libggml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D198EFDB2F828FD2008D4A65 /* libggml.a */; };
 		D198EFE12F828FD3008D4A65 /* libggml-blas.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D198EFDC2F828FD2008D4A65 /* libggml-blas.a */; };
@@ -96,6 +113,23 @@
 		D13116A81A03ACB700DE1322 /* 4DPluginAPI.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = 4DPluginAPI.c; sourceTree = "<group>"; };
 		D134D4A91A030B06008D14EF /* manifest.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
 		D14D10DD1A03A8A5008B3411 /* constants.xlf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = constants.xlf; sourceTree = "<group>"; };
+		D187F5D92F8F1BFE008E6A56 /* mime-parser.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "mime-parser.h"; path = "parsers/mime-parser.h"; sourceTree = "<group>"; };
+		D187F5DA2F8F1BFE008E6A56 /* mime-parser.cpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; name = "mime-parser.cpp"; path = "parsers/mime-parser.cpp"; sourceTree = "<group>"; };
+		D187F5DD2F8F20ED008E6A56 /* libassuan.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libassuan.a; path = a/libassuan.a; sourceTree = "<group>"; };
+		D187F5DE2F8F20ED008E6A56 /* libgmodule-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgmodule-2.0.a"; path = "a/libgmodule-2.0.a"; sourceTree = "<group>"; };
+		D187F5DF2F8F20ED008E6A56 /* libgpgme.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libgpgme.a; path = a/libgpgme.a; sourceTree = "<group>"; };
+		D187F5E02F8F20ED008E6A56 /* libgio-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgio-2.0.a"; path = "a/libgio-2.0.a"; sourceTree = "<group>"; };
+		D187F5E12F8F20ED008E6A56 /* libidn.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libidn.a; path = a/libidn.a; sourceTree = "<group>"; };
+		D187F5E22F8F20ED008E6A56 /* libintl.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libintl.a; path = a/libintl.a; sourceTree = "<group>"; };
+		D187F5E32F8F20ED008E6A56 /* libgmime-3.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgmime-3.0.a"; path = "a/libgmime-3.0.a"; sourceTree = "<group>"; };
+		D187F5E42F8F20ED008E6A56 /* libglib-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libglib-2.0.a"; path = "a/libglib-2.0.a"; sourceTree = "<group>"; };
+		D187F5E52F8F20ED008E6A56 /* libgobject-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgobject-2.0.a"; path = "a/libgobject-2.0.a"; sourceTree = "<group>"; };
+		D187F5E62F8F20ED008E6A56 /* libffi.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libffi.a; path = a/libffi.a; sourceTree = "<group>"; };
+		D187F5E72F8F20ED008E6A56 /* libz.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libz.a; path = a/libz.a; sourceTree = "<group>"; };
+		D187F5E82F8F20ED008E6A56 /* libidn2.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libidn2.a; path = a/libidn2.a; sourceTree = "<group>"; };
+		D187F5E92F8F20ED008E6A56 /* libgthread-2.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgthread-2.0.a"; path = "a/libgthread-2.0.a"; sourceTree = "<group>"; };
+		D187F5EA2F8F20ED008E6A56 /* libunistring.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libunistring.a; path = a/libunistring.a; sourceTree = "<group>"; };
+		D187F5EB2F8F20ED008E6A56 /* libgpg-error.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libgpg-error.a"; path = "a/libgpg-error.a"; sourceTree = "<group>"; };
 		D198EFD92F828EEA008D4A65 /* chunker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = chunker.h; sourceTree = "<group>"; };
 		D198EFDB2F828FD2008D4A65 /* libggml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libggml.a; path = a/libggml.a; sourceTree = "<group>"; };
 		D198EFDC2F828FD2008D4A65 /* libggml-blas.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libggml-blas.a"; path = "a/libggml-blas.a"; sourceTree = "<group>"; };
@@ -148,6 +182,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D187F5EC2F8F20ED008E6A56 /* libassuan.a in Frameworks */,
+				D187F5ED2F8F20ED008E6A56 /* libgmodule-2.0.a in Frameworks */,
+				D187F5EE2F8F20ED008E6A56 /* libgpgme.a in Frameworks */,
+				D187F5EF2F8F20ED008E6A56 /* libgio-2.0.a in Frameworks */,
+				D187F5F02F8F20ED008E6A56 /* libidn.a in Frameworks */,
+				D187F5F12F8F20ED008E6A56 /* libintl.a in Frameworks */,
+				D187F5F22F8F20ED008E6A56 /* libgmime-3.0.a in Frameworks */,
+				D187F5F32F8F20ED008E6A56 /* libglib-2.0.a in Frameworks */,
+				D187F5F42F8F20ED008E6A56 /* libgobject-2.0.a in Frameworks */,
+				D187F5F52F8F20ED008E6A56 /* libffi.a in Frameworks */,
+				D187F5F62F8F20ED008E6A56 /* libz.a in Frameworks */,
+				D187F5F72F8F20ED008E6A56 /* libidn2.a in Frameworks */,
+				D187F5F82F8F20ED008E6A56 /* libgthread-2.0.a in Frameworks */,
+				D187F5F92F8F20ED008E6A56 /* libunistring.a in Frameworks */,
+				D187F5FA2F8F20ED008E6A56 /* libgpg-error.a in Frameworks */,
 				D1B7DEEF2F8CE33400A57A28 /* libolecf.a in Frameworks */,
 				D1A442272F8CB0A600337528 /* libtidy.a in Frameworks */,
 				D1A4421D2F8C9E4200337528 /* libxlsreader.a in Frameworks */,
@@ -212,6 +261,8 @@
 		08FB77ADFE841716C02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				D187F5DA2F8F1BFE008E6A56 /* mime-parser.cpp */,
+				D187F5D92F8F1BFE008E6A56 /* mime-parser.h */,
 				D1D9747C2F7BA6000081DFC5 /* C_TEXT.cpp */,
 				D1D9747B2F7BA6000081DFC5 /* C_TEXT.h */,
 				D1D9747D2F7BA6000081DFC5 /* C_TYPES.h */,
@@ -273,6 +324,21 @@
 		D16FBB3C22A4C07E008F0416 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D187F5DD2F8F20ED008E6A56 /* libassuan.a */,
+				D187F5E62F8F20ED008E6A56 /* libffi.a */,
+				D187F5E02F8F20ED008E6A56 /* libgio-2.0.a */,
+				D187F5E42F8F20ED008E6A56 /* libglib-2.0.a */,
+				D187F5E32F8F20ED008E6A56 /* libgmime-3.0.a */,
+				D187F5DE2F8F20ED008E6A56 /* libgmodule-2.0.a */,
+				D187F5E52F8F20ED008E6A56 /* libgobject-2.0.a */,
+				D187F5EB2F8F20ED008E6A56 /* libgpg-error.a */,
+				D187F5DF2F8F20ED008E6A56 /* libgpgme.a */,
+				D187F5E92F8F20ED008E6A56 /* libgthread-2.0.a */,
+				D187F5E12F8F20ED008E6A56 /* libidn.a */,
+				D187F5E82F8F20ED008E6A56 /* libidn2.a */,
+				D187F5E22F8F20ED008E6A56 /* libintl.a */,
+				D187F5EA2F8F20ED008E6A56 /* libunistring.a */,
+				D187F5E72F8F20ED008E6A56 /* libz.a */,
 				D1B7DEEE2F8CE33400A57A28 /* libolecf.a */,
 				D1A442262F8CB0A600337528 /* libtidy.a */,
 				D1A4421C2F8C9E4200337528 /* libxlsreader.a */,
@@ -318,6 +384,7 @@
 				D1D9747F2F7BA6000081DFC5 /* C_TYPES.h in Headers */,
 				D1D974792F7BA5EA0081DFC5 /* 4DPlugin-JSON.h in Headers */,
 				D1A442292F8CC84D00337528 /* olecf-parser.h in Headers */,
+				D187F5DC2F8F1BFE008E6A56 /* mime-parser.h in Headers */,
 				D198EFDA2F828EEA008D4A65 /* chunker.h in Headers */,
 				18B684F906944F2000CC6A1E /* Flags.h in Headers */,
 				D1A442242F8CAEFD00337528 /* tidy-parser.h in Headers */,
@@ -452,6 +519,7 @@
 				D1A442252F8CAEFD00337528 /* tidy-parser.cpp in Sources */,
 				D1B7DEF32F8D24EA00A57A28 /* md-parser.cpp in Sources */,
 				D1A4421B2F8C99B400337528 /* xls-parser.cpp in Sources */,
+				D187F5DB2F8F1BFE008E6A56 /* mime-parser.cpp in Sources */,
 				D198EFEC2F8298D1008D4A65 /* chunker.cpp in Sources */,
 				D1D9747A2F7BA5EA0081DFC5 /* 4DPlugin-JSON.cpp in Sources */,
 				D1D974802F7BA6000081DFC5 /* C_TEXT.cpp in Sources */,
@@ -482,7 +550,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "arm64;x86_64";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -537,7 +605,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "arm64;x86_64";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -589,7 +657,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
+				ARCHS = "arm64;x86_64";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -638,7 +706,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -685,7 +752,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
@@ -732,7 +798,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
