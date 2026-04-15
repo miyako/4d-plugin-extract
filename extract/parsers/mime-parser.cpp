@@ -13,7 +13,15 @@ namespace gmime {
         std::string subject;
         std::string body;
     };
+    typedef struct
+    {
+        int level;
+        bool is_main_message;
+        Document *document;
+    }mime_ctx;
 }
+
+using namespace gmime;
 
 static void print_text(TidyDoc tdoc, TidyNode tnode, std::string& text) {
     
@@ -221,16 +229,16 @@ static void processMessage(GMimeObject *parent, GMimeObject *part, gpointer user
     
 }
 
-extern bool document_to_json(document,
-                             obj,
-                             mode,
-                             max_paragraph_length,
-                             unique_values_only,
-                             text_as_tokens,
-                             tokens_length,
-                             token_padding,
-                             pooling_mode,
-                             overlap_ratio) {
+static void document_to_json(Document& document,
+                             PA_ObjectRef documentNode,
+                             output_type mode,
+                             int max_paragraph_length,
+                             bool unique_values_only,
+                             bool text_as_tokens,
+                             int tokens_length,
+                             bool token_padding,
+                             int pooling_mode,
+                             float overlap_ratio) {
     
     switch (mode) {
         case output_type_text:
@@ -295,14 +303,48 @@ extern bool document_to_json(document,
             PA_CollectionRef pages = PA_CreateCollection();
             
             PA_ObjectRef metaNode = PA_CreateObject();
-            ob_set_s(metaNode, "subject", document.message.subject.c_str());
+            ob_set_s(metaNode, "subject", document.subject.c_str());
 
-            ob_set_s(metaNode, "from", document.headers["from"]);
-            ob_set_s(metaNode, "sender", document.headers["sender"]);
-            ob_set_s(metaNode, "bcc", document.headers["bcc"]);
-            ob_set_s(metaNode, "cc", document.headers["cc"]);
-            ob_set_s(metaNode, "to", document.headers["to"]);
-            ob_set_s(metaNode, "replyTo", document.headers["replyTo"]);
+            
+            Json::Value h = document.headers["from"];
+//            h["string"].asString().c_str();
+//            h["encoded_string"].asString().c_str();
+//            h["idn_addr"].asString().c_str();
+            PA_ObjectRef fromNode = PA_CreateObject();
+            ob_set_s(fromNode, L"name", h["name"].asString().c_str());
+            ob_set_s(fromNode, L"address", h["addr"].asString().c_str());
+            ob_set_o(metaNode, "from", fromNode);
+            
+            h = document.headers["sender"];
+            PA_ObjectRef senderNode = PA_CreateObject();
+            ob_set_s(senderNode, L"name", h["name"].asString().c_str());
+            ob_set_s(senderNode, L"address", h["addr"].asString().c_str());
+            ob_set_o(metaNode, "from", senderNode);
+            
+            h = document.headers["replyTo"];
+            PA_ObjectRef replyToNode = PA_CreateObject();
+            ob_set_s(replyToNode, L"name", h["name"].asString().c_str());
+            ob_set_s(replyToNode, L"address", h["addr"].asString().c_str());
+            ob_set_o(metaNode, "from", replyToNode);
+            
+            h = document.headers["bcc"];
+            PA_ObjectRef bccNode = PA_CreateObject();
+            ob_set_s(bccNode, L"name", h["name"].asString().c_str());
+            ob_set_s(bccNode, L"address", h["addr"].asString().c_str());
+            ob_set_o(metaNode, "from", bccNode);
+
+            h = document.headers["cc"];
+            PA_ObjectRef ccNode = PA_CreateObject();
+            ob_set_s(ccNode, L"name", h["name"].asString().c_str());
+            ob_set_s(ccNode, L"address", h["addr"].asString().c_str());
+            ob_set_o(metaNode, "from", ccNode);
+
+            h = document.headers["to"];
+            PA_ObjectRef toNode = PA_CreateObject();
+            ob_set_s(toNode, L"name", h["name"].asString().c_str());
+            ob_set_s(toNode, L"address", h["addr"].asString().c_str());
+            ob_set_o(metaNode, "from", toNode);
+
             ob_set_o(documentNode, L"meta", metaNode);
             
             if(!document.body.empty()) {
@@ -321,22 +363,6 @@ extern bool document_to_json(document,
             break;
     }
     
-    if(rawText){
-
-    }else{
-        Json::Value documentNode(Json::objectValue);
-
-
-
-
-
-
-
-
-        
-
-        
-    }
 }
 
 static void getAddress(InternetAddressList *list, const char *label, Json::Value& json_message) {
@@ -395,8 +421,6 @@ static void getAddress(InternetAddressList *list, const char *label, Json::Value
     }
     
 }
-
-using namespace gmime;
 
 bool gmime_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                       output_type mode,
@@ -466,6 +490,8 @@ bool gmime_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                          token_padding,
                          pooling_mode,
                          overlap_ratio);
+        
+        success = true;
     }
     
     ob_set_b(obj, L"success", success);
@@ -474,12 +500,5 @@ bool gmime_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
         ob_set_a(obj, L"type", L"unknown");
     }
     
-    delete_rtf_window(hwnd);
-
-    if(temp_input_path.length()) {
-        _unlink(temp_input_path.c_str());
-    }
-    
     return success;
-
 }

@@ -16,6 +16,8 @@
 		D1037FAF2F80F05A0026408F /* libtokenizers_c.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1037FAC2F80F05A0026408F /* libtokenizers_c.a */; };
 		D1037FB02F80F05A0026408F /* libtokenizers_cpp.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1037FAD2F80F05A0026408F /* libtokenizers_cpp.a */; };
 		D1037FB12F80F05A0026408F /* libsentencepiece.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D1037FAE2F80F05A0026408F /* libsentencepiece.a */; };
+		D10B9C792F8F2845008EBFF5 /* libresolv.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D10B9C782F8F2845008EBFF5 /* libresolv.tbd */; };
+		D10B9C7B2F8F2850008EBFF5 /* libpcre.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D10B9C7A2F8F2850008EBFF5 /* libpcre.tbd */; };
 		D130064F12F02D9700702C0E /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D130064E12F02D9700702C0E /* Cocoa.framework */; };
 		D13116A91A03ACB700DE1322 /* 4DPluginAPI.c in Sources */ = {isa = PBXBuildFile; fileRef = D13116A81A03ACB700DE1322 /* 4DPluginAPI.c */; settings = {COMPILER_FLAGS = "-Wno-multichar"; }; };
 		D134D4AC1A030BA0008D14EF /* manifest.json in CopyFiles */ = {isa = PBXBuildFile; fileRef = D134D4A91A030B06008D14EF /* manifest.json */; };
@@ -109,6 +111,8 @@
 		D1037FAC2F80F05A0026408F /* libtokenizers_c.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtokenizers_c.a; path = a/libtokenizers_c.a; sourceTree = "<group>"; };
 		D1037FAD2F80F05A0026408F /* libtokenizers_cpp.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libtokenizers_cpp.a; path = a/libtokenizers_cpp.a; sourceTree = "<group>"; };
 		D1037FAE2F80F05A0026408F /* libsentencepiece.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libsentencepiece.a; path = a/libsentencepiece.a; sourceTree = "<group>"; };
+		D10B9C782F8F2845008EBFF5 /* libresolv.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libresolv.tbd; path = usr/lib/libresolv.tbd; sourceTree = SDKROOT; };
+		D10B9C7A2F8F2850008EBFF5 /* libpcre.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libpcre.tbd; path = usr/lib/libpcre.tbd; sourceTree = SDKROOT; };
 		D130064E12F02D9700702C0E /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		D13116A81A03ACB700DE1322 /* 4DPluginAPI.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.objcpp; fileEncoding = 4; path = 4DPluginAPI.c; sourceTree = "<group>"; };
 		D134D4A91A030B06008D14EF /* manifest.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
@@ -182,6 +186,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D10B9C7B2F8F2850008EBFF5 /* libpcre.tbd in Frameworks */,
+				D10B9C792F8F2845008EBFF5 /* libresolv.tbd in Frameworks */,
 				D187F5EC2F8F20ED008E6A56 /* libassuan.a in Frameworks */,
 				D187F5ED2F8F20ED008E6A56 /* libgmodule-2.0.a in Frameworks */,
 				D187F5EE2F8F20ED008E6A56 /* libgpgme.a in Frameworks */,
@@ -261,17 +267,17 @@
 		08FB77ADFE841716C02AAC07 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				D187F5DA2F8F1BFE008E6A56 /* mime-parser.cpp */,
-				D187F5D92F8F1BFE008E6A56 /* mime-parser.h */,
 				D1D9747C2F7BA6000081DFC5 /* C_TEXT.cpp */,
 				D1D9747B2F7BA6000081DFC5 /* C_TEXT.h */,
 				D1D9747D2F7BA6000081DFC5 /* C_TYPES.h */,
-				D1B7DEF22F8D24EA00A57A28 /* md-parser.cpp */,
-				D1B7DEF02F8D24BA00A57A28 /* md-parser.h */,
 				D1D974702F7BA5B40081DFC5 /* 4DPlugin-Universal-Document-Parser.cpp */,
 				D1D9746F2F7BA5B40081DFC5 /* 4DPlugin-Universal-Document-Parser.h */,
 				D1D974782F7BA5EA0081DFC5 /* 4DPlugin-JSON.cpp */,
 				D1D974772F7BA5EA0081DFC5 /* 4DPlugin-JSON.h */,
+				D187F5DA2F8F1BFE008E6A56 /* mime-parser.cpp */,
+				D187F5D92F8F1BFE008E6A56 /* mime-parser.h */,
+				D1B7DEF22F8D24EA00A57A28 /* md-parser.cpp */,
+				D1B7DEF02F8D24BA00A57A28 /* md-parser.h */,
 				D1A4422A2F8CCA2200337528 /* olecf-parser.cpp */,
 				D1A442282F8CC84D00337528 /* olecf-parser.h */,
 				D1D3DE902F8C76310034E941 /* pdfium-parser.cpp */,
@@ -324,6 +330,8 @@
 		D16FBB3C22A4C07E008F0416 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D10B9C7A2F8F2850008EBFF5 /* libpcre.tbd */,
+				D10B9C782F8F2845008EBFF5 /* libresolv.tbd */,
 				D187F5DD2F8F20ED008E6A56 /* libassuan.a */,
 				D187F5E62F8F20ED008E6A56 /* libffi.a */,
 				D187F5E02F8F20ED008E6A56 /* libgio-2.0.a */,
@@ -550,7 +558,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "arm64;x86_64";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -574,7 +582,11 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = include;
+				HEADER_SEARCH_PATHS = (
+					include,
+					"include/gmime-3.0",
+					"include/glib-2.0",
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
 				LIBRARY_SEARCH_PATHS = (
@@ -605,7 +617,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "arm64;x86_64";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -626,7 +638,11 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = include;
+				HEADER_SEARCH_PATHS = (
+					include,
+					"include/gmime-3.0",
+					"include/glib-2.0",
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
 				LIBRARY_SEARCH_PATHS = (
@@ -657,7 +673,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "arm64;x86_64";
+				ARCHS = "$(ARCHS_STANDARD)";
 				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_LINK_OBJC_RUNTIME = NO;
@@ -676,7 +692,11 @@
 				GCC_WARN_ABOUT_MISSING_PROTOTYPES = NO;
 				GCC_WARN_FOUR_CHARACTER_CONSTANTS = NO;
 				GCC_WARN_UNKNOWN_PRAGMAS = NO;
-				HEADER_SEARCH_PATHS = include;
+				HEADER_SEARCH_PATHS = (
+					include,
+					"include/gmime-3.0",
+					"include/glib-2.0",
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Library/Bundles";
 				LIBRARY_SEARCH_PATHS = (

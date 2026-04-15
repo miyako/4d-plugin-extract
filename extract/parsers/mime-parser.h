@@ -29,7 +29,15 @@
 #include <sstream>
 #include <iostream>
 
-
+#ifndef OUTPUT_TYPES
+    #define OUTPUT_TYPES
+    typedef enum {
+        output_type_object = 0,
+        output_type_text,
+        output_type_collection,
+        output_type_collections
+    }output_type;
+#endif
 
 #ifdef _WIN32
 #define NOMINMAX
@@ -48,12 +56,12 @@
 #include <tidy.h>
 #include <tidybuffio.h>
 
-typedef struct
-{
-    int level;
-    bool is_main_message;
-    Document *document;
-}mime_ctx;
+#include <json/json.h>
+#include "4DPluginAPI.h"
+#include "C_TEXT.h"
+#include "4DPlugin-JSON.h"
+#include "tokenizers_cpp.h"
+#include "4DPlugin-Universal-Document-Parser.h"
 
 extern bool gmime_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                              output_type mode,
