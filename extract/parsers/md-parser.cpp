@@ -8,7 +8,6 @@
 
 namespace md {
     struct Section {
-        std::string heading;   // e.g. "## Authentication"
         std::string body;      // everything under that heading until the next one
     };
 
@@ -225,67 +224,85 @@ static void document_to_json(Document& document,
     }
 }
 
-static int heading_level(const std::string &line) {
-    int lvl = 0;
-    while (lvl < (int)line.size() && line[lvl] == '#') ++lvl;
-    if (lvl == 0 || lvl > 3) return 0;
-    if (line.size() > (size_t)lvl && line[lvl] == ' ') return lvl;
-    return 0;
-}
+static std::string markdown_to_plaintext(const char *md) {
 
-static std::string trim(const std::string &s) {
-    size_t a = s.find_first_not_of(" \t\r\n");
-    if (a == std::string::npos) return "";
-    size_t b = s.find_last_not_of(" \t\r\n");
-    return s.substr(a, b - a + 1);
-}
+    std::string result;
 
-static std::vector<std::string> split_lines(const std::string &s) {
-    std::vector<std::string> lines;
-    std::istringstream ss(s);
-    std::string line;
-    while (std::getline(ss, line)) lines.push_back(line);
-    return lines;
-}
+    cmark_gfm_core_extensions_ensure_registered();
 
-static std::vector<Section> parse_sections(const std::string &markdown) {
-    std::vector<Section> sections;
-    auto lines = split_lines(markdown);
- 
-    Section current;
-    current.heading = "";  // top-level content before first heading
- 
-    for (auto &line : lines) {
-        int lvl = heading_level(line);
-        if (lvl > 0) {
-            // Flush current section if it has content
-            if (!trim(current.body).empty() || !current.heading.empty())
-                sections.push_back(current);
-            current.heading = line;
-            current.body.clear();
-        } else {
-            current.body += line + "\n";
+    cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
+    cmark_syntax_extension *table_ext = cmark_find_syntax_extension("table");
+    if (table_ext) cmark_parser_attach_syntax_extension(parser, table_ext);
+    cmark_syntax_extension *tasklist_ext = cmark_find_syntax_extension("tasklist");
+    if (tasklist_ext) cmark_parser_attach_syntax_extension(parser, tasklist_ext);
+
+    cmark_parser_feed(parser, md, strlen(md));
+    cmark_node *doc = cmark_parser_finish(parser);
+    cmark_parser_free(parser);
+
+    cmark_iter *iter = cmark_iter_new(doc);
+    bool firstCellInRow = true;
+
+    cmark_event_type ev;
+    while ((ev = cmark_iter_next(iter)) != CMARK_EVENT_DONE) {
+        cmark_node      *node = cmark_iter_get_node(iter);
+        cmark_node_type   tp  = cmark_node_get_type(node);
+        const char        *ts = cmark_node_get_type_string(node);
+
+        if (ev == CMARK_EVENT_ENTER) {
+            switch (tp) {
+                case CMARK_NODE_TEXT:
+                case CMARK_NODE_CODE:
+                    result += cmark_node_get_literal(node);
+                    break;
+
+                case CMARK_NODE_CODE_BLOCK:
+                    if (!result.empty()) result += (const char *)"\n";
+                    result += cmark_node_get_literal(node);
+                    break;
+
+                case CMARK_NODE_SOFTBREAK:
+                case CMARK_NODE_LINEBREAK:
+                    result += (const char *)"\n";
+                    break;
+
+                case CMARK_NODE_PARAGRAPH:
+                case CMARK_NODE_HEADING:
+                    if (!result.empty()) result += (const char *)"\n";
+                    break;
+
+                default:
+                    // GFM extension nodes — type is only known at runtime
+                    if (strcmp(ts, "table") == 0) {
+                        if (!result.empty()) result += (const char *)"\n";
+                    } else if (strcmp(ts, "table_row") == 0) {
+                        firstCellInRow = true;
+                    } else if (strcmp(ts, "table_cell") == 0) {
+                        if (!firstCellInRow) result += (const char *)"  |  ";
+                        firstCellInRow = false;
+                    } else if (strcmp(ts, "tasklist") == 0) {
+                        int checked = cmark_gfm_extensions_get_tasklist_item_checked(node);
+                        result += (const char *)(checked ? "[x] " : "[ ] ");
+                    }
+                    break;
+            }
+
+        } else if (ev == CMARK_EVENT_EXIT) {
+            switch (tp) {
+                case CMARK_NODE_HEADING:
+                    result += (const char *)"\n";
+                    break;
+                default:
+                    if (strcmp(ts, "table_row") == 0)
+                        result += (const char *)"\n";
+                    break;
+            }
         }
     }
-    if (!trim(current.body).empty() || !current.heading.empty())
-        sections.push_back(current);
- 
-    return sections;
-}
 
-static std::vector<std::string> split_sentences(const std::string &text) {
-    std::vector<std::string> sents;
-    size_t start = 0;
-    for (size_t i = 0; i + 1 < text.size(); ++i) {
-        if ((text[i] == '.' || text[i] == '!' || text[i] == '?') &&
-            text[i + 1] == ' ') {
-            sents.push_back(trim(text.substr(start, i - start + 1)));
-            start = i + 2;
-        }
-    }
-    if (start < text.size())
-        sents.push_back(trim(text.substr(start)));
-    return sents;
+    cmark_iter_free(iter);
+    cmark_node_free(doc);
+    return result;
 }
 
 extern bool md_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
@@ -303,12 +320,11 @@ extern bool md_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
     document.type = "md";
     std::string markdown = std::string((const char *)data.data(), data.size());
     
-    auto sections = parse_sections(markdown);
+    Section section;
+    section.body = markdown_to_plaintext(markdown.c_str());
     
     Page page;
-    for (auto &section : sections) {
-        page.sections.push_back(section);
-    }
+    page.sections.push_back(section);
     document.pages.push_back(page);
     
     document_to_json(document,
