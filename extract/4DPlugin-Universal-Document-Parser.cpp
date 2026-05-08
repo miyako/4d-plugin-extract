@@ -494,7 +494,8 @@ void Extract(PA_PluginParameters params) {
                     size_t len = (size_t)_ftell(f);
                     _fseek(f, 0, SEEK_SET);
                     data.resize(len);
-                    fread(data.data(), 1, data.size(), f);
+                    size_t nread = fread(data.data(), 1, data.size(), f);
+                    if (nread != len) data.resize(nread);
                     fclose(f);
                 }
             }

@@ -145,9 +145,6 @@ static void document_to_json(Document& document,
                     if(section.body.empty())
                         continue;
                     
-                    if(section.body.empty())
-                        continue;
-                    
                     if ((unique_values_only) && (!seen.insert(section.body).second)) {
                         continue;
                     }

@@ -41,7 +41,7 @@ static CFStringEncoding codepage_to_cfencoding(int cp) {
         case 737 : return kCFStringEncodingDOSGreek;
         case 437 : return kCFStringEncodingDOSLatinUS;
         case 37  : return kCFStringEncodingEBCDIC_CP037;
-        default:   return 1252; // default
+        default:   return kCFStringEncodingWindowsLatin1; // default to Windows-1252
     }
 }
 #endif
@@ -195,8 +195,8 @@ static void utf16le_to_utf_8(std::vector<uint8_t>& buf, std::string& u8) {
         CFIndex len = CFStringGetLength(str);
         CFIndex maxSize = CFStringGetMaximumSizeForEncoding(len, kCFStringEncodingUTF8) + 1;
         std::vector<uint8_t> _buf(maxSize);
-        if (CFStringGetCString(str, (char *)buf.data(), maxSize, kCFStringEncodingUTF8)) {
-            u8 = (const char *)buf.data();
+        if (CFStringGetCString(str, (char *)_buf.data(), maxSize, kCFStringEncodingUTF8)) {
+            u8 = (const char *)_buf.data();
         }
         CFRelease(str);
     }
@@ -228,10 +228,10 @@ static int create_temp_file_path(std::string& path) {
     if (!tmpdir) tmpdir = "/tmp";
     std::vector<char>buf(1024);
     snprintf(buf.data(), buf.size(), "%s/pffXXXXXX", tmpdir);
-    path = std::string(buf.data());
-    int fd = mkstemp((char *)path.c_str());
+    int fd = mkstemp(buf.data());
     if (fd == -1) return -1;
     close(fd);
+    path = std::string(buf.data());
     return 0;
 }
 #endif
@@ -1736,6 +1736,10 @@ static void process_root(Document& document,
     message.sender = sender;
     message.recipient = recipient;
     document.message = message;
+    
+    if (error) {
+        libolecf_error_free(&error);
+    }
 }
 
 #ifdef _WIN32
@@ -1804,6 +1808,7 @@ bool olecf_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
             libolecf_item_t *root = NULL;
             if (libolecf_file_get_root_item(file, &root, &error) == 1) {
                 process_root(document, root, codepage);
+                libolecf_item_free(&root, NULL);
                 if(document.type == "msg"){
                     document_to_json_msg(document,
                                          obj,
@@ -1853,6 +1858,10 @@ bool olecf_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
             std::cerr << "Failed to load MSG file!" << std::endl;
         }
         libolecf_file_free(&file, &error);
+    }
+    
+    if (error) {
+        libolecf_error_free(&error);
     }
     
     ob_set_b(obj, L"success", success);
