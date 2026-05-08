@@ -75,7 +75,7 @@ Case of
 		$pooling:="mean"
 		$batch_size:=$max_position_embeddings
 		$ubatch_size:=$max_position_embeddings
-		$n_gpu_layers:=13
+		$n_gpu_layers:=0
 		$cache_type_k:="f16"
 		$cache_type_v:="f16"
 		
