@@ -143,7 +143,6 @@ static bool getHeaders(GMimeObject *part, const char *label, Json::Value& json_m
             }
             json_message[label] = header_array;
         }
-        g_mime_header_list_clear(headers);
     }
     return hasHeaders;
 }
@@ -319,31 +318,31 @@ static void document_to_json(Document& document,
             PA_ObjectRef senderNode = PA_CreateObject();
             ob_set_s(senderNode, L"name", h["name"].asString().c_str());
             ob_set_s(senderNode, L"address", h["addr"].asString().c_str());
-            ob_set_o(metaNode, "from", senderNode);
+            ob_set_o(metaNode, "sender", senderNode);
             
             h = document.headers["replyTo"];
             PA_ObjectRef replyToNode = PA_CreateObject();
             ob_set_s(replyToNode, L"name", h["name"].asString().c_str());
             ob_set_s(replyToNode, L"address", h["addr"].asString().c_str());
-            ob_set_o(metaNode, "from", replyToNode);
+            ob_set_o(metaNode, "replyTo", replyToNode);
             
             h = document.headers["bcc"];
             PA_ObjectRef bccNode = PA_CreateObject();
             ob_set_s(bccNode, L"name", h["name"].asString().c_str());
             ob_set_s(bccNode, L"address", h["addr"].asString().c_str());
-            ob_set_o(metaNode, "from", bccNode);
+            ob_set_o(metaNode, "bcc", bccNode);
 
             h = document.headers["cc"];
             PA_ObjectRef ccNode = PA_CreateObject();
             ob_set_s(ccNode, L"name", h["name"].asString().c_str());
             ob_set_s(ccNode, L"address", h["addr"].asString().c_str());
-            ob_set_o(metaNode, "from", ccNode);
+            ob_set_o(metaNode, "cc", ccNode);
 
             h = document.headers["to"];
             PA_ObjectRef toNode = PA_CreateObject();
             ob_set_s(toNode, L"name", h["name"].asString().c_str());
             ob_set_s(toNode, L"address", h["addr"].asString().c_str());
-            ob_set_o(metaNode, "from", toNode);
+            ob_set_o(metaNode, "to", toNode);
 
             ob_set_o(documentNode, L"meta", metaNode);
             
@@ -413,7 +412,6 @@ static void getAddress(InternetAddressList *list, const char *label, Json::Value
             //create an empty array
             json_message[label] = Json::Value(Json::arrayValue);
         }
-        internet_address_list_clear(list);
     }else
     {
         //create an empty array

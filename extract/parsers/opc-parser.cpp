@@ -134,8 +134,6 @@ static void document_to_json_ss(Workbook& document,
                         if(cell.empty())
                             continue;
                         
-                        if (!joined.empty()) joined += " ";
-                        joined += cell;
                         emptyRow = false;
                         emptyCol = false;
                         
@@ -143,8 +141,7 @@ static void document_to_json_ss(Workbook& document,
                             continue;
                         }
                         
-                        if(!joined.empty()) joined += " ";
-                        
+                        if (!joined.empty()) joined += " ";
                         joined += cell;
                     }
                     
@@ -299,7 +296,7 @@ static void document_to_json_ss(Workbook& document,
                             }
                             paragraph_length = 0;
                             emptyCol = true;
-//                            paragraphs = PA_CreateCollection();
+                            texts.clear();
                             continue;
                         }
                     }
@@ -1055,6 +1052,7 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                             }
                         }
                     }
+                    xmlFreeDoc(workbookDoc);
                 }
                 document_to_json_ss(workbook,
                                     obj,

@@ -53,8 +53,6 @@ static void document_to_json(Document& document,
                         if(cell.empty())
                             continue;
                         
-                        if (!joined.empty()) joined += " ";
-                        joined += cell;
                         emptyRow = false;
                         emptyCol = false;
                         
@@ -62,8 +60,7 @@ static void document_to_json(Document& document,
                             continue;
                         }
                         
-                        if(!joined.empty()) joined += " ";
-                        
+                        if (!joined.empty()) joined += " ";
                         joined += cell;
                     }
                     
@@ -218,7 +215,7 @@ static void document_to_json(Document& document,
                             }
                             paragraph_length = 0;
                             emptyCol = true;
-//                            paragraphs = PA_CreateCollection();
+                            texts.clear();
                             continue;
                         }
                     }
@@ -366,7 +363,6 @@ bool xls_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                     
                     Sheet sheet;
                     sheet.name = pWB->sheets.sheet[i].name;
-                    document.sheets.push_back(sheet);
                     
                     for (xls::DWORD row = 0; row <= pWS->rows.lastrow; ++row) {
                         

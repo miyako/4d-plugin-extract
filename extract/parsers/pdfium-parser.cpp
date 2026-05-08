@@ -63,8 +63,8 @@ static void document_to_json(Document& document,
         case output_type_text:
         {
             PA_CollectionRef pages = PA_CreateCollection();
+            std::unordered_set<std::string> seen;
             for (const auto &page : document.pages) {
-                std::unordered_set<std::string> seen;
                 
                 if(page.text.empty())
                     continue;
@@ -82,8 +82,8 @@ static void document_to_json(Document& document,
         {
             ob_set_s(documentNode, "type", document.type.c_str());
             std::vector<std::string> texts;
+            std::unordered_set<std::string> seen;
             for (const auto &page : document.pages) {
-                std::unordered_set<std::string> seen;
                 
                 if(page.text.empty())
                     continue;
@@ -103,8 +103,8 @@ static void document_to_json(Document& document,
             ob_set_s(documentNode, "type", document.type.c_str());
             PA_CollectionRef pages = PA_CreateCollection();
             std::vector<std::string> texts;
+            std::unordered_set<std::string> seen;
             for (const auto &page : document.pages) {
-                std::unordered_set<std::string> seen;
                 
                 if(page.text.empty())
                     continue;
@@ -238,7 +238,6 @@ extern bool pdfium_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
             
             // +1 for the null terminator PDFium always writes
             std::u16string utf16(nChars + 1, u'\0');
-            utf16.resize(nChars);
             
             FPDFText_GetText(text_page, 0, nChars,
                              reinterpret_cast<unsigned short*>(&utf16[0]));
