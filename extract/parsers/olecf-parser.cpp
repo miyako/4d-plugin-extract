@@ -1596,54 +1596,49 @@ static void process_root(Document& document,
                                             uint32_t size = 0;
                                             if(libolecf_item_get_size(sub_sub_item, &size, &error) == 1) {
 
-                                                if(size == 0) {
-                                                    continue;
-                                                }
-                                                
-                                                bool continue_outer = false;
-                                                for (std::string& uninteresting : sub_properties_to_ignore) {
-                                                    if(property == uninteresting) {
-                                                        continue_outer = true;
-                                                        break;
+                                                if(size != 0) {
+                                                    bool skip = false;
+                                                    for (std::string& uninteresting : sub_properties_to_ignore) {
+                                                        if(property == uninteresting) {
+                                                            skip = true;
+                                                            break;
+                                                        }
                                                     }
-                                                }
-                                                
-                                                if(continue_outer){
-                                                    continue;
-                                                }
-                                                
-                                                std::vector<uint8_t>_buf(size);
-                                                ssize_t len = libolecf_stream_read_buffer(sub_sub_item, _buf.data(), _buf.size(), NULL);
-                                                
-                                                //PidTagRecipientDisplayName:PT_UNICODE
-                                                if(property == "__substg1.0_5FF6001F") {
-                                                    if(len != -1) {
-                                                        std::string name;
-                                                        utf16le_to_utf_8(_buf, name);
-                                                        recipient.name = name;
-                                                    }
-                                                    continue;
-                                                }
-                                                //PidTagDisplayName:PT_UNICODE
-                                                if(property == "__substg1.0_3001001F") {
-                                                    if(len != -1) {
-                                                        std::string name;
-                                                        utf16le_to_utf_8(_buf, name);
-                                                        recipient.name = name;
-                                                    }
-                                                    continue;
-                                                }
-                                                
-//                                                std::cerr << "\t" << property << "(" << size << ")" << std::endl;
 
+                                                    if(!skip) {
+                                                        std::vector<uint8_t>_buf(size);
+                                                        ssize_t len = libolecf_stream_read_buffer(sub_sub_item, _buf.data(), _buf.size(), NULL);
+
+                                                        //PidTagRecipientDisplayName:PT_UNICODE
+                                                        if(property == "__substg1.0_5FF6001F") {
+                                                            if(len != -1) {
+                                                                std::string name;
+                                                                utf16le_to_utf_8(_buf, name);
+                                                                recipient.name = name;
+                                                            }
+                                                        }
+                                                        //PidTagDisplayName:PT_UNICODE
+                                                        else if(property == "__substg1.0_3001001F") {
+                                                            if(len != -1) {
+                                                                std::string name;
+                                                                utf16le_to_utf_8(_buf, name);
+                                                                recipient.name = name;
+                                                            }
+                                                        }
+
+//                                                        std::cerr << "\t" << property << "(" << size << ")" << std::endl;
+                                                    }
+                                                }
                                             }
                                         }
                                     }
+                                    libolecf_item_free(&sub_sub_item, NULL);
                                 }
                             }
                         }
                     }
                 }
+                libolecf_item_free(&sub_item, NULL);
             }
         }
     }
