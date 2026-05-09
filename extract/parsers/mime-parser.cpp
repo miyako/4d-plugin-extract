@@ -137,7 +137,9 @@ static bool getHeaders(GMimeObject *part, const char *label, Json::Value& json_m
                 Json::Value item = Json::Value(Json::objectValue);
                             
                 item["name"]  = g_mime_header_get_name(h);
-                item["value"] = g_mime_utils_header_decode_text(NULL, g_mime_header_get_value(h));
+                char *decoded_value = g_mime_utils_header_decode_text(NULL, g_mime_header_get_value(h));
+                item["value"] = decoded_value ? decoded_value : "";
+                if (decoded_value) g_free(decoded_value);
                 
                 header_array.append(item);
             }
@@ -393,11 +395,16 @@ static void getAddress(InternetAddressList *list, const char *label, Json::Value
                 item["encoded_string"] = encoded_string ? encoded_string : "";
                 if(encoded_string) g_free(encoded_string);
                 
-                const char *addr = internet_address_mailbox_get_addr((InternetAddressMailbox *)address);
-                item["addr"] = addr ? addr : "";
+                if (INTERNET_ADDRESS_IS_MAILBOX(address)) {
+                    const char *addr = internet_address_mailbox_get_addr((InternetAddressMailbox *)address);
+                    item["addr"] = addr ? addr : "";
 
-                const char *idn_addr = internet_address_mailbox_get_idn_addr((InternetAddressMailbox *)address);
-                item["idn_addr"] = idn_addr ? idn_addr : "";
+                    const char *idn_addr = internet_address_mailbox_get_idn_addr((InternetAddressMailbox *)address);
+                    item["idn_addr"] = idn_addr ? idn_addr : "";
+                } else {
+                    item["addr"] = "";
+                    item["idn_addr"] = "";
+                }
                 
                 const char *name = internet_address_get_name(address);
                 item["name"] = name ? name : "";

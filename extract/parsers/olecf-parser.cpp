@@ -495,14 +495,16 @@ static void rtf_to_text_platform(HWND hwnd, std::string& rtf, std::string& text)
     
     NSData *src = [[NSData alloc]initWithBytes:rtf.c_str() length:rtf.length()];
     if(src) {
-        NSError *error = nil;
-        NSAttributedString *attrStr = [[NSAttributedString alloc] initWithData:src
-                                                                       options:@{NSDocumentTypeDocumentOption: NSRTFTextDocumentType}
-                                                            documentAttributes:nil
-                                                                         error:&error];
-        if (!error) {
-            NSString *u8 = [attrStr string];
-            text = (const char *)[u8 UTF8String];
+        @autoreleasepool {
+            NSError *error = nil;
+            NSAttributedString *attrStr = [[NSAttributedString alloc] initWithData:src
+                                                                           options:@{NSDocumentTypeDocumentOption: NSRTFTextDocumentType}
+                                                                documentAttributes:nil
+                                                                             error:&error];
+            if (!error) {
+                NSString *u8 = [attrStr string];
+                text = (const char *)[u8 UTF8String];
+            }
         }
     }
 #endif
@@ -1787,8 +1789,13 @@ bool olecf_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
     if(!create_temp_file_path(temp_input_path)){
         FILE *f = _fopen(temp_input_path.c_str(), _wb);
         if(f) {
-            fwrite(data.data(), 1, data.size(), f);
+            size_t written = fwrite(data.data(), 1, data.size(), f);
             fclose(f);
+            if (written != data.size()) {
+                // partial write — temp file is corrupt, don't proceed
+                _unlink(temp_input_path.c_str());
+                temp_input_path.clear();
+            }
         }
     }
     

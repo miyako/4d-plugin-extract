@@ -124,10 +124,10 @@ static void document_to_json_ss(Workbook& document,
             for (const auto &sheet : document.sheets) {
                 bool emptyCol = true;
                 std::string paragraphs;
+                std::unordered_set<std::string> seen;
                 for (const auto &row : sheet.rows) {
                     bool emptyRow = true;
                     std::unordered_set<std::string> seen_value;
-                    std::unordered_set<std::string> seen;
                     int paragraph_length = 0;
                     std::string joined;
                     for (const auto &cell : row.cells) {
@@ -183,15 +183,10 @@ static void document_to_json_ss(Workbook& document,
             std::vector<std::string> texts;
             for (const auto &sheet : document.sheets) {
                 bool emptyCol = true;
-                PA_ObjectRef sheetNode = PA_CreateObject();
-                PA_ObjectRef sheetMetaNode = PA_CreateObject();
-                ob_set_s(sheetMetaNode, "name", sheet.name.c_str());
-                ob_set_o(sheetNode, "meta", sheetMetaNode);
                 std::string paragraphs;
+                std::unordered_set<std::string> seen;
                 for (const auto &row : sheet.rows) {
-                    PA_CollectionRef values = PA_CreateCollection();
                     std::unordered_set<std::string> seen_value;
-                    std::unordered_set<std::string> seen;
                     int paragraph_length = 0;
                     std::string joined;
                     for (const auto &cell : row.cells) {
@@ -205,7 +200,6 @@ static void document_to_json_ss(Workbook& document,
                         if(!joined.empty()) joined += " ";
                         
                         joined += cell;
-                        ob_append_s(values, cell);
                     }
                     
                     if(joined.empty())
@@ -248,15 +242,10 @@ static void document_to_json_ss(Workbook& document,
             std::vector<std::string> texts;
             for (const auto &sheet : document.sheets) {
                 bool emptyCol = true;
-                PA_ObjectRef sheetNode = PA_CreateObject();
-                PA_ObjectRef sheetMetaNode = PA_CreateObject();
-                ob_set_s(sheetMetaNode, "name", sheet.name.c_str());
-                ob_set_o(sheetNode, "meta", sheetMetaNode);
+                std::unordered_set<std::string> seen;
 //                PA_CollectionRef paragraphs = PA_CreateCollection();
                 for (const auto &row : sheet.rows) {
-                    PA_CollectionRef values = PA_CreateCollection();
                     std::unordered_set<std::string> seen_value;
-                    std::unordered_set<std::string> seen;
                     int paragraph_length = 0;
                     std::string joined;
                     for (const auto &cell : row.cells) {
@@ -270,7 +259,6 @@ static void document_to_json_ss(Workbook& document,
                         if(!joined.empty()) joined += " ";
                         
                         joined += cell;
-                        ob_append_s(values, cell);
                     }
                     
                     if(joined.empty())
@@ -720,6 +708,7 @@ static void process_document(xmlNode *node, Document& document,const char *tag, 
                         if (!xmlStrcmp(type_attr, (const xmlChar *)"page")) {
                             Page _page;
                             document.pages.push_back(_page);
+                            page = &document.pages.back(); // revalidate after possible reallocation
                         }
                         xmlFree(type_attr);
                     }
@@ -736,6 +725,7 @@ static void process_document(xmlNode *node, Document& document,const char *tag, 
                                         if(!xmlStrcmp(val,(const xmlChar*)"nextPage")){
                                             Page _page;
                                             document.pages.push_back(_page);
+                                            page = &document.pages.back(); // revalidate after possible reallocation
                                         }
                                         xmlFree(val);
                                     }

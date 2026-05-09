@@ -43,10 +43,11 @@ static void document_to_json(Document& document,
             for (const auto &sheet : document.sheets) {
                 bool emptyCol = true;
                 std::string paragraphs;
+                std::unordered_set<std::string> seen;
                 for (const auto &row : sheet.rows) {
                     bool emptyRow = true;
                     std::unordered_set<std::string> seen_value;
-                    std::unordered_set<std::string> seen;
+                    std::unordered_set<std::string> seen_row;
                     int paragraph_length = 0;
                     std::string joined;
                     for (const auto &cell : row.cells) {
@@ -81,6 +82,7 @@ static void document_to_json(Document& document,
                         paragraph_length++;
                         if (paragraph_length == max_paragraph_length) {
                             ob_append_s(pages, paragraphs);
+
                             paragraph_length = 0;
                             emptyCol = true;
                             paragraphs.clear();
@@ -102,15 +104,10 @@ static void document_to_json(Document& document,
             std::vector<std::string> texts;
             for (const auto &sheet : document.sheets) {
                 bool emptyCol = true;
-                PA_ObjectRef sheetNode = PA_CreateObject();
-                PA_ObjectRef sheetMetaNode = PA_CreateObject();
-                ob_set_s(sheetMetaNode, "name", sheet.name.c_str());
-                ob_set_o(sheetNode, "meta", sheetMetaNode);
                 std::string paragraphs;
+                std::unordered_set<std::string> seen;
                 for (const auto &row : sheet.rows) {
-                    PA_CollectionRef values = PA_CreateCollection();
                     std::unordered_set<std::string> seen_value;
-                    std::unordered_set<std::string> seen;
                     int paragraph_length = 0;
                     std::string joined;
                     for (const auto &cell : row.cells) {
@@ -124,7 +121,6 @@ static void document_to_json(Document& document,
                         if(!joined.empty()) joined += " ";
                         
                         joined += cell;
-                        ob_append_s(values, cell);
                     }
                     
                     if(joined.empty())
@@ -167,15 +163,10 @@ static void document_to_json(Document& document,
             std::vector<std::string> texts;
             for (const auto &sheet : document.sheets) {
                 bool emptyCol = true;
-                PA_ObjectRef sheetNode = PA_CreateObject();
-                PA_ObjectRef sheetMetaNode = PA_CreateObject();
-                ob_set_s(sheetMetaNode, "name", sheet.name.c_str());
-                ob_set_o(sheetNode, "meta", sheetMetaNode);
+                std::unordered_set<std::string> seen;
 //                PA_CollectionRef paragraphs = PA_CreateCollection();
                 for (const auto &row : sheet.rows) {
-                    PA_CollectionRef values = PA_CreateCollection();
                     std::unordered_set<std::string> seen_value;
-                    std::unordered_set<std::string> seen;
                     int paragraph_length = 0;
                     std::string joined;
                     for (const auto &cell : row.cells) {
@@ -189,7 +180,6 @@ static void document_to_json(Document& document,
                         if(!joined.empty()) joined += " ";
                         
                         joined += cell;
-                        ob_append_s(values, cell);
                     }
                     
                     if(joined.empty())
