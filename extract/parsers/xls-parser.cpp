@@ -121,7 +121,6 @@ static void document_to_json(Document& document,
                         if(!joined.empty()) joined += " ";
                         
                         joined += cell;
-                        ob_append_s(values, cell);
                     }
                     
                     if(joined.empty())
@@ -181,7 +180,6 @@ static void document_to_json(Document& document,
                         if(!joined.empty()) joined += " ";
                         
                         joined += cell;
-                        ob_append_s(values, cell);
                     }
                     
                     if(joined.empty())
