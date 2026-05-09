@@ -478,6 +478,37 @@ static void html_to_txt_tidy(std::string& html, std::string& txt) {
 }
 
 #if WITH_NATIVE_RTF_CONVERT
+#ifdef _WIN32
+
+#else
+struct RtfConvertParams {
+    const std::string& rtf;   // in  – RTF bytes to convert
+    std::string        text;  // out – plain text result
+#ifdef _WIN32
+    HWND               hwnd;  // in  – RichEdit window (created on main thread)
+#endif
+};
+// on macOS, RTF→text via NSAttributedString must run on the main thread
+static void rtf_convert_proc(void *param) {
+    auto *p = static_cast<RtfConvertParams*>(param);
+    @autoreleasepool {
+        NSData *src = [[NSData alloc] initWithBytes:p->rtf.c_str()
+                                            length:p->rtf.length()];
+        if (src) {
+            NSError *error = nil;
+            NSAttributedString *attrStr =
+                [[NSAttributedString alloc]
+                    initWithData:src
+                         options:@{NSDocumentTypeDocumentOption: NSRTFTextDocumentType}
+              documentAttributes:nil
+                           error:&error];
+            if (!error)
+                p->text = (const char *)[[attrStr string] UTF8String];
+        }
+    }
+}
+#endif
+
 static void rtf_to_text_platform(HWND hwnd, std::string& rtf, std::string& text) {
 #ifdef _WIN32
     SETTEXTEX st = {};
@@ -492,21 +523,10 @@ static void rtf_to_text_platform(HWND hwnd, std::string& rtf, std::string& text)
     
     utf16_to_utf8((const uint8_t *)buf.data(), buf.size(), text);
 #else
-    
-    NSData *src = [[NSData alloc]initWithBytes:rtf.c_str() length:rtf.length()];
-    if(src) {
-        @autoreleasepool {
-            NSError *error = nil;
-            NSAttributedString *attrStr = [[NSAttributedString alloc] initWithData:src
-                                                                           options:@{NSDocumentTypeDocumentOption: NSRTFTextDocumentType}
-                                                                documentAttributes:nil
-                                                                             error:&error];
-            if (!error) {
-                NSString *u8 = [attrStr string];
-                text = (const char *)[u8 UTF8String];
-            }
-        }
-    }
+    // at call site:
+    RtfConvertParams p{rtf, ""};
+    PA_RunInMainProcess(rtf_convert_proc, &p);
+    text = p.text;
 #endif
 }
 #endif
