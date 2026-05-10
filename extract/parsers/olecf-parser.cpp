@@ -1809,8 +1809,11 @@ bool olecf_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
             size_t written = fwrite(data.data(), 1, data.size(), f);
             fclose(f);
             if (written != data.size()) {
-                // partial write — temp file is corrupt, don't proceed
+#ifdef _WIN32
+                DeleteFile((LPCWSTR)temp_input_path.c_str());
+#else
                 _unlink(temp_input_path.c_str());
+#endif
                 temp_input_path.clear();
             }
         }
