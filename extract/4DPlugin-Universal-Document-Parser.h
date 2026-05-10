@@ -34,6 +34,7 @@
 #include <cassert>
 #include <stdexcept>
 #include <functional>
+#include <shared_mutex>
 
 #include <stdio.h>
 #include <stdlib.h>
