@@ -478,37 +478,59 @@ static void html_to_txt_tidy(std::string& html, std::string& txt) {
 }
 
 #if WITH_NATIVE_RTF_CONVERT
-static void rtf_to_text_platform(HWND hwnd, std::string& rtf, std::string& text) {
+
+// Forward declarations — definitions are near the bottom of this file
 #ifdef _WIN32
-    SETTEXTEX st = {};
-    st.flags = ST_DEFAULT;
-    st.codepage = CP_ACP;
-    SendMessage(hwnd, EM_SETTEXTEX, (WPARAM)&st, (LPARAM)rtf.c_str());
-    
-    int len = GetWindowTextLength(hwnd);
-    
-    std::vector<uint16_t> buf((len + 1));
-    GetWindowText(hwnd,(LPWSTR)buf.data(), buf.size());
-    
-    utf16_to_utf8((const uint8_t *)buf.data(), buf.size(), text);
+static HWND create_rtf_window();
+static void delete_rtf_window(HWND hwnd);
+#endif
+
+struct RtfConvertParams {
+    const std::string& rtf;   // in  – RTF bytes to convert
+    std::string        text;  // out – plain text result
+};
+
+// Runs on the main thread via PA_RunInMainProcess
+static void rtf_convert_proc(void *param) {
+    auto *p = static_cast<RtfConvertParams*>(param);
+#ifdef _WIN32
+    HWND hwnd = create_rtf_window();
+    if (hwnd) {
+        SETTEXTEX st = {};
+        st.flags = ST_DEFAULT;
+        st.codepage = CP_ACP;
+        SendMessage(hwnd, EM_SETTEXTEX, (WPARAM)&st, (LPARAM)p->rtf.c_str());
+        int len = GetWindowTextLength(hwnd);
+        std::vector<uint16_t> buf(len + 1);
+        GetWindowText(hwnd, (LPWSTR)buf.data(), (int)buf.size());
+        utf16_to_utf8((const uint8_t *)buf.data(), buf.size(), p->text);
+        delete_rtf_window(hwnd);
+    }
 #else
-    
-    NSData *src = [[NSData alloc]initWithBytes:rtf.c_str() length:rtf.length()];
-    if(src) {
-        @autoreleasepool {
+    @autoreleasepool {
+        NSData *src = [[NSData alloc] initWithBytes:p->rtf.c_str()
+                                             length:p->rtf.length()];
+        if (src) {
             NSError *error = nil;
-            NSAttributedString *attrStr = [[NSAttributedString alloc] initWithData:src
-                                                                           options:@{NSDocumentTypeDocumentOption: NSRTFTextDocumentType}
-                                                                documentAttributes:nil
-                                                                             error:&error];
-            if (!error) {
-                NSString *u8 = [attrStr string];
-                text = (const char *)[u8 UTF8String];
-            }
+            NSAttributedString *attrStr =
+            [[NSAttributedString alloc]
+             initWithData:src
+             options:@{NSDocumentTypeDocumentOption: NSRTFTextDocumentType}
+             documentAttributes:nil
+             error:&error];
+            if (!error)
+                p->text = (const char *)[[attrStr string] UTF8String];
         }
     }
 #endif
 }
+
+static void rtf_to_text_platform(std::string& rtf, std::string& text) {
+    RtfConvertParams p{rtf, ""};
+    PA_RunInMainProcess(rtf_convert_proc, &p);
+    text = p.text;
+}
+
 #endif
 
 using namespace olecf;
@@ -522,8 +544,7 @@ static void document_to_json_msg(Document& document,
                                  int tokens_length,
                                  bool token_padding,
                                  int pooling_mode,
-                                 float overlap_ratio,
-                                 HWND hwnd) {
+                                 float overlap_ratio) {
     
     if((document.message.html.length() != 0)
        && (document.message.text.length() == 0)) {
@@ -531,7 +552,7 @@ static void document_to_json_msg(Document& document,
     }
     
     if((document.message.rtf.length() != 0) && (document.message.text.length() == 0)) {
-            rtf_to_text_platform(hwnd, document.message.rtf, document.message.text);
+            rtf_to_text_platform(document.message.rtf, document.message.text);
     }
     
     switch (mode) {
@@ -638,8 +659,7 @@ static void document_to_json_doc(Document& document,
                                  int tokens_length,
                                  bool token_padding,
                                  int pooling_mode,
-                                 float overlap_ratio,
-                                 HWND hwnd) {
+                                 float overlap_ratio) {
     
     switch (mode) {
         case output_type_text:
@@ -710,8 +730,7 @@ static void document_to_json_ppt(Document& document,
                                  int tokens_length,
                                  bool token_padding,
                                  int pooling_mode,
-                                 float overlap_ratio,
-                                 HWND hwnd){
+                                 float overlap_ratio){
     
     switch (mode) {
         case output_type_text:
@@ -1778,12 +1797,10 @@ bool olecf_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
     
 #if defined(_WIN32)
     std::wstring temp_input_path;
-    HWND hwnd = create_rtf_window();
 #else
     std::string  temp_input_path;
-    HWND hwnd = NULL;
 #endif
-    
+
     bool success = false;
     
     if(!create_temp_file_path(temp_input_path)){
@@ -1821,8 +1838,7 @@ bool olecf_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                                          tokens_length,
                                          token_padding,
                                          pooling_mode,
-                                         overlap_ratio,
-                                         hwnd);
+                                         overlap_ratio);
                     success = true;
                 }
                 if(document.type == "ppt"){
@@ -1835,8 +1851,7 @@ bool olecf_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                                          tokens_length,
                                          token_padding,
                                          pooling_mode,
-                                         overlap_ratio,
-                                         hwnd);
+                                         overlap_ratio);
                     success = true;
                 }
                 if(document.type == "doc"){
@@ -1849,8 +1864,7 @@ bool olecf_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                                          tokens_length,
                                          token_padding,
                                          pooling_mode,
-                                         overlap_ratio,
-                                         hwnd);
+                                         overlap_ratio);
                     success = true;
                 }
             }else{
@@ -1872,8 +1886,6 @@ bool olecf_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
         ob_set_a(obj, L"type", L"unknown");
     }
     
-    delete_rtf_window(hwnd);
-
     if(temp_input_path.length()) {
 #ifdef _WIN32
         DeleteFile((LPCWSTR)temp_input_path.c_str());

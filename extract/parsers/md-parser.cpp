@@ -225,8 +225,6 @@ static std::string markdown_to_plaintext(const char *md) {
 
     std::string result;
 
-    cmark_gfm_core_extensions_ensure_registered();
-
     cmark_parser *parser = cmark_parser_new(CMARK_OPT_DEFAULT);
     cmark_syntax_extension *table_ext = cmark_find_syntax_extension("table");
     if (table_ext) cmark_parser_attach_syntax_extension(parser, table_ext);
