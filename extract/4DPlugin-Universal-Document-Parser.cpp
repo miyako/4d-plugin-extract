@@ -12,8 +12,9 @@
 
 #pragma mark -
 
-chunker::ChunkerPtr gchunker;
+std::shared_ptr<chunker::LlamaChunker> gchunker;
 int32_t gpadtoken_id;
+static std::shared_mutex gchunker_mutex;
 #ifdef _WIN32
     HMODULE ghmodule;
 #endif
@@ -198,12 +199,14 @@ static std::vector<Chunk> build_chunks(
     const float             overlap_pct,   // e.g. 0.09f
     const bool              token_padding,
     const bool              retokenize,
-    const PoolingMode       pooling
+    const PoolingMode       pooling,
+    const int               pad_token,
+    const std::shared_ptr<chunker::LlamaChunker>& chunker
 ) {
     if (raw.empty() || length == 0)
         return {};
 
-    const int pad   = gpadtoken_id;
+    const int pad   = pad_token;
     const int n     = (int)raw.size();
 
     // overlap in tokens, stride = non-overlapping advance per chunk
@@ -245,7 +248,7 @@ static std::vector<Chunk> build_chunks(
         }
 
         if (retokenize) {
-            chunk.text = gchunker->detokenize(chunk.tokens);
+            chunk.text = chunker->detokenize(chunk.tokens);
             chunk.tokens.clear();   // not needed when returning strings
         }
 
@@ -283,6 +286,14 @@ static PA_CollectionRef tokenize(
     const float        overlap_pct,
     const PoolingMode  pooling
 ) {
+    std::shared_ptr<chunker::LlamaChunker> local_chunker;
+    int32_t local_pad;
+    {
+        std::shared_lock<std::shared_mutex> lock(gchunker_mutex);
+        local_chunker = gchunker;   // shared_ptr copy — safe and cheap
+        local_pad     = gpadtoken_id;
+    }
+    
     auto make_empty = [&]() {
         PA_CollectionRef r = PA_CreateCollection();
         if (retokenize) ob_append_s(r, "");
@@ -294,13 +305,12 @@ static PA_CollectionRef tokenize(
         return r;
     };
 
-    if (!gchunker || text.empty())
+    if (!local_chunker || text.empty())
         return make_empty();
 
-    // Tokenize to raw int vector
     std::vector<int> raw;
     try {
-        auto tokens = gchunker->tokenize(text);
+        auto tokens = local_chunker->tokenize(text);
         raw.reserve(tokens.size());
         for (auto t : tokens) raw.push_back((int)t);
     } catch (const std::exception& e) {
@@ -311,7 +321,7 @@ static PA_CollectionRef tokenize(
     if (raw.empty())
         return make_empty();
 
-    auto chunks = build_chunks(raw, length, overlap_pct, token_padding, retokenize, pooling);
+    auto chunks = build_chunks(raw, length, overlap_pct, token_padding, retokenize, pooling, local_pad, local_chunker);
     return chunks_to_collection(chunks, retokenize);
 }
 
@@ -334,18 +344,25 @@ PA_CollectionRef process_paragraphs(
     const float                     overlap_pct,
     const int               pooling
 ) {
+    std::shared_ptr<chunker::LlamaChunker> local_chunker;
+    int32_t local_pad;
+    {
+        std::shared_lock<std::shared_mutex> lock(gchunker_mutex);
+        local_chunker = gchunker;   // shared_ptr copy — safe and cheap
+        local_pad     = gpadtoken_id;
+    }
+    
     PA_CollectionRef result = PA_CreateCollection();
     for (const auto& paragraph : paragraphs) {
         auto chunks = [&]() -> std::vector<Chunk> {
-            // re-use build_chunks directly to avoid double PA_Collection conversion
-            if (!gchunker || paragraph.empty()) return {};
+            if (!local_chunker || paragraph.empty()) return {};
             std::vector<int> raw;
             try {
-                auto tokens = gchunker->tokenize(paragraph);
+                auto tokens = local_chunker->tokenize(paragraph);
                 for (auto t : tokens) raw.push_back((int)t);
             } catch (...) { return {}; }
             if (raw.empty()) return {};
-            return build_chunks(raw, length, overlap_pct, token_padding, retokenize, (PoolingMode)pooling);
+            return build_chunks(raw, length, overlap_pct, token_padding, retokenize, (PoolingMode)pooling, local_pad, local_chunker);
         }();
 
         for (PA_long32 i = 0; i < (PA_long32)chunks.size(); i++) {
@@ -377,18 +394,19 @@ void Extract_SET_OPTION(PA_PluginParameters params) {
                             std::ostringstream ss;
                             ss << f.rdbuf();
                             std::string etd = ss.str();
-                        
                             chunker::ModelConfig model_cfg;
                             model_cfg.model_path = path;
                             model_cfg.verbosity  = 1;
-
                             try {
-                                gchunker = chunker::make_chunker(model_cfg);
-                                gpadtoken_id = gchunker->pad_token_id_internal();
+                                chunker::ChunkerPtr new_chunker_unique = chunker::make_chunker(model_cfg);
+                                auto new_chunker = std::shared_ptr<chunker::LlamaChunker>(std::move(new_chunker_unique));
+                                int32_t new_pad = new_chunker->pad_token_id_internal();
+                                std::unique_lock<std::shared_mutex> lock(gchunker_mutex);
+                                gchunker     = std::move(new_chunker);
+                                gpadtoken_id = new_pad;
                             } catch (const std::exception& e) {
                                 std::fprintf(stderr, "ERROR initialising chunker: %s\n", e.what());
                             }
-
                         }
                     }
                 }
@@ -617,10 +635,9 @@ void Extract(PA_PluginParameters params) {
 
 static void OnExit() {
 
-    if (gchunker) {
-        gchunker.reset();
-    }
-    
+    std::unique_lock<std::shared_mutex> lock(gchunker_mutex);
+    gchunker.reset();
+
 #ifdef _WIN32
     if (ghmodule) {
         FreeLibrary(ghmodule);
