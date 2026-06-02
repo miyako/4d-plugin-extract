@@ -431,14 +431,131 @@ LlamaChunker::chunk(const std::string& text,
         pad_to_target(bucket, params.target_len);
         assert(bucket.size() == params.target_len);
 
-        // e. Build debug text (optional but cheap for small buckets)
+        // e. Build chunk text by slicing the *original* string using
+        //    character offsets recovered from the token pieces.
+        //
+        //    Why: concatenating llama_token_to_piece() pieces is lossy —
+        //    SentencePiece encodes leading spaces as U+2581 (▁) and BPE
+        //    encodes them as Ġ, so a naive concat either drops spaces or
+        //    emits the wrong codepoint.  Mapping pieces back onto the
+        //    original text is always accurate.
+        //
+        //    Algorithm: walk `text` forward, matching each piece string
+        //    in order.  Once we have the start offset of the first content
+        //    token and the end offset of the last, take the substring.
+        //    On any mismatch we fall back to piece concatenation (old
+        //    behaviour) so correctness is never regressed.
         std::string chunk_text;
-        chunk_text.reserve(content_toks * 5);
-        for (uint32_t t = 0; t < content_toks; ++t) {
-            char buf[16] = {};
-            int  n = llama_token_to_piece(vp, bucket[t], buf, sizeof(buf) - 1,
-                                          0, false);
-            if (n > 0) { buf[n] = '\0'; chunk_text += buf; }
+        {
+            // Normalise a raw piece to what it looks like in the source text.
+            // SentencePiece  U+2581 (▁, 3 bytes) → ASCII space
+            // BPE/tiktoken   Ġ (U+0120, 2 bytes) → ASCII space
+            // BPE/tiktoken   Ċ (U+010A, 2 bytes) → newline
+            auto normalise_piece = [](std::string p) -> std::string {
+                static const std::string SP  = "\xe2\x96\x81";   // ▁
+                static const std::string GPT_SP  = "\xc4\xa0";  // Ġ
+                static const std::string GPT_NL  = "\xc4\x8a";  // Ċ
+                if (p.size() >= 3 && p.substr(0,3) == SP)
+                    return " " + p.substr(3);
+                if (p.size() >= 2 && p.substr(0,2) == GPT_SP)
+                    return " " + p.substr(2);
+                if (p.size() >= 2 && p.substr(0,2) == GPT_NL)
+                    return "\n" + p.substr(2);
+                return p;
+            };
+
+            // Collect the normalised piece for every content token.
+            std::vector<std::string> pieces(content_toks);
+            for (uint32_t t = 0; t < content_toks; ++t) {
+                char buf[256] = {};
+                int  n = llama_token_to_piece(vp, bucket[t], buf,
+                                              sizeof(buf) - 1, 0, false);
+                if (n > 0) { buf[n] = '\0'; pieces[t] = normalise_piece(buf); }
+            }
+
+            // Walk the original string, matching pieces in order to find
+            // the exact character span covered by this chunk's content tokens.
+            bool offset_ok    = false;
+            int  char_start   = -1;
+            int  char_end     = -1;
+            {
+                // Determine where in `text` this bucket's first token starts.
+                // `all_toks` runs from the beginning of `text`; we know the
+                // bucket starts at absolute token index `cursor - fill_cursor`
+                // away from the fill start.  Rather than tracking that through
+                // the bucketing loop, we walk the piece list from the top of
+                // the current bucket (index stored as the bucket's first
+                // content token offset into all_toks).
+                //
+                // We stored fill_cursor *after* the bucket; the bucket's
+                // content token range is [prev_start_cursor .. prev_end).
+                // We recover it by walking all pieces from token 0 up to
+                // the bucket's end, then subtracting content_toks.
+                //
+                // Simpler: we already have `pieces[]` for the content tokens.
+                // Walk the *original text* forward matching those pieces.
+                // The only information we need is that these tokens come from
+                // the text in order — which is always true.
+
+                int cursor_c = 0;
+                const int text_len = (int)text.size();
+
+                // Skip tokens that precede this bucket so we start matching
+                // at roughly the right place.  We do this by re-deriving how
+                // many tokens came before this bucket in all_toks.
+                // `fill_cursor` is already past this bucket; content starts at
+                // fill_cursor - content_toks (after overlap is excluded).
+                // Walk preceding pieces to advance cursor_c.
+                {
+                    // Number of all_toks tokens consumed before this bucket's
+                    // content (overlap tokens are re-used, not new text).
+                    size_t prefix_end = (fill_cursor > content_toks)
+                                        ? fill_cursor - content_toks : 0;
+                    for (size_t pi = 0; pi < prefix_end && cursor_c < text_len; ++pi) {
+                        char buf[256] = {};
+                        int  n = llama_token_to_piece(vp, all_toks[pi],
+                                                      buf, sizeof(buf)-1, 0, false);
+                        if (n <= 0) continue;
+                        buf[n] = '\0';
+                        std::string piece = normalise_piece(buf);
+                        if (piece.empty()) continue;
+                        // Allow whitespace drift at the very start
+                        size_t pos = text.find(piece, (size_t)cursor_c);
+                        if (pos == std::string::npos) {
+                            cursor_c = text_len; // give up prefix walk
+                            break;
+                        }
+                        cursor_c = (int)(pos + piece.size());
+                    }
+                }
+
+                // Now match the content pieces to find char_start / char_end.
+                bool failed = (cursor_c > text_len);
+                for (uint32_t t = 0; t < content_toks && !failed; ++t) {
+                    const std::string& piece = pieces[t];
+                    if (piece.empty()) continue; // control/special token
+
+                    size_t pos = text.find(piece, (size_t)cursor_c);
+                    if (pos == std::string::npos) { failed = true; break; }
+
+                    if (t == 0) char_start = (int)pos;
+                    char_end  = (int)(pos + piece.size());
+                    cursor_c  = (int)(pos + piece.size());
+                }
+
+                if (!failed && char_start >= 0 && char_end >= char_start) {
+                    offset_ok = true;
+                }
+            }
+
+            if (offset_ok) {
+                chunk_text = text.substr((size_t)char_start,
+                                         (size_t)(char_end - char_start));
+            } else {
+                // Fallback: piece concatenation (original behaviour).
+                chunk_text.reserve(content_toks * 5);
+                for (auto& p : pieces) chunk_text += p;
+            }
         }
 
         Chunk ch;
