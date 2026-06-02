@@ -85,17 +85,83 @@ static void document_to_json(Document& document,
     }
 }
 
+// Returns true if this element's tag is block-level and should
+// introduce a newline before its text content.
+static bool is_block_tag(TidyNode node) {
+    TidyTagId id = tidyNodeGetId(node);
+    switch (id) {
+        case TidyTag_ADDRESS:
+        case TidyTag_ARTICLE:
+        case TidyTag_ASIDE:
+        case TidyTag_BLOCKQUOTE:
+        case TidyTag_BR:
+        case TidyTag_CAPTION:
+        case TidyTag_DD:
+        case TidyTag_DIV:
+        case TidyTag_DL:
+        case TidyTag_DT:
+        case TidyTag_FIELDSET:
+        case TidyTag_FIGCAPTION:
+        case TidyTag_FIGURE:
+        case TidyTag_FOOTER:
+        case TidyTag_FORM:
+        case TidyTag_H1:
+        case TidyTag_H2:
+        case TidyTag_H3:
+        case TidyTag_H4:
+        case TidyTag_H5:
+        case TidyTag_H6:
+        case TidyTag_HEADER:
+        case TidyTag_HR:
+        case TidyTag_LI:
+        case TidyTag_MAIN:
+        case TidyTag_NAV:
+        case TidyTag_OL:
+        case TidyTag_P:
+        case TidyTag_PRE:
+        case TidyTag_SECTION:
+        case TidyTag_SUMMARY:
+        case TidyTag_TABLE:
+        case TidyTag_TD:
+        case TidyTag_TH:
+        case TidyTag_TITLE:
+        case TidyTag_TR:
+        case TidyTag_UL:
+            return true;
+        default:
+            return false;
+    }
+}
+
 static void print_text(TidyDoc tdoc, TidyNode tnode, std::string& text) {
-    
+
     for (TidyNode child = tidyGetChild(tnode); child; child = tidyGetNext(child)) {
         TidyNodeType ttype = tidyNodeGetType(child);
+
         if (ttype == TidyNode_Text) {
             TidyBuffer buf;
             tidyBufInit(&buf);
             tidyNodeGetValue(tdoc, child, &buf);
-            text += std::string((char*)buf.bp, buf.size);
+            if (buf.size > 0) {
+                // Ensure block-level parent is separated from prior text.
+                // Check parent (tnode) — if it is block-level and text is
+                // non-empty and doesn't already end with whitespace, add \n.
+                if (!text.empty() && is_block_tag(tnode)) {
+                    char last = text.back();
+                    if (last != '\n' && last != ' ') {
+                        text += '\n';
+                    }
+                }
+                text += std::string((char*)buf.bp, buf.size);
+            }
             tidyBufFree(&buf);
+
         } else if (ttype == TidyNode_Start) {
+            // <br> has no text children but should still inject a newline.
+            if (tidyNodeGetId(child) == TidyTag_BR) {
+                if (!text.empty() && text.back() != '\n')
+                    text += '\n';
+            }
             print_text(tdoc, child, text);
         }
     }
