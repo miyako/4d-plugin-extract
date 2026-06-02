@@ -210,7 +210,11 @@ extern bool tidy_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
     tidyOptSetBool(tdoc, TidyPreserveEntities, no);
     tidyOptSetBool(tdoc, TidyNumEntities, yes);
     
-    if(tidyParseString(tdoc, (const char *)data.data()) >= 0) {
+    TidyBuffer input;
+    tidyBufInit(&input);
+    tidyBufAttach(&input, (byte*)data.data(), (uint)data.size());
+
+    if(tidyParseBuffer(tdoc, &input) >= 0) {
         document.type = "html";
         if(tidyCleanAndRepair(tdoc) >= 0) {
             TidyNode body = tidyGetBody(tdoc);
