@@ -143,15 +143,12 @@ static void print_text(TidyDoc tdoc, TidyNode tnode, std::string& text) {
             tidyBufInit(&buf);
             tidyNodeGetValue(tdoc, child, &buf);
             if (buf.size > 0) {
-                // Ensure block-level parent is separated from prior text.
-                // Check parent (tnode) — if it is block-level and text is
-                // non-empty and doesn't already end with whitespace, add \n.
-                if (!text.empty() && is_block_tag(tnode)) {
-                    char last = text.back();
-                    if (last != '\n' && last != ' ') {
-                        text += '\n';
-                    }
-                }
+//                if (!text.empty() && is_block_tag(tnode)) {
+//                    char last = text.back();
+//                    if (last != '\n' && last != ' ') {
+//                        text += '\n';
+//                    }
+//                }
                 text += std::string((char*)buf.bp, buf.size);
             }
             tidyBufFree(&buf);
@@ -162,6 +159,12 @@ static void print_text(TidyDoc tdoc, TidyNode tnode, std::string& text) {
                 if (!text.empty() && text.back() != '\n')
                     text += '\n';
             }
+            if (is_block_tag(child) && !text.empty()) {
+                char last = text.back();
+                if (last != '\n' && last != ' ')
+                    text += '\n';
+            }
+            
             print_text(tdoc, child, text);
         }
     }
