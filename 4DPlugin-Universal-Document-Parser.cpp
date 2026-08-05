@@ -92,6 +92,17 @@ static bool _object_to_path(PA_ObjectRef f, std::string& path, int type) {
             PA_DisposeUnistring(&PATH);
             PA_ClearVariable(&_p);
 #endif
+            // NOT clearing folder: 4DPluginAPI.c confirms this pattern.
+            // PA_CreateObject/PA_DuplicateObject/PA_CreateCollection all call
+            // PA_ExecuteCommandByID for a command that constructs a brand-new
+            // object/collection (New Object, OB Copy, New Collection), extract
+            // the ref via PA_GetObjectVariable/PA_GetCollectionVariable, and
+            // never clear the result - clearing immediately would destroy the
+            // very thing just constructed, since nothing else references it
+            // yet. `folder` here is built the same way, via the "4D.File"/
+            // "4D.Folder" constructor commands (cmd_4D.File/cmd_4D.Folder) -
+            // same shape, so left un-cleared, now on confirmed grounds rather
+            // than just caution.
             C_TEXT t;
             t.setUTF16String(&platformPath);
             CUTF8String u8;
@@ -123,6 +134,15 @@ static bool file_object_to_data(PA_ObjectRef f, std::vector<uint8_t>& data) {
         PA_SetStringVariable(&prm_OB_Get[1], &BLOB);//DO NOT call PA_DisposeUnistring
         PA_Variable _4D_Blob = PA_ExecuteCommandByID(cmd_OB_Get, prm_OB_Get, 2);
         PA_ClearVariable(&prm_OB_Get[1]);//BLOB belongs to variable. no need to dispose
+        // Clearing _4D now: cmd_4D (1709) executes the "4D" command, which
+        // returns the runtime's existing global application object - not a
+        // fresh construct like "New Object"/"4D.File" (see folder above). This
+        // is the one case without a directly-matching example in
+        // 4DPluginAPI.c (no SDK-internal call executes "4D" the way
+        // PA_CreateObject calls "New Object"), so it's inferred by analogy to
+        // the OB Get / PA_GetObjectProperty precedent rather than confirmed
+        // outright - flagging that distinction rather than asserting it flatly.
+        PA_ClearVariable(&_4D);
         
         const int cmd_OB_Instance_of = 1731;
         PA_Variable prm_OB_Instance_of[2];
@@ -131,15 +151,39 @@ static bool file_object_to_data(PA_ObjectRef f, std::vector<uint8_t>& data) {
         PA_SetObjectVariable(&prm_OB_Instance_of[0], f);
         PA_Variable status = PA_ExecuteCommandByID(cmd_OB_Instance_of, prm_OB_Instance_of, 2);
         bool isBlob = PA_GetBooleanVariable(status);
+        // status's boolean value is already copied into isBlob above - eVK_Boolean
+        // is a scalar (tagged-union) kind with no pointer/handle inside it, so
+        // there's nothing here for PA_ClearVariable to dispose regardless of
+        // ownership model.
+        PA_ClearVariable(&status);
+        // Clearing _4D_Blob now: cmd_OB_Get (1224) is the "OB Get" command -
+        // literally the 4D-language operation PA_GetObjectProperty wraps at the
+        // native level, which 4DPluginAPI.c explicitly documents as
+        // "should be cleared after use" for any kind. _4D_Blob is that same
+        // operation (getting the existing "Blob" property off the "4D"
+        // object), just invoked via PA_ExecuteCommandByID instead of the
+        // native getter - same mechanism, same rule, confirmed rather than
+        // inferred.
+        PA_ClearVariable(&_4D_Blob);
         if(isBlob) {
 
             pp.setUTF8String((const uint8_t *)"size", 4);
             PA_Unistring SIZE = PA_CreateUnistring((PA_Unichar *)pp.getUTF16StringPtr());//PA_DisposeUnistring
             PA_Variable _s = PA_GetObjectProperty(f, &SIZE);
-            PA_long32 size = PA_GetRealVariable(_s);
+            double size_d = PA_GetRealVariable(_s);
             PA_DisposeUnistring(&SIZE);
             PA_ClearVariable(&_s);
-            
+
+            // size_d is a 4D-file-system-reported size, not attacker-supplied, but
+            // it's still an externally-reported double flowing into both an
+            // allocation (data.resize below) and a native 32-bit COPY BLOB
+            // parameter - validate before either use rather than truncating blind.
+            if (!std::isfinite(size_d) || size_d < 0.0 || size_d > (double)INT32_MAX) {
+                PA_ClearVariable(&prm_OB_Instance_of[0]);
+                return isBlob;
+            }
+            PA_long32 size = (PA_long32)size_d;
+
             PA_Variable blob = PA_CreateVariable(eVK_Blob);
             
             const int cmd_COPY_BLOB = 558;
@@ -211,8 +255,16 @@ static std::vector<Chunk> build_chunks(
 
     // overlap in tokens, stride = non-overlapping advance per chunk
     const int overlap = (int)std::round(length * overlap_pct);
-    const int stride  = (int)length - overlap;   // must be > 0
-    assert(stride > 0 && "overlap_pct must be < 1.0");
+    int stride = (int)length - overlap;   // must be > 0
+    // overlap_pct is checked at the call site as strictly < 1.0, but rounding
+    // can still push `overlap` up to exactly `length` (e.g. length=1024,
+    // overlap_pct=0.9999995 rounds to 1024), making stride 0. assert() is
+    // compiled out under NDEBUG in a normal release build, so this was the
+    // *only* guard and reaching it silently turned `for (...; start += stride)`
+    // below into an infinite loop - a real freeze reachable from an ordinary
+    // overlap_ratio option, not a theoretical edge case. Clamp defensively
+    // instead of relying on the assert.
+    if (stride <= 0) stride = 1;
 
     std::vector<Chunk> result;
 
@@ -299,7 +351,10 @@ static PA_CollectionRef tokenize(
         if (retokenize) ob_append_s(r, "");
         else {
             PA_CollectionRef inner = PA_CreateCollection();
-            for (uint32_t i = 0; i < length; i++) ob_append_n(inner, gpadtoken_id);
+            // Use local_pad (already copied out under the shared_lock above),
+            // not the raw global - reading gpadtoken_id here directly would race
+            // the unique_lock'd write to it in Extract_SET_OPTION.
+            for (uint32_t i = 0; i < length; i++) ob_append_n(inner, local_pad);
             ob_append_c(r, inner);
         }
         return r;
@@ -423,7 +478,18 @@ void Extract(PA_PluginParameters params) {
 
     PA_ObjectRef returnValue = PA_CreateObject();
     ob_set_b(returnValue, L"success", false);
-    
+
+    // Manifest declares this command with a return type ("Extract(&L;&L;&J):J"),
+    // so 4D is waiting for PA_ReturnObject below no matter what. Previously the
+    // only PA_ReturnObject call was at the very end, after every parser call
+    // (opc/pdfium/xls/txt/tidy/olecf/md/gmime) and the file-size-driven
+    // allocations above them - any exception there propagated up through the
+    // outer PluginMain catch(...), which swallows it silently. That's not a
+    // crash, it's a hang: 4D never gets its return value. Wrapping the whole
+    // body here guarantees PA_ReturnObject always fires, with `returnValue`
+    // already defaulted to success:false for the exception path.
+    try {
+
     input_type  it = (input_type) PA_GetLongParameter(params, 1);
     output_type ot = (output_type)PA_GetLongParameter(params, 2);
     
@@ -509,11 +575,17 @@ void Extract(PA_PluginParameters params) {
 #endif
                 if(f) {
                     _fseek(f, 0, SEEK_END);
-                    size_t len = (size_t)_ftell(f);
+                    long ftell_result = _ftell(f);
                     _fseek(f, 0, SEEK_SET);
-                    data.resize(len);
-                    size_t nread = fread(data.data(), 1, data.size(), f);
-                    if (nread != len) data.resize(nread);
+                    // ftell returns -1 on error; casting that straight to size_t
+                    // (as before) yields SIZE_MAX and makes the resize below throw
+                    // std::length_error/bad_alloc, uncaught, further up the stack.
+                    if (ftell_result >= 0) {
+                        size_t len = (size_t)ftell_result;
+                        data.resize(len);
+                        size_t nread = fread(data.data(), 1, data.size(), f);
+                        if (nread != len) data.resize(nread);
+                    }
                     fclose(f);
                 }
             }
@@ -629,6 +701,11 @@ void Extract(PA_PluginParameters params) {
                 }
             }
         }
+    }
+    } catch (const std::exception& e) {
+        std::fprintf(stderr, "ERROR Extract failed: %s\n", e.what());
+    } catch (...) {
+        std::fprintf(stderr, "ERROR Extract failed: unknown exception\n");
     }
     PA_ReturnObject(params, returnValue);
 }

@@ -528,6 +528,10 @@ bool ob_get_s(PA_ObjectRef obj, const wchar_t *_key, CUTF8String *value) {
                 }
 #endif
             }
+            // 4DPluginAPI.c confirms it, right on PA_GetObjectProperty itself:
+            // "//The PA_Variable should be cleared after use" - no kind exception.
+            // *value is already deep-copied out of v above either way.
+            PA_ClearVariable(&v);
         }
         
         PA_DisposeUnistring(&key);
@@ -557,6 +561,9 @@ bool ob_get_a(PA_ObjectRef obj, const wchar_t *_key, CUTF16String *value) {
                 PA_Unistring uvalue = PA_GetStringVariable(v);
                 *value = CUTF16String(uvalue.fString, uvalue.fLength);
             }
+            // 4DPluginAPI.c confirms PA_GetObjectProperty's result should be
+            // cleared after use, any kind - see ob_get_s above.
+            PA_ClearVariable(&v);
         }
         
         PA_DisposeUnistring(&key);
@@ -586,6 +593,8 @@ bool ob_get_d(PA_ObjectRef obj, const wchar_t *_key, short *dd, short *mm, short
                 is_defined = true;
                 PA_GetDateVariable(v, dd, mm, yyyy);
             }
+            // dd/mm/yyyy already copied out of v above - safe to clear here.
+            PA_ClearVariable(&v);
         }
 
         PA_DisposeUnistring(&key);
@@ -611,6 +620,8 @@ bool ob_get_b(PA_ObjectRef obj, const wchar_t *_key) {
             {
                 value = PA_GetBooleanVariable(v);
             }
+            // value already copied out of v above - safe to clear here.
+            PA_ClearVariable(&v);
         }
         
         PA_DisposeUnistring(&key);
@@ -636,6 +647,8 @@ double ob_get_n(PA_ObjectRef obj, const wchar_t *_key) {
             {
                 value = PA_GetRealVariable(v);
             }
+            // value already copied out of v above - safe to clear here.
+            PA_ClearVariable(&v);
         }
         
         PA_DisposeUnistring(&key);
@@ -661,6 +674,15 @@ PA_ObjectRef ob_get_o(PA_ObjectRef obj, const wchar_t *_key) {
             {
                 value = PA_GetObjectVariable(v);
             }
+            // 4DPluginAPI.c confirms this on PA_GetObjectProperty directly:
+            // "//The PA_Variable should be cleared after use" - no kind
+            // exception, and 4D's Object type is reference-counted internally
+            // (PA_CreateObject's own "New Object" result works the same way,
+            // just via a different primitive - see the ob_get_o vs. `folder`
+            // discussion). The parent `obj` still holds its own reference to
+            // this nested object independent of our temporary `v`, so clearing
+            // v releases only our accessor's reference, not the object itself.
+            PA_ClearVariable(&v);
         }
         
         PA_DisposeUnistring(&key);
@@ -685,6 +707,8 @@ PA_CollectionRef ob_get_c(PA_ObjectRef obj, const wchar_t *_key) {
             {
                 value = PA_GetCollectionVariable(v);
             }
+            // Same reasoning as ob_get_o above.
+            PA_ClearVariable(&v);
         }
         
         PA_DisposeUnistring(&key);
