@@ -4,269 +4,236 @@
 ![downloads](https://img.shields.io/github/downloads/miyako/4d-plugin-extract/total)
 
 # 4d-plugin-extract
-Universal Document Parser
 
-## Abstract
+Extracts text from `.xlsx`, `.docx`, `.pptx`, `.xls`, `.doc`, `.ppt`, `.pdf`, `.msg`, `.eml`, `.html`, `.txt`, and `.md` documents and splits it into token-aware chunks suitable for passing directly to an `embeddings` or `contextualizedembeddings` endpoint. Chunk boundaries are computed by an in-process `llama.cpp`-compatible tokenizer (loaded from a GGUF file via [`Extract SET OPTION`](#extract-set-option)), so chunk sizes are exact token counts rather than character/paragraph approximations.
 
-Extract text from various document types in a chunked format which can be passed directly to one of the following endpoints:
+| Command | Returns | Purpose |
+|-|-|-|
+| [`Extract`](#extract) | Object | Extract and chunk a document's text |
+| [`Extract SET OPTION`](#extract-set-option) | — | Load the tokenizer used to size chunks |
 
-- `embeddings`
-- `contextualizedembeddings`
+**Platforms:** macOS (Apple Silicon) and Windows 64-bit.
+
+---
+
+## Requirements & platform notes
+
+- **Load a tokenizer before relying on token-count chunking.** [`Extract SET OPTION`](#extract-set-option) with `Extract Option Tokenizer File` must run at least once (per plugin lifetime, not per call) before [`Extract`](#extract) can size chunks by real token count. If no tokenizer has been loaded, chunking falls back to placeholder output rather than raising an error — see [Error handling](#error-handling--troubleshooting).
+- **`.rtf` has no working extractor.** `Extract Document RTF` is a declared constant, but the plugin's internal format dispatch has no case for it. Calling `Extract` with this constant always returns `{success: false}` with no further detail — there is currently no code path that produces RTF output at all.
+- **Failure is silent, not a 4D error.** `Extract` never raises an exception or error to the calling method. Every failure — missing file, unreadable format, unhandled document type, an internal parser exception — surfaces only as `success: false` on the returned object, with no `error`/message property. Plan your calling code around checking `.success`, not around `try`/catch equivalents.
+- **Not every task property applies to every document type.** `password`, `charset`, `codepage`, and `break_by_section` are each meaningful for only a subset of document types — see the table in [`Extract`](#extract)'s description. Passing one that doesn't apply to the current `documentType` is harmless; it's simply ignored.
+- **Keep `overlap_ratio` away from the edges of its range.** It must be strictly between `0` and `1`; anything outside that (inclusive of `0` and `1` themselves) is silently ignored in favor of the `0.09` default. In practice, stay comfortably inside the range (e.g. `0.05`–`0.2`) — values pushed right up against `1` aren't a meaningful configuration and should be avoided.
+
+---
+
+## Extract
+
+### Syntax
+
+```4d
+$result:=Extract(documentType; outputFormat; task)
+```
+
+| Parameter | Type | Description |
+|-|-|-|
+| `documentType` | Longint | One of the `Extract Document *` constants (see table below). Mandatory. |
+| `outputFormat` | Longint | One of the `Extract Output *` constants (see table below). Mandatory. |
+| `task` | Object | Describes the document to extract and how to chunk it — see properties below. Mandatory. |
+| Result | Object | The extraction result. Always has `success` (Boolean); its other properties depend on `outputFormat` — see below. |
+
+#### `documentType`
+
+|File Extension|Constant|Value|
+|-|-|-:|
+|xlsx|`Extract Document XLSX`|`0`|
+|docx|`Extract Document DOCX`|`1`|
+|pptx|`Extract Document PPTX`|`2`|
+|xls |`Extract Document XLS`|`3`|
+|doc |`Extract Document DOC`|`4`|
+|ppt |`Extract Document PPT`|`5`|
+|pdf |`Extract Document PDF`|`6`|
+|msg |`Extract Document MSG`|`7`|
+|eml |`Extract Document EML`|`8`|
+|rtf |`Extract Document RTF`|`9`|
+|html|`Extract Document HTML`|`10`|
+|txt |`Extract Document TXT`|`11`|
+|md  |`Extract Document MD`|`12`|
+
+`.md` is not converted to plain text before chunking — Markdown syntax stays in the extracted text. `Extract Document RTF` is declared but not wired up to any extractor — see [Requirements](#requirements--platform-notes).
+
+#### `outputFormat`
+
+|Constant|Value|Description|
+|-|-:|-|
+|`Extract Output Object`|`0`|For custom processing, focus on structure.|
+|`Extract Output Text`|`1`|For custom processing, focus on text.|
+|`Extract Output Collection`|`2`|Suitable for an **OpenAI**-style `embeddings` API.|
+|`Extract Output Collections`|`3`|Suitable for a **Voyage AI**-style `contextualizedembeddings` API.|
+
+These four values are documented in the plugin's own README; I didn't independently re-derive their exact numeric mapping from source (the underlying C++ enum for output format isn't declared in the reviewed source, unlike `documentType`/pooling mode, which are), so treat the values above as sourced from the plugin's public documentation rather than independently verified here.
+
+- With `Extract Output Text`: result has `input` (Text — the entire document, concatenated) and `documents` (Collection — the same chunks as `Extract Output Collection` would produce).
+- With `Extract Output Collection`: result has `input` (Collection — the document split into chunks). Shape it with `unique_values_only` and `max_paragraph_length`.
+- With `Extract Output Collections`: result has `inputs` (Collection of Collections — chunks grouped by source paragraph/section). Shape it the same way.
+
+#### `task` object properties
+
+|Property|Type|Description|
+|-|-|-|
+|`file`|4D.File or 4D.Folder|The document to read. If omitted, `Extract` returns `{success: false}` immediately with no other properties set.|
+|`password`|Text|Password to open `.docx`, `.xlsx`, `.pptx`, or `.pdf`. Ignored for other document types.|
+|`charset`|Text|Charset used to open `.xls`. Default `"iso-8859-1"`. Ignored for other document types.|
+|`codepage`|Longint|Codepage used to open `.doc`, `.ppt`, or `.msg`. Default `1252`. Ignored for other document types.|
+|`break_by_section`|Boolean|Use Markdown headers to break sections, `.md` only. Default `true`. Ignored for other document types.|
+|`unique_values_only`|Boolean|Skip duplicate values at row/paragraph/column level. Default `false`.|
+|`max_paragraph_length`|Longint|Limit paragraphs sampled per page/slide/sheet. Default `-1` (no limit).|
+|`text_as_tokens`|Boolean|Return chunks as a collection of raw token IDs instead of detokenized text — mainly useful for debugging a tokenizer. Default `false`.|
+|`tokens_length`|Longint|Maximum tokens per chunk. Default `1024`. When `text_as_tokens` is `false`, leave headroom for the tokenizer's own BOS/EOS tokens rather than using the true model context limit (see the sample code below, which uses `1022` for a `1024`-token model).|
+|`token_padding`|Boolean|Pad the last chunk of a document out to a fixed token count. Default `false`.|
+|`pooling_mode`|Longint|One of the `Extract Pooling Mode *` constants (below); controls whether padding is prepended or appended when `token_padding` is `true`. Default `Extract Pooling Mode Mean`.|
+|`overlap_ratio`|Real|Fraction of `tokens_length` that consecutive chunks overlap by. Must be strictly between `0` and `1`; out-of-range values fall back to the default silently. Default `0.09`.|
+
+#### `Extract Pooling Mode`
+
+|Constant|Value|Prepend or append padding|
+|-|-:|-|
+|`Extract Pooling Mode Mean`|`0`|N/A — mean pooling doesn't need padding position to matter; pads are masked out.|
+|`Extract Pooling Mode CLS`|`1`|Append (real tokens first) — position 0 must stay the real first token.|
+|`Extract Pooling Mode Last`|`2`|Prepend (real tokens last) — the last real token must land at the final position.|
+
+Use `Extract Pooling Mode Last` with `token_padding: true` for decoder-only models; use `token_padding: false` for encoder-only models (`Mean`/`CLS`).
+
+### Description
+
+Reads `task.file`, dispatches on `documentType` to the matching internal extractor, and splits the resulting text into chunks sized by the tokenizer loaded via [`Extract SET OPTION`](#extract-set-option). If no tokenizer has been loaded yet, chunk boundaries can't be computed from real token counts — see [Error handling](#error-handling--troubleshooting) for what you get instead.
+
+`documentType` and `outputFormat` are both mandatory Longint parameters — there's no optional/overloaded form of `Extract`.
+
+### Example
+
+From the plugin's own sample method (`import_docx_encoder_text.4dm`), tags preserved exactly as shipped:
+
+```4d
+var $AIClient : cs:C1710.AIKit.OpenAI
+$AIClient:=cs:C1710.AIKit.OpenAI.new()
+$AIClient.baseURL:="http://127.0.0.1:8080/v1"
+
+var $file : 4D:C1709.File
+var $extracted : Object
+
+$files:=Folder:C1567("/RESOURCES/docx").files(fk ignore invisible:K87:22 | fk recursive:K87:7)\
+.query("extension == :1"; ".docx")
+
+For each ($file; $files)
+	
+	//when text_as_tokens=false, make room for BOS/EOS in tokens_length 
+	$task:={file: $file; \
+		text_as_tokens: False:C215; \
+		tokens_length: 1022; \
+		overlap_ratio: 0.09; \
+		unique_values_only: True:C214; \
+		pooling_mode: Extract Pooling Mode Mean}
+	$extracted:=Extract(Extract Document DOCX; Extract Output Collection; $task)
+	
+	If ($extracted.success)
+		$input:=$extracted.input
+		var $batch : cs:C1710.AIKit.OpenAIEmbeddingsResult
+		$batch:=$AIClient.embeddings.create($input)
+		// ... handle $batch as usual (see import_docx_encoder_text.4dm for the full embeddings/save flow)
+	Else 
+		TRACE:C157
+	End if 
+End for each 
+```
+
+Note that `Extract`, `Extract SET OPTION`, and all `Extract Document *`/`Extract Output *`/`Extract Pooling Mode *`/`Extract Option *` constants carry no `:Cxxxx`/`:Kxx:xx` tag in any sample file — that's consistent with plugin-supplied commands and constants, which don't get the compiler-assigned tags that 4D's own built-ins (`Folder:C1567`, `True:C214`, `False:C215`, `TRACE:C157`, `4D:C1709`) do.
+
+A `.xls` sheet, specifying `charset` (from `import_xls_encoder_text.4dm`):
+
+```4d
+$task:={file: $file; \
+	text_as_tokens: False:C215; \
+	tokens_length: 1022; \
+	overlap_ratio: 0.09; \
+	charset: "iso8859-1"; \
+	unique_values_only: True:C214; \
+	pooling_mode: Extract Pooling Mode Mean}
+$extracted:=Extract(Extract Document XLS; Extract Output Collection; $task)
+```
+
+A `.md` file, disabling overlap and raising `tokens_length` (from `import_md_encoder_text.4dm`):
+
+```4d
+$task:={file: $file; \
+	text_as_tokens: False:C215; \
+	tokens_length: 1522; \
+	overlap_ratio: 0; \
+	unique_values_only: True:C214; \
+	pooling_mode: Extract Pooling Mode Mean}
+$extracted:=Extract(Extract Document MD; Extract Output Collection; $task)
+```
+
+---
 
 ## Extract SET OPTION
 
-Loads a GGUF file without tensors. Using the same tokeniser as llama.cpp allows the plugin to generate chunks of text with the exact token count.
+### Syntax
+
+```4d
+Extract SET OPTION(optionType; value)
+```
+
+| Parameter | Type | Description |
+|-|-|-|
+| `optionType` | Longint | `Extract Option Tokenizer File` is currently the only defined value (`0`). |
+| `value` | 4D.File | Path to a GGUF tokenizer file. |
+
+This command has no return value — there's no `Object`/success flag to check afterward.
+
+### Description
+
+Loads a GGUF file (tensors are not loaded, only the tokenizer/vocabulary) and builds an in-process, `llama.cpp`-compatible tokenizer. This is what lets [`Extract`](#extract) report chunk sizes as exact token counts matching the target embedding model, rather than an approximation.
+
+The loaded tokenizer is shared across every subsequent `Extract` call for the plugin's lifetime — call this once (e.g. at startup or before a batch job), not per document. If the file can't be loaded (bad path, malformed GGUF), the failure is logged to the server console only; the currently-loaded tokenizer (if any) is left unchanged, and there's no 4D-side signal that the load failed.
+
+### Example
 
 ```4d
 Extract SET OPTION(Extract Option Tokenizer File; $file)
 ```
 
-## Extract
+---
 
-This is the main function. Pass the document type, output format, and a `task` object.
+## Error handling & troubleshooting
+
+- **`success: false` with nothing else set.** This is the only failure signal `Extract` gives you — there's no error code or message property. If a batch job needs to distinguish *why* a document failed, you'll need to reason about it externally (check the file exists, check the extension against the table above, etc.) rather than relying on the plugin to tell you.
+- **`Extract Document RTF` always fails.** The constant exists, but there's no extractor wired up to it internally — every call with this `documentType` returns `{success: false}` regardless of the file's actual contents.
+- **Omitting `task.file` fails immediately.** No exception, no distinct message — just `{success: false}`, same as any other failure.
+- **Calling `Extract` before ever calling `Extract SET OPTION`** means there's no tokenizer loaded. Rather than erroring, chunk output falls back to a fixed-size placeholder (e.g. an empty string, or a chunk made entirely of padding-token IDs) instead of real token-sized chunks — this can look like a working call that's silently returning meaningless output, so make sure `Extract SET OPTION` has actually run first.
+- **`password`/`charset`/`codepage`/`break_by_section` being ignored isn't a bug.** Each only applies to specific document types (see the `task` property table under [`Extract`](#extract)) — passing them for a type they don't apply to has no effect, good or bad.
+- **`overlap_ratio` values right at the edges of `(0, 1)` fall back to the default `0.09`** rather than erroring — if you need to confirm your value took effect, check the actual chunk boundaries in the result rather than assuming the property was honored.
+
+---
+
+## Quick reference
 
 ```4d
+// once, before any Extract calls that need real token-sized chunks
+Extract SET OPTION(Extract Option Tokenizer File; $tokenizerFile)
+
+// per document
 $task:={file: $file; \
-	text_as_tokens: False; \
 	tokens_length: 1022; \
 	overlap_ratio: 0.09; \
-	unique_values_only: True; \
+	unique_values_only: True:C214; \
+	token_padding: False:C215; \
 	pooling_mode: Extract Pooling Mode Mean}
-	$extracted:=Extract(Extract Document DOCX; Extract Output Collection; $task)
+
+$extracted:=Extract(Extract Document DOCX; Extract Output Collection; $task)
+
+If ($extracted.success)
+	$chunks:=$extracted.input  // Collection, ready for an embeddings API
+Else 
+	// no error detail available - check file/type/tokenizer setup
+End if 
 ```
-
-### Supported Document Types
-
-|File Extension|Constant|Value
-|-|-|-:|
-|xlsx|`Extract Document XLSX`| `0`|
-|docx|`Extract Document DOCX`| `1`|
-|pptx|`Extract Document PPTX`| `2`|
-|xls |`Extract Document XLS` | `3`|
-|doc |`Extract Document DOC` | `4`|
-|ppt |`Extract Document PPT` | `5`|
-|pdf |`Extract Document PDF` | `6`|
-|msg |`Extract Document MSG` | `7`|
-|eml |`Extract Document EML` | `8`|
-|rtf |`Extract Document RTF` | `9`|
-|html|`Extract Document HTML`|`10`|
-|txt |`Extract Document TXT` |`11`|
-|md  |`Extract Document MD` | `12`|
-
-> [!NOTE]
-> `.md` is not converted to plain text.
-
-### Supported Output Formats
-
-|Constant|Value|Description
-|:-|-:|-
-|`Extract Output Object`|`0`|For custom processing, focus on structure
-|`Extract Output Text`|`1`|For custom processing, focus on text 
-|`Extract Output Collection`|`2`|Suitable for **OpenAI** style `embeddings` API 
-|`Extract Output Collections`|`3`|Suitable for **Voyage AI** style `contextualizedembeddings` API 
-
-### Extract Pooling Mode
-
-|File Extension|Constant|Value
-|-|-|-:|
-|mean|`Extract Pooling Mode Mean`|`0`|
-|cls|`Extract Pooling Mode CLS`|`1`|
-|last|`Extract Pooling Mode Last`|`2`|
-
-### Output Options
-
-|Option|Description
-|-|-|
-|`password`|Password to open DOCX, XLSX, PPTX
-|`charset`|charset to open XLS
-|`codepage`|codepage to open DOC or PPT
-|`break_by_section`|use headers to break sections for MD
-|`text_as_tokens`|Return chunks as collection of token IDs instead of text (for debug)
-|`unique_values_only`|Skip duplicate values at row or paragraph/column level (default:`false`)
-|`max_paragraph_length`|Limit paragraphs per page/slide ( default:`-1`)
-|`tokens_length`|Limit tokens per chunks (default:`1024`)
-|`token_padding`|Pad last chunk to fixed token count (default:`false`)
-|`pooling_mode`|If `Last` prepend else append for token padding (default:`Mean`)
-|`overlap_ratio`|Overlap tokens between chunks (default:`0.09`)
-
-> [!TIP]
-> For decoder-only models, set `pooling_mode` to `Last` and `token_padding` to `true`. For encoder-only models, set `token_padding` to `false`. 
-
-#### `Extract Output Text`
-
-- `input`: The entire document text concatenated.
-- `documents`: The document divided into semantic chunks. Same as the `input` collection as `Extract Output Collection`
-
-#### `Extract Output Collection`  
-
-- `input`: The document divided into semantic chunks. Use `unique_values_only` and `max_paragraph_length` to control sampling rules.
-
-#### `Extract Output Collections`  
-
-- `inputs`: The document divided into chunks of semantic chunks. Use `unique_values_only` and `max_paragraph_length` to control sampling rules.
-
-## Harrier OSS v1.0 230m
-
-|Parameters|Dimensions|Hidden Layers|`tokenizer.ggml.model`|`n_ctx_train`|`pooling`
-|-:|-:|-:|-:|-:|:-:
-|`268098816`|`640`|`18`|`gpt2`|`4096`|`last`
-
-> [!WARNING]
-> `ubatch_size` must be large enough to store `max_position_embeddings`.
-
-#### Q8_0
-
-Split into fixed size batches of `1024` tokens each
-
-|Tokens|GPU Layers:0|
-|-:|-:|
-|`30720`|`13.8`|
-|`12288`|`5.6`|
-|`6144`|`2.7`|
-|`2048`|`0.9`|
-|`1024`|`0.4`|
-
-## Harrier OSS v1.0 0.6b
-
-|Parameters|Dimensions|Hidden Layers|`tokenizer.ggml.model`|`n_ctx_train`|`pooling`
-|-:|-:|-:|-:|-:|:-:
-|`596049920`|`1024`|`28`|`gpt2`|`32768`|`last`
-
-> [!WARNING]
-> GPU offloading eases the CPU but splits the graph in half, i.e. `58` ping-pongs. **Stay on CPU**.
-
-#### Q4_k_m
-
-Split into fixed size batches of `1024` tokens each
-
-|Tokens|GPU Layers:0|
-|-:|-:|
-|`19456`|`47.8`|
-|`4096`|`10.5`|
-|`1024`|`1.3`|
-
-> [!NOTE]
-> Due to token-padding, chunks will always be multiples of fixed number.
-
-## Nomic Embed Text v1.5
-
-|Parameters|Dimensions|Hidden Layers|`tokenizer.ggml.model`|`n_ctx_train`|`pooling`
-|-:|-:|-:|-:|-:|:-:
-|`136727040`|`768`|`12`|`t5`|`2048`|`mean`|
-
-#### Q8_0
-
-Split into fixed size batches of `1024` tokens each
-
-|Tokens|GPU Layers:12|
-|-:|-:|
-|`18015`|`1.6`|
-|`16827`|`1.5`|
-|`6844`|`0.6`|
-|`3421`|`0.3`|
-|`578`|`0.05`|
-|`411`|`0.03`|
-|`197`|`0.02`|
-
-## EmbeddingGemma 300m
-
-|Parameters|Dimensions|Hidden Layers|`tokenizer.ggml.model`|`n_ctx_train`|`pooling`
-|-:|-:|-:|-:|-:|:-:|
-|`302863104`|`768`|`24`|`llama`|`2048`|`mean`|
-
-#### Q8_0
-
-Split into fixed size batches of `1024` tokens each
-
-|Tokens|GPU Layers:24|
-|-:|-:|
-|`21119`|`1.9`|
-|`19398`|`1.8`|
-|`7151`|`0.7`|
-|`3576`|`0.3`|
-|`618`|`0.06`|
-|`508`|`0.05`|
-|`415`|`0.04`|
-|`305`|`0.03`|
-|`217`|`0.02`|
-
----
-
-- `15` seconds * `1` million documents = `173.61` days
-- `1` second * `1` million documents = `11.57` days
-- `0.1` seconds * `1` million documents = `1.15` days
-- `0.05` seconds * `1` million documents = `13.89` hours
-
- To generate a batch of long context embeddings it is essential to **rent a GPU cluster**. Processing millions of document locally on a standard PC with a decoder-only model like Harrier or Qwen3 would take months.
-
-- [**Modal**](https://modal.com) - Serverless; auto-scaling large batches
-- [**Runpod**](https://www.runpod.io) - Serverless; quick prototyping and medium batches
-- [**Lambda**](https://lambda.ai) - Dedicated VM; long-running jobs or sensitive data
-
----
-
-In any case, you would need a reranker to prune the initial fetch by embeddings.
-
-```4d
-var $query : Text
-$query:="4D Write Pro AI features summit 2021"
-
-var $AIClient : cs.AIKit.OpenAI
-$AIClient:=cs.AIKit.OpenAI.new()
-$AIClient.baseURL:="http://127.0.0.1:8080/v1"  // embeddings
-
-var $batch : Object
-$batch:=$AIClient.embeddings.create($query)
-
-var $reranked : Collection
-$reranked:=[]
-
-If ($batch.success)
-	$vector:=$batch.embedding.embedding
-	
-	/*
-		fetch matching documents; allow some false positives
-	*/
-	
-	var $comparison:={vector: $vector; metric: mk cosine; threshold: 0.6}
-	var $results:=ds.Embeddings.query("embedding > :1"; $comparison)
-	If ($results.length#0)
-		
-		/*
-			get related document
-		*/
-		
-		$documents:=$results.text
-		
-		/*
-			now rerank the n best results relevant to query
-		*/
-		
-		var $client:=cs.AIKit.Reranker.new({baseURL: "http://127.0.0.1:8081/v1"})
-		var $reranker:=cs.AIKit.RerankerQuery.new({\
-		query: $query; documents: $documents})
-		var $parameters:=cs.AIKit.RerankerParameters.new({model: "default"; top_n: 3})
-		
-		$batch:=$client.rerank.create($reranker; $parameters)
-		
-		If ($batch.success)
-			var $rankings : Collection
-			$rankings:=$batch.results
-			var $ranking : Object
-			var $rankedresults : Collection
-			$rankedresults:=[]
-			var $ee : cs.EmbeddingsEntity
-			For each ($ranking; $rankings)
-				$ee:=$results.at($ranking.index)
-				$rankedresults.push({embeddings: $ee; relevance_score: $ranking.relevance_score})
-			End for each 
-			$rankedresults:=$rankedresults.extract(\
-			"embeddings.document.ID"; "document"; \
-			"embeddings.text"; "text"; \
-			"relevance_score"; "score")
-			ALERT(JSON Stringify($rankedresults; *))
-		End if 
-	End if 
-End if
-```
-
