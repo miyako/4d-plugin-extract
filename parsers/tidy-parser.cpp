@@ -133,6 +133,25 @@ static bool is_block_tag(TidyNode node) {
     }
 }
 
+// Tags whose entire subtree (including text content) should be
+// excluded from the extracted text.
+static bool is_ignored_tag(TidyNode node) {
+    TidyTagId id = tidyNodeGetId(node);
+    switch (id) {
+        case TidyTag_SCRIPT:
+        case TidyTag_STYLE:
+        case TidyTag_NOSCRIPT:
+        case TidyTag_TEMPLATE:
+        case TidyTag_OBJECT:
+        case TidyTag_APPLET:
+        case TidyTag_IFRAME:
+        case TidyTag_EMBED:
+            return true;
+        default:
+            return false;
+    }
+}
+
 static void print_text(TidyDoc tdoc, TidyNode tnode, std::string& text) {
 
     for (TidyNode child = tidyGetChild(tnode); child; child = tidyGetNext(child)) {
@@ -169,25 +188,6 @@ static void print_text(TidyDoc tdoc, TidyNode tnode, std::string& text) {
             
             print_text(tdoc, child, text);
         }
-    }
-}
-
-// Tags whose entire subtree (including text content) should be
-// excluded from the extracted text.
-static bool is_ignored_tag(TidyNode node) {
-    TidyTagId id = tidyNodeGetId(node);
-    switch (id) {
-        case TidyTag_SCRIPT:
-        case TidyTag_STYLE:
-        case TidyTag_NOSCRIPT:
-        case TidyTag_TEMPLATE:
-        case TidyTag_OBJECT:
-        case TidyTag_APPLET:
-        case TidyTag_IFRAME:
-        case TidyTag_EMBED:
-            return true;
-        default:
-            return false;
     }
 }
 
