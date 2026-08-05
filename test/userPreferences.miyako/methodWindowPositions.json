@@ -1,0 +1,74 @@
+{
+	"Sources/Methods/import_pdf_encoder_text.4dm": {
+		"left": 467,
+		"top": 416,
+		"width": 1170,
+		"height": 361
+	},
+	"Sources/Methods/import_xls_encoder_text.4dm": {
+		"left": 211,
+		"top": 493,
+		"width": 1170,
+		"height": 361
+	},
+	"Sources/Methods/import_txt_encoder_text.4dm": {
+		"left": 345,
+		"top": 386,
+		"width": 1170,
+		"height": 333
+	},
+	"Sources/Methods/import_html_encoder_text.4dm": {
+		"left": 295,
+		"top": 268,
+		"width": 1170,
+		"height": 511
+	},
+	"Sources/Methods/import_docx_encoder_text.4dm": {
+		"left": 295,
+		"top": 373,
+		"width": 1170,
+		"height": 350
+	},
+	"Sources/Methods/import_md_encoder_text.4dm": {
+		"left": 470,
+		"top": 378,
+		"width": 935,
+		"height": 514
+	},
+	"Sources/Methods/OnModelDownloaded.4dm": {
+		"left": 29,
+		"top": 558,
+		"width": 1058,
+		"height": 322
+	},
+	"Sources/DatabaseMethods/onStartup.4dm": {
+		"left": 90,
+		"top": 148,
+		"width": 1184,
+		"height": 744
+	},
+	"Sources/Methods/import_eml_encoder_text.4dm": {
+		"left": 205,
+		"top": 281,
+		"width": 1333,
+		"height": 558
+	},
+	"Sources/Methods/query_document_encoder.4dm": {
+		"left": 601,
+		"top": 316,
+		"width": 943,
+		"height": 362
+	},
+	"Sources/Methods/query_document_decoder.4dm": {
+		"left": 121,
+		"top": 331,
+		"width": 747,
+		"height": 558
+	},
+	"Sources/Methods/import_docx_decoder_tokens.4dm": {
+		"left": 205,
+		"top": 281,
+		"width": 1333,
+		"height": 558
+	}
+}

@@ -1,0 +1,70 @@
+{
+	"version": 2100,
+	"dependencies": {
+		"aikit": {
+			"github": "miyako/aikit",
+			"version": "latest",
+			"tag": "21.0.0",
+			"htmlURL": "https://github.com/miyako/aikit/releases/tag/21.0.0",
+			"archiveURL": "https://api.github.com/repos/miyako/AIKit/releases/assets/368981927",
+			"loaded": true,
+			"found": true,
+			"path": "Macintosh HD:Users:miyako:Library:Caches:4D:Dependencies:.github:miyako:aikit:21.0.0:"
+		},
+		"event": {
+			"github": "miyako/event",
+			"version": "latest",
+			"tag": "20.0.17",
+			"htmlURL": "https://github.com/miyako/event/releases/tag/20.0.17",
+			"archiveURL": "https://api.github.com/repos/miyako/event/releases/assets/391387023",
+			"loaded": true,
+			"found": true,
+			"path": "Macintosh HD:Users:miyako:Library:Caches:4D:Dependencies:.github:miyako:event:20.0.17:"
+		},
+		"llama cpp": {
+			"github": "miyako/llama-cpp",
+			"version": "latest",
+			"tag": "20.5.6",
+			"dependencies": {
+				"tcp": {
+					"github": "miyako/tcp",
+					"version": "latest"
+				},
+				"workers": {
+					"github": "miyako/workers",
+					"version": "latest"
+				},
+				"event": {
+					"github": "miyako/event",
+					"version": "latest"
+				}
+			},
+			"loaded": true,
+			"found": true,
+			"updated": true,
+			"htmlURL": "https://github.com/miyako/llama-cpp/releases/tag/20.5.6",
+			"archiveURL": "https://api.github.com/repos/miyako/llama-cpp/releases/assets/432617041",
+			"path": "Macintosh HD:Users:miyako:Library:Caches:4D:Dependencies:.github:miyako:llama-cpp:20.5.6:"
+		},
+		"tcp": {
+			"github": "miyako/tcp",
+			"version": "latest",
+			"tag": "20.0.8",
+			"htmlURL": "https://github.com/miyako/tcp/releases/tag/20.0.8",
+			"archiveURL": "https://api.github.com/repos/miyako/tcp/releases/assets/328207330",
+			"loaded": true,
+			"found": true,
+			"path": "Macintosh HD:Users:miyako:Library:Caches:4D:Dependencies:.github:miyako:tcp:20.0.8:"
+		},
+		"workers": {
+			"github": "miyako/workers",
+			"version": "latest",
+			"tag": "20.0.15",
+			"htmlURL": "https://github.com/miyako/workers/releases/tag/20.0.15",
+			"archiveURL": "https://api.github.com/repos/miyako/workers/releases/assets/330101166",
+			"loaded": true,
+			"found": true,
+			"path": "Macintosh HD:Users:miyako:Library:Caches:4D:Dependencies:.github:miyako:workers:20.0.15:"
+		}
+	}
+}

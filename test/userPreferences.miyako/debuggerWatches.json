@@ -1,0 +1,86 @@
+[
+	{
+		"codeDescriptorWatches": [
+			{
+				"path": "import_docx_encoder_text",
+				"watches": [
+					{
+						"type": 66,
+						"formula": "$extracted",
+						"expanded": true
+					}
+				]
+			},
+			{
+				"path": "import_eml_encoder_text",
+				"watches": [
+					{
+						"type": 66,
+						"formula": "$extracted",
+						"expanded": true
+					}
+				]
+			},
+			{
+				"path": "import_html_encoder_text",
+				"watches": [
+					{
+						"type": 66,
+						"formula": "$extracted",
+						"expanded": true
+					}
+				]
+			},
+			{
+				"path": "import_md_encoder_text",
+				"watches": [
+					{
+						"type": 66,
+						"formula": "$extracted",
+						"expanded": true
+					}
+				]
+			},
+			{
+				"path": "import_pdf_encoder_text",
+				"watches": [
+					{
+						"type": 66,
+						"formula": "$extracted",
+						"expanded": true
+					}
+				]
+			},
+			{
+				"path": "import_txt_encoder_text",
+				"watches": [
+					{
+						"type": 66,
+						"formula": "$extracted",
+						"expanded": true
+					}
+				]
+			},
+			{
+				"path": "import_xls_encoder_text",
+				"watches": [
+					{
+						"type": 66,
+						"formula": "$extracted",
+						"expanded": true
+					}
+				]
+			},
+			{
+				"path": "query_document_encoder",
+				"watches": [
+					{
+						"type": 66,
+						"formula": "$results",
+						"expanded": true
+					}
+				]
+			}
+		]
+	}
+]

@@ -1,0 +1,1239 @@
+
+
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+    
+<!-- Mirrored from doc.4d.com/4Dv21R2/4D/21-R2/3D-Buttons-3D-Check-Boxes-and-3D-Radio-Buttons.300-7682680.en.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 02 Jun 2026 11:24:59 GMT -->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="Content-script-type" content="text/javascript" />
+    <meta http-equiv="Content-style-type" content="text/css" />
+	<meta name="robots" content="noindex">
+    <title>3D Buttons, 3D Check Boxes and 3D Radio Buttons</title>
+	    <!--script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.2r1/build/utilities/utilities.js&amp;2.8.2r1/build/datasource/datasource-min.js&amp;2.8.2r1/build/datatable/datatable-min.js&amp;2.8.2r1/build/autocomplete/autocomplete-min.js&amp;2.8.2r1/build/container/container-min.js&amp;2.8.2r1/build/menu/menu-min.js&amp;2.8.2r1/build/button/button-min.js&amp;2.8.2r1/build/editor/editor-min.js&amp;2.8.2r1/build/json/json-min.js&amp;2.8.2r1/build/treeview/treeview-min.js&amp;2.8.2r1/build/animation/animation-min.js&amp;2.8.2r1/build/dragdrop/dragdrop-min.js&amp;2.8.2r1/build/element/element-min.js&amp;2.8.2r1/build/resize/resize-min.js&amp;2.8.2r1/build/layout/layout-min.js"></script-->
+    <!--link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.2r1/build/assets/skins/sam/skin.css"/-->
+	 <link rel="stylesheet" type="text/css" src="https://doc.4d.com/scripts/skin.css"/>
+	 <script type="text/javascript" src="https://doc.4d.com/scripts/yui.js"></script>
+	 <!--script type="text/javascript"src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script-->
+			<script type="text/javascript" src="https://doc.4d.com/scripts/shCore.js"></script>
+     <script type="text/javascript" src="https://doc.4d.com/scripts/shBrushJScript.js"></script>
+  <script type="text/javascript" src="https://doc.4d.com/scripts/shBrushXml.js"></script>
+  <script type="text/javascript" src="https://doc.4d.com/scripts/shBrushCss.js"></script>
+   <script type="text/javascript" src="https://doc.4d.com/scripts/shBrushPhp.js"></script>
+   <script type="text/javascript" src="https://doc.4d.com/scripts/shBrushSql.js"></script>
+   <style>
+	.active a{
+	color:#0B0B61 !important;
+background-color:#F2F2F2;
+}
+#results_mc  li  a {
+    color: #1e7ad3;
+    text-decoration: none;
+}
+.search {
+    position: relative;
+    margin: 0 auto;
+    width: 300px;
+	display: inline;
+}
+.champRech {
+    height: 26px;
+	width:220px;
+    padding: 0 29px 0 25px;
+    background: white url("https://doc.4d.com/image/tool16x16/loupe2.png") 8px 6px no-repeat;
+background-color: #576E97;
+  border-color: #4F658A #6881AE #6881AE #4F658A;
+  border-style: solid;
+  border-width: 1px;
+   color: #FFFFFF; 
+  font-size: 14px;
+}
+.buttonRech {
+    width: 27px;
+	background: white url("https://doc.4d.com/image/tool16x16/loupe2.png") 8px 3px no-repeat;
+	background-color: #3D4E6C;
+	border-color: #3D4E6C;
+	border-style: solid;
+	border-width: 1px;
+	color: #FFFFFF; 
+}
+.search input:focus + .results {  
+overflow-x: hidden !important;
+
+max-height:350px;
+ 
+overflow: auto;
+
+}
+.search .results {
+    position: absolute;
+    display:none;
+	top: 23px;
+    left: 0;
+    right: 0;
+    
+
+z-index: 10;
+    padding: 0;
+    margin: 0;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #cbcfe2 #c8cee7 #c4c7d7;
+    border-radius: 3px;
+    background-color: #fdfdfd;
+    background-
+
+image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fdfdfd), color-stop(100%, #eceef4));
+    background-image: -webkit-linear-gradient(top, #fdfdfd, #eceef4);
+    background-image: 
+
+-moz-linear-gradient(top, #fdfdfd, #eceef4);
+    background-image: -ms-linear-gradient(top, #fdfdfd, #eceef4);
+    background-image: -o-linear-gradient(top, #fdfdfd, #eceef4);
+    background-image: 
+
+linear-gradient(top, #fdfdfd, #eceef4);
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    -ms-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    -
+
+o-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+.search .results li { display: block }
+.search .results li:first-child { margin-top: -1px }
+.search .results 
+
+li:first-child:before, .search .results li:first-child:after {
+    display: block;
+    content: '';
+    width: 0;
+    height: 0;
+    position: absolute;
+    left: 50%;
+    margin-left: -5px;
+    border: 5px 
+
+outset transparent;
+}
+.search .results li:first-child:before {
+    border-bottom: 5px solid #c4c7d7;
+    top: -11px;
+}
+.search .results li:first-child:after {
+    border-bottom: 5px solid #fdfdfd;
+    top: 
+
+-10px;
+}
+.search .results li:first-child:hover:before, .search .results li:first-child:hover:after { display: none }
+.search .results li:last-child { margin-bottom: -1px }
+.search .results a img{
+padding-right:5px;
+}
+.search .results a {
+    display: block;
+    position: relative;
+    margin: 0 -1px;
+    padding: 6px 1px 1px 10px;
+    color: #808394;
+    font-weight: 500;
+    text-shadow: 0 1px #fff;
+ 
+
+   border: 1px solid transparent;
+    border-radius: 3px;
+}
+.search .results a span { font-weight: 200 }
+.search .results a:before {
+    content: '';
+    width: 18px;
+    height: 18px;
+    position: 
+
+absolute;
+    top: 50%;
+    right: 10px;
+    margin-top: -9px;
+    text-decoration: none;
+}
+.search #results_mc li:hover {
+	background-color:#F2F2F2;
+		color:#0B0B61;
+}
+.search #results_mc 
+
+li:hover a{
+		color:#0B0B61;
+text-decoration:none
+  }
+:-moz-placeholder {
+    color: #a7aabc;
+    font-weight: 200;
+}
+::-webkit-input-placeholder {
+    color: #a7aabc;
+    font-weight: 200;
+}
+.lt-ie9 
+
+.search input { line-height: 26px }   
+
+</style>
+<!--script type='text/javascript' src='https://code.jquery.com/jquery-3.7.1.min.js'></script-->
+	<script>
+	var lien;
+  $(document).ready(function () {
+   $(window).keyup(function (e) { //boutons up/down pour l'autocomplete 
+   if (e.keyCode == 38 || e.keyCode == 40){
+        if ( $('.search ul li').length > 1 ) {
+				var $current = $('.search ul li.active');
+				var $next;
+			if ( $current.length ){
+                if (e.keyCode == 38)	$next = $current.prev();
+				if (e.keyCode == 40)    $next = $current.next();
+                if ($next.length > 0) {
+                    $('.search ul li').removeClass('active');
+                    $next.addClass('active');
+				}}
+			else
+			{
+				if (e.keyCode == 38)
+					$('.search ul li:last-child').addClass('active');
+				if (e.keyCode == 40)
+					$('.search ul li:first-child').addClass("active");
+			}
+		}}});
+			
+$('body').keyup(function(e) { //cacher l'autocomplete quand Tabulation
+    if ( e.keyCode == '9' || e.which == '9') document.getElementById("results_mc").style.display = "none";
+ });
+ 
+ $(".search ul").hover(function () {$('.search ul li').removeClass('active');});
+
+ });
+	</script>
+	  <script type="text/javascript">
+ 
+ function HTTPRequestObject() {
+	var req = false;
+	try
+	{
+	req=new XMLHttpRequest();
+	}
+	catch(e)
+	{
+		try
+		{
+		req=new ActiveXObject("Msxml2.XMLHTTP");
+		}
+		catch(e)
+		{
+			try
+			{
+			req=new ActiveXObject("Microsoft.XMLHTTP");
+			}
+			catch(e)
+			{
+				req = false;
+			}
+		}
+	}
+	return req;
+}
+var timeoutId
+function move3(event,val,target) {
+val=val.replace("'","’");
+if (event.keyCode != 38 && event.keyCode != 40) {
+document.getElementById("results_mc").style.display = "none";
+
+if (event.type=="keydown")
+    {
+      target.keyDownCode = event.which; //keep it for comparision in keyup
+    }
+
+if (event.type=="keyup")
+    {
+
+if (13==event.which && event.which==target.keyDownCode) {
+if(typeof document.getElementsByClassName('active')[0] !== 'undefined' && document.getElementById('autocomplete').value.length > 2)
+	{
+	lien=document.getElementsByClassName('active')[0].children[0].href
+    window.location = lien;
+	return false;
+document.getElementById("autocomplete").style.background = "url('https://doc.4d.com/image/tool16x16/loupe2.png') 8px 6px no-repeat";
+document.getElementById("autocomplete").style.backgroundColor = "#576E97";
+}
+else buttonRechFunction() ;
+}
+
+}
+
+
+
+
+if ((event.keyCode>8 && event.keyCode<=46 ) || (event.which>8 && event.which<=46 )) //&& event.which!=32
+{
+document.getElementById("results_mc").style.display = "none";
+document.getElementById("autocomplete").style.background = "url('https://doc.4d.com/image/tool16x16/loupe2.png') 8px 6px no-repeat";
+document.getElementById("autocomplete").style.backgroundColor = "#576E97";
+}
+/*if (((event.keyCode==32 && event.which==32) ||(event.keyCode>48 && event.keyCode<=105) || (event.which>48 && event.which<=105) || (event.keyCode==8 ||  event.which==8) || (event.keyCode== 0 || event.which==0) || (event.keyCode==39 ||  event.which==39) || (event.keyCode== 37 || event.which==37)) && (val.length>2))
+{
+//document.getElementById("autocomplete").style.background = "url('/image/tool16x16/loupe2.png') 8px 6px no-repeat,url('/image/animated/loader.gif') right 10px center no-repeat";
+document.getElementById("autocomplete").style.background = "url('/image/tool16x16/loupe2.png') 8px 6px no-repeat";
+document.getElementById("autocomplete").style.backgroundColor = "#576E97";
+clearTimeout(timeoutId)
+
+var timeout;
+
+if(!!window.chrome==true)
+
+timeout = 250;
+
+else
+
+timeout = 850;
+
+timeoutId = setTimeout(function () {
+
+explore(val);
+
+document.getElementById("results_mc").style.display = "block";
+
+},timeout);
+}*/}}
+function buttonRechFunction() {
+var str=document.getElementById('autocomplete').value;
+str=str.replace("'", "’");
+window.location = "https://doc.4d.com/4DACTION/SearchResults_mc/"+str+'/'+document.getElementById('gamme_id').value+"-"+document.getElementById('book_id').value+'/false.'+"en"+'.html';
+return false;
+document.getElementById("autocomplete").style.background = "url('https://doc.4d.com/image/tool16x16/loupe2.png') 8px 6px no-repeat";
+document.getElementById("autocomplete").style.backgroundColor = "#576E97";
+}
+function explore(val) {
+var req = HTTPRequestObject ();
+if (req)
+   {
+   req.open("https://doc.4d.com/4Dv21R2/4D/21-R2/GET",'/4daction/MC_Recherche_saisie_pred/'+val+'/'+document.getElementById('gamme_id').value+"-"+document.getElementById('book_id').value+'/false.'+"en"+'.html',false);
+   req.onreadystatechange=function()
+    {	if (req.readyState==4)
+         {  if(req.status!=200)
+            req =false;
+         }
+	}
+   req.send("");
+   }
+document.getElementById("results_mc").innerHTML=req.responseText +"<li style=\"text-align:center;font-size:15px\" onClick=\"this.parentNode.style.display = 'none';\"><a href=\"javascript:buttonRechFunction()\">.. All results ..</li>";
+document.getElementById("autocomplete").style.background = "url('https://doc.4d.com/image/tool16x16/loupe2.png') 8px 6px no-repeat";
+document.getElementById("autocomplete").style.backgroundColor = "#576E97";
+}
+document.onclick = function(e) {
+    if ( e.target.nodeName != 'OBJECT' &&  e.target.nodeName != 'INPUT' ) {
+	document.getElementById("results_mc").style.display = "none";
+document.getElementById("autocomplete").style.background = "url('https://doc.4d.com/image/tool16x16/loupe2.png') 8px 6px no-repeat";
+document.getElementById("autocomplete").style.backgroundColor = "#576E97";
+}};
+</script>
+    
+    <link rel="icon" type="image/gif" href="https://doc.4d.com/favicon.gif" />
+    
+    
+    <!--link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.2r1/build/assets/skins/sam/skin.css"/-->
+	<link rel="stylesheet" type="text/css" src="https://doc.4d.com/scripts/skin.css"/>
+    <link rel="stylesheet" type="text/css" href="https://doc.4d.com/cssdynamic/10222.css"/>
+    <link rel="stylesheet" type="text/css" media="print" href="https://doc.4d.com/cssdynamic/print.css"/>
+    <!--[if IE]><link rel="stylesheet" type="text/css" href="css/tdcIE.css"/><![endif]-->
+	<script type="text/javascript">SyntaxHighlighter.all();</script>
+    <script type="text/javascript">
+ function test(){
+  if    (window.location.href.toString().indexOf(".ja.")>0) 
+  {
+   document.getElementsByName("langue_id")[0].value="6";
+  }
+ 
+}
+function readCookie(name) {
+	var nameEQ = name + "=";
+	var ca = document.cookie.split(';');
+	for(var i=0;i < ca.length;i++) {
+		var c = ca[i];
+		while (c.charAt(0)==' ') c = c.substring(1,c.length);
+		if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+	}
+	return null;
+}
+function isCookie(name){
+var x = readCookie(name)
+//if (x) {
+	//var session_id=x;
+	var session_id='0';
+
+
+var xmlhttp;
+if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+  xmlhttp=new XMLHttpRequest();
+  }
+else
+  {// code for IE6, IE5
+  xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+xmlhttp.onreadystatechange=function()
+  {
+  if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+  // alert(xmlhttp.responseText);
+  // document.getElementById('comments-div').innerHTML=xmlhttp.responseText;
+  function readCookie_Structure(oStructure){
+                        for (property in oStructure) {
+                            this[property] = oStructure[property];
+                        }
+                    }
+                    readCookie_Structure.prototype = {
+                        html: '',
+                        name: ''
+                    };
+                    var oStructure2 = eval('new readCookie_Structure(' + xmlhttp.responseText + ');');
+					document.getElementById('comments-div').innerHTML=oStructure2.html;
+					if(oStructure2.html!=""){document.getElementById('comments_btn_div').style.display='none';}else{document.getElementById('comments_btn_div').style.display='none';}
+					//document.getElementById('topLoginSearch').innerHTML=oStructure2.name;
+					
+    }
+  }
+  var book_id=document.getElementById('book_id').value;
+  var url_original=document.getElementById('url_original').value;
+xmlhttp.open("https://doc.4d.com/4Dv21R2/4D/21-R2/GET","https://doc.4d.com/4DACTION/Get_User_Comments/"+url_original+"/"+session_id+"/"+book_id,true);
+xmlhttp.send();
+
+
+//}
+//else
+//{
+//document.getElementById('comments_btn_div').style.display='none';
+//}
+}
+ function resize(obj)
+{
+	if(obj.width > 750){
+		obj.style.width = "100%";
+	}
+}
+function OnloadLoadPage(){ 
+isCookie("WWSessionID");
+
+
+ }
+</script>
+</head>
+
+    <body onload="OnloadLoadPage()" class="yui-skin-sam ">
+        <table cellpadding="0" cellspacing="0" width="100%">
+            <tr>
+                <td colspan="3">
+                    
+<div id="tdc_entete">
+    <a href="http://doc.4d.com/">
+        <img src="../../image/master/header_title_olv.png" alt="4D Online Documentation Center" class="noMargin"/>
+    </a>
+
+           <div id="topLoginSearch" style="visibility: visible !important;">
+            <p>
+             <div class="search" >
+				<input type="text" title="Enter !222 to display the command 222
+" class="champRech" name="q" id="autocomplete" placeholder="Search..." onkeyup="move3(event,this.value,this)" onkeydown="move3(event,this.value,this)" autocomplete="off" />
+				<input type="button" class="buttonRech" alt="Search" onclick="buttonRechFunction()" onfocus="document.getElementById("results_mc").style.display = "none"";">
+				<ul class="results" id="results_mc" ></ul>
+			</div>
+           
+            </p>
+			  </div> 
+    
+                <input type="hidden" id="book_id" value="7682680"/>
+                 <input type="hidden" id="gamme_id" value="7682526"/>
+				<input type="hidden" id="book_pere_id" value="7682539"/>
+				<input type="hidden" id="book_gpere_id" value="7682554"/>
+				<input type="hidden" id="langues_id" value="2"/>
+				<input type="hidden" id="url_original" value="https://doc.4d.com/4Dv21R2/4D/21-R2/4Dv21R2/4D/21-R2/3D-Buttons-3D-Check-Boxes-and-3D-Radio-Buttons.300-7682680.en.html"/>
+    </div>
+
+<div id="tdc_entete2" class="tdc_entete2new">
+    <div class="new_doc"> 
+	 
+	 
+     
+	 <p >This is the legacy 4D documentation web site. Documentations are progressively being moved to  <a href="https://developer.4d.com/docs/" target="_blank">developer.4d.com</a></p>
+	 
+	 
+     
+	 
+	  
+ 	   
+    </div>
+	   </div>
+	 
+
+                </td>
+            </tr>
+            <tr>
+                <td style="width:230px;vertical-align:top;padding-left:5px;padding-right:5px" id="tdc_toc_ipad">
+                 
+                <p>
+    <a href="https://doc.4d.com/" style="font-size:100%">Home</a>
+</p>
+<ul>
+    
+    
+    
+    <li class="tdc_tocItem"><a href="4D-Design-Reference.100-7682539.en.html">4D Design Reference</a></li>
+    
+    
+        <li class="tdc_hiddenItem">
+            <ul>
+                
+                    
+                        <li class="tdc_tocItem"><a href="Working-with-active-objects.200-7682554.en.html">Working with active objects</a></li>
+                    
+                    
+                        <li class="tdc_hiddenItem">
+                            <ul>
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="What-are-active-objects.300-7682664.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_200.png" alt="" width="16px" height="16px"/>What are active objects?
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Field-and-variable-objects.300-7682665.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Field and variable objects
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Buttons.300-7682666.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Buttons
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocCurrent4">
+                                    <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>3D Buttons, 3D Check Boxes and 3D Radio Buttons
+                                    
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Picture-Buttons.300-7682667.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Picture Buttons
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Button-Grids.300-7682668.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Button Grids
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Check-Boxes.300-7682670.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Check Boxes
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Radio-Buttons-and-Picture-Radio-Buttons.300-7682679.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Radio Buttons and Picture Radio Buttons
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Pop-up-MenusDrop-down-Lists.300-7682671.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Pop-up Menus/Drop-down Lists
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Combo-Boxes.300-7682672.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Combo Boxes
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Hierarchical-Pop-up-Menus-and-Hierarchical-Lists.300-7682678.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Hierarchical Pop-up Menus and Hierarchical Lists
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Picture-Pop-up-Menus.300-7682673.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Picture Pop-up Menus
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Indicators.300-7682674.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Indicators
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Tab-Controls.300-7682675.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Tab Controls
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Splitters.300-7682677.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Splitters
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Web-areas.300-7682676.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Web areas
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Plug-in-areas.300-7682669.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Plug-in areas
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="List-boxes.300-7682663.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>List boxes
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                                
+                                    <li class="tdc_tocItem">
+                                        <a href="Subforms.300-7682662.en.html">
+                                            
+                                            <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>Subforms
+                                            
+                                        </a>
+                                    </li>
+                                
+                            
+                            </ul>
+                        </li>
+                        
+                
+            </ul>
+        </li>
+    
+    <li>&nbsp;</li></ul>
+    
+    
+
+
+
+
+
+
+                <div class="tdc_espace">&nbsp;</div>
+          
+                </td>
+                <td style="vertical-align:top">
+					
+                    <!--div id="tdc_central"-->
+                        <div class="tdc_roundbox">
+                            <b class="tdc_top"><b class="tdc_b1"></b><b class="tdc_b2"></b><b class="tdc_b3"></b><b class="tdc_b4"></b></b>
+                            <div class="tdc_roundboxcontent">
+                                
+<div class="ppA"></div>
+
+<div class="ppB">
+    <a href="https://doc.4d.com/">Home</a>
+</div>
+
+<div class="ppC"></div>
+
+
+
+
+
+<div class="ppB">
+    4D v21 R2
+</div>
+
+<div class="ppC"></div>
+
+
+
+
+
+<div class="ppB">
+    <a href="4D-Design-Reference.100-7682539.en.html">4D Design Reference</a>
+</div>
+
+<div class="ppC"></div>
+
+
+
+
+
+<div class="ppB">
+    <a href="Working-with-active-objects.200-7682554.en.html">Working with active objects</a>
+</div>
+
+<div class="ppD"></div>
+
+
+
+
+
+<div class="ppE">3D Buttons, 3D Check Boxes and 3D Radio Buttons</div>
+
+
+
+                                <!--*************************-->
+                                <div id="TitreTitle7682680">
+    <h3 id="TitleTitle">
+        <img src="../../image/article16x16/ak_400.png" alt="" width="16px" height="16px"/>
+        3D Buttons, 3D Check Boxes and 3D Radio Buttons
+        &nbsp;
+    </h3>
+</div>
+<p>
+
+
+<br/>&nbsp;</p>
+
+
+<div class="title_paragraph">
+    <input type="hidden" id="dlg3_000_id_paragraph" value="381066,381106,3207738,381570,381604,381616,381629,381644,381696,"/>
+    <div id="Paragraph_381066" class="xmultiuse">
+        <h4>
+                    <a name="381066"></a>
+            
+            &nbsp;
+        </h4>
+    </div>
+    
+    <div id="Paragraph_text_381066" class="rte4d"><p>The family of 3D buttons includes 3D buttons, 3D check boxes and 3D radio buttons. These objects are structurally identical; the only difference is the processing of the associated variable:</p><ul><li>The associated variable of a 3D button equals 0 when the form is opened (standard state); it equals 1 when the user clicks the button (pressed state); then returns to its standard state and equals 0 again.</li><li>The associated variable of a 3D check box equals 0 when the box is not checked and is set to 1 when the box is checked. Unlike buttons, the 3D check box keeps its state (0 or 1) until the user selects it again. For more information, refer to <a href="Check-Boxes.300-7682670.en.html" class="rte4d_ilk">Check Boxes</a>.</li><li>3D radio buttons operate in groups; the associated variable of the selected button equals 1 and the others equal 0. The variable can equal either 0 or 1 when the form is opened. For more information, refer to <a href="Radio-Buttons-and-Picture-Radio-Buttons.300-7682679.en.html" class="rte4d_ilk">Radio Buttons and Picture Radio Buttons</a>. </li></ul><p>The family of 3D buttons offers numerous specific properties, which can be used to set up interfaces that can be perfectly integrated into different operating systems. More particularly, it is possible to apply different pre-defined styles to 3D buttons (bevel buttons, push buttons, etc.) or to associate pop-up menus with them. A great number of variations can be obtained by combining the various properties. </p><p><img  src="https://doc.4d.com/4Dv21R2/picture/381075/pict381075.en.png" alt=""style="max-width:100%;"/></p></div>
+    <div id="Paragraph_381106" class="xmultiuse">
+        <h4>
+                    <a name="381106">Title</a>
+            
+            &nbsp;
+        </h4>
+    </div>
+    
+    <div id="Paragraph_text_381106" class="rte4d"><p>This property allows inserting a label on the button. The font and the style of this label can be set in the “Text” theme.</p><p>You can force a carriage return in the label by using the \ character (backslash).&nbsp;</p><p><img  src="https://doc.4d.com/4Dv21R2/picture/381104/pict381104.en.png" alt=""style="max-width:100%;"/></p><p>To insert a \ in the label, enter \\.&nbsp;</p><p>By default, the label is placed in the center of the button. When the button also contains an icon, you can modify the relative location of these two elements using the <strong>Title/Picture Position</strong> property. It is possible to hide the title by deselecting the <strong>Visible Title</strong>  property. In this case, the icon is automatically moved to the center of  the button.&nbsp;</p><p>For the purpose of database translation, you can enter an XLIFF reference in the title area of a button (see <a href="Appendix-B-XLIFF-architecture.300-7682635.en.html" class="rte4d_ilk">Appendix B: XLIFF architecture</a>).</p></div>
+    <div id="Paragraph_3207738" class="">
+        <h4>
+                    <a name="3207738">Button Style</a>
+            
+            &nbsp;
+        </h4>
+    </div>
+    
+    <div id="Paragraph_text_3207738" class="rte4d"><p>This property allows setting the general appearance of the button. The style also plays a part in the availability of certain options. The following styles are available (Windows/Mac OS illustrations):&nbsp;</p><ul><li><strong>None</strong> (default value).<br/><img  src="https://doc.4d.com/4Dv21R2/picture/381113/pict381113.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381115/pict381115.fr.png" alt=""style="max-width:100%;"/><br/>A 3D button with the “None” style is similar to an invisible button: its “highlight” is not displayed. However, it has the same 3D button options available.<br/>In Mac OS, it is not possible to display the triangle indicating a linked pop-up menu.&nbsp;</li><li><strong>Background Offset</strong><br/><img  src="https://doc.4d.com/4Dv21R2/picture/381117/pict381117.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381119/pict381119.fr.png" alt=""style="max-width:100%;"/><br/>This style corresponds to highlight buttons, except that when the user clicks on this type of button, a 3D effect is obtained by offsetting the picture located under the button. <br/>When the “Background Offset” style is selected, no options are available.&nbsp;</li><li><strong>Push Button</strong><br/><img  src="https://doc.4d.com/4Dv21R2/picture/381121/pict381121.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381123/pict381123.fr.png" alt=""style="max-width:100%;"/><br/>A 3D button with the “Push Button” style appears as a standard system button. It nevertheless benefits from 3D button options, with the exception of the “With Pop-up Menu” property.&nbsp;</li><li><strong>Toolbar Button</strong><br/><img  src="https://doc.4d.com/4Dv21R2/picture/381125/pict381125.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381129/pict381129.fr.png" alt=""style="max-width:100%;"/><br/><img  src="https://doc.4d.com/4Dv21R2/picture/381127/pict381127.fr.png" alt=""style="max-width:100%;"/><br/>This style of 3D button is primarily intended for integration in a toolbar.<br/>In Windows, its highlight appears when the mouse rolls over it. When it uses the “With Pop-up Menu” property, a triangle is displayed to the right and in the center of the button. <br/>In Mac OS, the highlight of the button never appears. When it uses the “With Pop-up Menu” property, a triangle is displayed to the right and at the bottom of the button.</li><li><strong>Custom</strong><br/><img  src="https://doc.4d.com/4Dv21R2/picture/381158/pict381158.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381160/pict381160.fr.png" alt=""style="max-width:100%;"/><br/>This 3D button style accepts a custom background picture and allows managing various additional parameters (icon and margin offset). For more information, refer to the “Custom 3D buttons” section below. <br/>This style benefits from 3D button options, with the exception of the “With Pop-up Menu” property.</li><li><strong>Circle</strong><br/><img  src="https://doc.4d.com/4Dv21R2/picture/381162/pict381162.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381164/pict381164.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381166/pict381166.fr.png" alt=""style="max-width:100%;"/><br/>In Mac OS X, a 3D button with the “Circle” style appears as a round system button. Two set styles are available for the circle, which depend on the size of the button in the form. <br/>This style benefits from 3D button options, with the exception of the “With Pop-up Menu” property.<br/>In Windows, this button style is identical to the “None” style (the circle in the background is not taken into account).</li><li><strong>Disclosure button</strong><br/><img  src="https://doc.4d.com/4Dv21R2/picture/3207745/pict3207745.en.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/3207748/pict3207748.en.png" alt=""style="max-width:100%;"/><br/>In Mac OS and Windows, a 3D button with the “Disclosure button” style appears as a standard disclosure button, usually used to show/hide additional information. When used as a 3D check box or radio button, the button symbol points downwards with value 0 and upwards with value 1. <br/>When the "Disclosure button" style is selected, no options are available. </li><li><strong>Office XP</strong><br/><img  src="https://doc.4d.com/4Dv21R2/picture/381172/pict381172.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381174/pict381174.fr.png" alt=""style="max-width:100%;"/><br/>A 3D button with the “Office XP” style has the following characteristics:<br/><ul><li>The colors of its highlight and background are based on the system colors. </li></ul><ul><li>In Windows, in use, its highlight only appears when the mouse rolls over it. </li></ul>This style benefits from 3D button options style.</li><li><strong>Bevel</strong><br/> <img  src="https://doc.4d.com/4Dv21R2/picture/381176/pict381176.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381182/pict381182.fr.png" alt=""style="max-width:100%;"/><br/><img  src="https://doc.4d.com/4Dv21R2/picture/381179/pict381179.fr.png" alt=""style="max-width:100%;"/><br/>In Mac OS, a “Bevel” button appears as a standard system button. It benefits from 3D button options, including the “With Pop-up Menu” property.<br/>In Windows, this button style is similar to the “Toolbar button” style, the only difference being that the triangle indicating the presence of an associated pop-up menu is located at the bottom right of the button.</li><li><strong>Rounded Bevel</strong><br/><img  src="https://doc.4d.com/4Dv21R2/picture/381184/pict381184.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381188/pict381188.fr.png" alt=""style="max-width:100%;"/><br/> <img  src="https://doc.4d.com/4Dv21R2/picture/381186/pict381186.fr.png" alt=""style="max-width:100%;"/><br/>In Mac OS, a “Rounded bevel” button is similar to a “Bevel” button except that its highlights are rounded.<br/>In Windows, this button style is identical to the “Bevel” style.</li><li><strong>Collapse/Expand</strong><br/><img  src="https://doc.4d.com/4Dv21R2/picture/381545/pict381545.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381549/pict381549.fr.png" alt=""style="max-width:100%;"/><br/> <img  src="https://doc.4d.com/4Dv21R2/picture/381547/pict381547.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381551/pict381551.fr.png" alt=""style="max-width:100%;"/><br/>This button style can be used to add a standard collapse/expand icon. These buttons are used natively in hierarchical lists. In Windows, the button looks like a [+] or a [-]; in Mac OS, it looks like a triangle pointing right or down. This style is only used with 3D checkboxes, where the two states of the button correspond to the selected/deselected state of the check box. </li><li><strong>Help</strong><br/><img  src="https://doc.4d.com/4Dv21R2/picture/381556/pict381556.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381558/pict381558.fr.png" alt=""style="max-width:100%;"/><br/>This button style can be used to display a standard help button of the system. You can use this style to add "system" help buttons in your forms.</li><li><strong>OS X Textured</strong><br/><img  src="https://doc.4d.com/4Dv21R2/picture/381560/pict381560.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381562/pict381562.fr.png" alt=""style="max-width:100%;"/><br/>In Mac OS X, a "Textured" button is a standard system button displaying a gradation of gray. Its height is predefined: it is not possible to enlarge or reduce it. This button style can make use of all the 3D buttons options. <br/>In Windows, this style is equivalent to a push button, which can, however, have a pop-up menu and which has the special feature of being transparent in Vista.</li><li><strong>OS X Gradient</strong><br/><img  src="https://doc.4d.com/4Dv21R2/picture/381564/pict381564.fr.png" alt=""style="max-width:100%;"/><img  src="https://doc.4d.com/4Dv21R2/picture/381566/pict381566.fr.png" alt=""style="max-width:100%;"/><br/>In Mac OS X, a "Gradient" button is a two-tone system button. This button style can make use of all the 3D buttons options. <br/>In Windows, this style is equivalent to a push button, which can, however, have a pop-up menu.</li></ul></div>
+    <div id="Paragraph_381570" class="xmultiuse">
+        <h4>
+                    <a name="381570">Adding an icon to a 3D button</a>
+            
+            &nbsp;
+        </h4>
+    </div>
+    
+    <div id="Paragraph_text_381570" class="rte4d"><p>It is possible to add an icon to any 3D button style (except for the “Background Offset” style). </p><p><img  src="https://doc.4d.com/4Dv21R2/picture/381125/pict381125.fr.png" alt=""style="max-width:100%;"/></p><p>Managing associated icons is done using several properties such as Picture Source and Picture Name/ID.&nbsp;</p><ul><li><strong>Picture Source</strong><br/>As with picture buttons, the icon of a 3D button can come from four different sources: <strong>Variable</strong>, <strong>Picture Library</strong>, <strong>Resource File</strong> or <strong>File</strong>. Once the source is set, you can indicate the name or the number of the picture in the “Picture Name/ID” property.&nbsp; </li><li><strong>Picture Name/ID</strong><br/>Once the picture source is set, enter the name (if the picture is a variable or comes from the picture library), the number (if the picture comes from the picture library or a resource file) or the pathname (if the picture comes from a picture file) of the picture in this area; in the case of a picture file, the pathname must be relative to the Resources folder of the database (see <a href="Using-static-pictures.300-7682613.en.html#152172" class="rte4d_ilk">Automatic referencing of picture files</a>). Pass 0 in this property if you do not wish to add a 3D button picture.&nbsp; <br/><strong>Note:</strong> You can associate a picture with a button by dragging and dropping a picture from the picture library or from a disk file.</li><li><strong>Number of states</strong><br/>This property sets the exact number of states present in the picture used as the icon for the 3D button. In general, a button icon includes 4 states: active, clicked, mouse over and inactive. In the source picture, the states must be stacked vertically: <br/><img  src="https://doc.4d.com/4Dv21R2/picture/381576/pict381576.fr.png" alt=""style="max-width:100%;"/></li><li><strong>Visible Title</strong> / <strong>Visible Icon</strong><br/>When the button includes both a title and a picture, you can hide one or the other item by deselecting the Visible Title or Visible Icon option (or both). When one of these items is hidden, it is automatically replaced by the other in the center of the button. </li></ul></div>
+    <div id="Paragraph_381604" class="xmultiuse">
+        <h4>
+                    <a name="381604">Title/Picture Position</a>
+            
+            &nbsp;
+        </h4>
+    </div>
+    
+    <div id="Paragraph_text_381604" class="rte4d"><p>This property allows modifying the relative location of the button title in relation to the associated icon. This property has no effect when the button contains only a title (no associated picture) or a picture (no title). By default, when a 3D button contains a title and a picture, the text is placed below the picture .&nbsp;</p><p>Here are the results using the various options for this property:</p><ul><li><strong>Left</strong>: The text is placed to the left of the icon. The contents of the button are aligned to the right. <br/><img  src="https://doc.4d.com/4Dv21R2/picture/381594/pict381594.fr.png" alt=""style="max-width:100%;"/></li><li><strong>Top</strong>: The text is placed above the icon. The contents of the button are centered. <br/><img  src="https://doc.4d.com/4Dv21R2/picture/381596/pict381596.fr.png" alt=""style="max-width:100%;"/></li><li><strong>Right</strong>: The text is placed to the right of the icon. The contents of the button are aligned to the left. <br/><img  src="https://doc.4d.com/4Dv21R2/picture/381598/pict381598.fr.png" alt=""style="max-width:100%;"/></li><li><strong>Bottom</strong>: The text is placed below the icon. The contents of the button are centered. <br/><img  src="https://doc.4d.com/4Dv21R2/picture/381600/pict381600.fr.png" alt=""style="max-width:100%;"/></li><li><strong>Centered</strong>: The text of the icon is centered vertically and horizontally in the button. This parameter is useful, for example, for text included in an icon. <br/><img  src="https://doc.4d.com/4Dv21R2/picture/381602/pict381602.fr.png" alt=""style="max-width:100%;"/></li></ul></div>
+    <div id="Paragraph_381616" class="xmultiuse">
+        <h4>
+                    <a name="381616">With a pop-up menu</a>
+            
+            &nbsp;
+        </h4>
+    </div>
+    
+    <div id="Paragraph_text_381616" class="rte4d"><p>This property allows displaying a symbol that appears as a triangle in the 3D button, which indicates that there is a pop-up menu attached:</p><p><img  src="https://doc.4d.com/4Dv21R2/picture/381611/pict381611.fr.png" alt=""style="max-width:100%;"/></p><p>The appearance and location of this symbol depend on the button style and the current platform.&nbsp; </p><p>The following 3D button styles accept the “With Pop-up Menu” property:</p><ul><li>None</li><li>Toolbar Button</li><li>Bevel</li><li>Rounded Bevel</li><li>Office XP</li><li>OSX Textured</li><li>OSX Gradient</li></ul></div>
+    <div id="Paragraph_381629" class="xmultiuse">
+        <h5>
+                    <a name="381629">Linked and Separated</a>
+            
+            &nbsp;
+        </h5>
+    </div>
+    
+    <div id="Paragraph_text_381629" class="rte4d"><p>To attach a pop-up menu symbol to a 3D button, there are two display options available: <strong>Linked</strong> and <strong>Separated</strong>.</p><p><img  src="https://doc.4d.com/4Dv21R2/picture/381623/pict381623.en.png" alt=""style="max-width:100%;"/> Separated<br/><img  src="https://doc.4d.com/4Dv21R2/picture/381625/pict381625.en.png" alt=""style="max-width:100%;"/> Linked</p><p><strong>Note:</strong> The real availability of a “separated” mode depends on the style of the button and the platform.&nbsp;</p><p>Each option specifies the relation between the button and the attached pop-up menu: </p><ul><li>When the pop-up menu is <em>separated</em>, clicking on the left part of the button directly executes the current action of the button; this action can be modified using the pop-up menu accessible in the right part of the button. </li><li>When the pop-up menu is <em>linked</em>, a simple click on the button only displays the pop-up menu. Only the selection of the action in the pop-up menu causes its execution.</li></ul><p>These options also influence the handling of form events by the button (for more information on this, refer to the <a href="https://doc.4d.com/4Dv21R2/4D/21-R2/4D-Language-Reference.100-7689919.en.html" class="rte4d_ilk">4D Language Reference</a> manual).</p></div>
+    <div id="Paragraph_381644" class="xmultiuse">
+        <h5>
+                    <a name="381644">Managing the pop-up menu</a>
+            
+            &nbsp;
+        </h5>
+    </div>
+    
+    <div id="Paragraph_text_381644" class="rte4d"><p>It is important to note that the “With Pop-up Menu” property only manages the graphic aspect of the button. The display of the pop-up menu and its values must be handled entirely by the developer, more particularly using form events and the <a href="https://doc.4d.com/4Dv21R2/4D/21-R2/Dynamic-pop-up-menu.301-7691283.en.html" title="Dynamic pop up menu" class="rte4d_cmd">Dynamic pop up menu</a> and <a href="https://doc.4d.com/4Dv21R2/4D/21-R2/Pop-up-menu.301-7690150.en.html" title="Pop up menu" class="rte4d_cmd">Pop up menu</a> commands.</p></div>
+    <div id="Paragraph_381696" class="xmultiuse">
+        <h4>
+                    <a name="381696">Custom 3D buttons</a>
+            
+            &nbsp;
+        </h4>
+    </div>
+    
+    <div id="Paragraph_text_381696" class="rte4d"><p>When the “Custom” 3D button style is selected, several additional properties are available: Background Source, Background Name/ID, Icon Offset, Horizontal Margin and Vertical Margin. </p><ul><li><strong>Background Source</strong>: This property allows you to set the picture that will be drawn in the background of the button. As with icons, you can indicate whether the picture comes from a variable, picture library, resource file or disk file.&nbsp;&nbsp;&nbsp; </li><li><strong>Background Name/ID</strong>: Once the source is set, you can indicate the name or number of the picture in this area.<br/>As with icons, the background pictures can contain four distinct vertical areas, which will be used by 4D to represent the four standard states of the button: active, clicked, roll over, and disabled. Note that the effect produced during a click can also be handled using the <strong>Icon Offset</strong> property. &nbsp;&nbsp; </li><li><strong>Icon Offset</strong>: This property allows setting a custom offset value in pixels, which will be used when the button is clicked: the title of the button will be shifted to the right and toward the bottom for the number of pixels entered. This function allows applying a customized 3D effect when the button is clicked.</li><li><strong>Horizontal Margin</strong> / <strong>Vertical Margin</strong>: These properties allow you to set the size (in pixels) of the internal margins of the button. These margins delimit the area that the 3D button icon and title must not surpass.<br/>This parameter is useful, for example, when the background picture contains borders: <br/><img  src="https://doc.4d.com/4Dv21R2/picture/381692/pict381692.fr.png" alt=""style="max-width:100%;"/> Custom 3D button without margin<br/><img  src="https://doc.4d.com/4Dv21R2/picture/381694/pict381694.fr.png" alt=""style="max-width:100%;"/> 3D button with 13-pixel margin</li></ul></div>
+    
+</div>                  
+<p></p>
+
+
+                                <!--*************************-->
+								
+	
+								
+								
+									<br/><br/>
+									<div id="SeeAlso_title" style="font-size: 1.2em;color: #666666;padding-left: 13px; font-weight: bolder;margin-right: 10px;">
+										 See also&nbsp;
+									</div>
+									<p class="blocDEF" style="margin-top: 5px;border: 1px solid #e1e1e1;background-color: #F5F5F5;">
+									<a href="Buttons.300-7682666.en.html" style="font-size: 11px;">Buttons</a><br/>
+									<i></i></p>
+								
+								
+                            </div>
+                            <b class="tdc_bottom"><b class="tdc_b4b"></b><b class="tdc_b3b"></b><b class="tdc_b2b"></b><b class="tdc_b1b"></b></b>
+                        </div>
+						
+                       <div id="comments-div"> 
+						
+						</div>
+						 
+                       
+							<div id="comments_btn_div" style="display:none"> 
+						<div class="footer_blocA"></div>
+						<div class="footer_blocB">
+        <img src="../../image_4d/tool16x16/comment.png" alt="" width="16px" height="16px"><a id="dlg0_005_btn">Add a comment</a>
+                   </div>
+				   <div class="footer_blocD"></div>
+				   </div>
+                        <p style="display:block;background:transparent;text-align:left;margin-top: 40px;">
+                    <div class="footer_bloc">
+    <div class="footer_blocA"></div>
+    <div class="footer_blocB">
+       <a href="Buttons.300-7682666.en.html">Previous page</a>
+    </div>
+    <div class="footer_blocD"></div>
+</div>
+<div class="footer_bloc">
+    <div class="footer_blocA"></div>
+    <div class="footer_blocB">
+      <a href="Picture-Buttons.300-7682667.en.html">Next page</a>
+    </div>
+    <div class="footer_blocD"></div>
+</div>
+                </p>
+                        <div class="tdc_espace">&nbsp;</div>
+                       
+                    <!--/div--><!-- fin central-->
+                </td>
+                <td style="width:19em;vertical-align:top;padding-left:5px;padding-right:5px">
+                    <!--div id="tdc_secondaire"-->
+                        
+<div class="bloc" id="properties_title"><div class="blocA"><div class="blocC"><div class="blocB">PROPERTIES&nbsp;</div></div></div></div>
+<p class="blocDEF">
+	Product:  4D<br/>
+	Theme:  Working with active objects<br/>
+	
+        
+        
+	
+</p>
+<p class="blocDEF">
+	
+</p>
+
+<div class="blocMNP"><div class="blocM"><div class="blocP"><div class="blocN">&nbsp;</div></div></div></div>
+<div class="bloc" id="sommaire_title"><div class="blocA"><div class="blocC"><div class="blocB">PAGE CONTENTS&nbsp;</div></div></div></div>
+   <input type="hidden" name="qdxbq14681" value="728838486"/>
+    <input type="hidden" id="dlg4_018_translate" value="Close"/>
+    <input type="hidden" id="dlg4_018_list_paragraph_id" value="381066,381106,3207738,381570,381604,381616,381629,381644,381696,"/>
+    <input type="hidden" id="dlg4_018_book_id" name="book_id" value="7682680"/>
+    <input type="hidden" id="dlg4_018_perma_id" name="perma_id" value="957"/>
+    <input type="hidden" id="dlg4_018_is_command" name="is_command" value="0"/>
+	<div class="blocDEF" style="word-wrap:break-word">
+	
+	
+	
+	
+	<div class="dlg4_018_paragraph_1">
+		
+		<span class="prgh_1">
+		
+		
+					<a href="#381106" id="prg_381106">Title</a>
+		<br/>
+		</span>
+	</div>
+	
+	
+	
+	<div class="dlg4_018_paragraph_1">
+		
+		<span class="prgh_1">
+		
+		
+					<a href="#3207738" id="prg_3207738">Button Style</a>
+		<br/>
+		</span>
+	</div>
+	
+	
+	
+	<div class="dlg4_018_paragraph_1">
+		
+		<span class="prgh_1">
+		
+		
+					<a href="#381570" id="prg_381570">Adding an icon to a 3D button</a>
+		<br/>
+		</span>
+	</div>
+	
+	
+	
+	<div class="dlg4_018_paragraph_1">
+		
+		<span class="prgh_1">
+		
+		
+					<a href="#381604" id="prg_381604">Title/Picture Position</a>
+		<br/>
+		</span>
+	</div>
+	
+	
+	
+	<div class="dlg4_018_paragraph_1">
+		
+		<span class="prgh_1">
+		
+		
+					<a href="#381616" id="prg_381616">With a pop-up menu</a>
+		<br/>
+		</span>
+	</div>
+	
+	
+	
+	<div class="dlg4_018_paragraph_2">
+		
+		
+		<span class="prgh_2">
+		
+					<a href="#381629" id="prg_381629">Linked and Separated</a>
+		<br/>
+		</span>
+	</div>
+	
+	
+	
+	<div class="dlg4_018_paragraph_2">
+		
+		
+		<span class="prgh_2">
+		
+					<a href="#381644" id="prg_381644">Managing the pop-up menu</a>
+		<br/>
+		</span>
+	</div>
+	
+	
+	
+	<div class="dlg4_018_paragraph_1">
+		
+		<span class="prgh_1">
+		
+		
+					<a href="#381696" id="prg_381696">Custom 3D buttons</a>
+		<br/>
+		</span>
+	</div>
+	
+	
+	</div>
+<div class="blocMNP"><div class="blocM"><div class="blocP"><div class="blocN">&nbsp;</div></div></div></div>
+	<div class="bloc" id="history_title"><div class="blocA"><div class="blocC"><div class="blocB">HISTORY&nbsp;</div></div></div></div>
+<p id="history_ul" class="blocDEF">
+
+
+	Modified:  4D v16 R2<br/>
+</p>
+<div class="blocMNP"><div class="blocM"><div class="blocP"><div class="blocN">&nbsp;</div></div></div></div>
+
+<div class="bloc" id="article_usage"><div class="blocA"><div class="blocC"><div class="blocB">ARTICLE USAGE</div></div></div></div>
+<p id="article_usage_ul" class="blocDEF">
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	
+
+	<b>4D Design Reference</b> ( 4D v21 R2)<br/>
+</p>
+<p class="blocDEF"></p>
+<div class="blocMNP"><div class="blocM"><div class="blocP"><div class="blocN">&nbsp;</div></div></div></div>
+
+                        <div class="tdc_espace">&nbsp;</div>
+                    <!--/div-->
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    <div id="tdc_toolbar_footer_container">
+                        <div id="tdc_toolbar">
+                            <div class="footer_bloc">
+    <div class="footer_blocA"></div>
+    <div class="footer_blocB">
+       
+       &nbsp;<a href="https://doc.4d.com/4Dv21R2/4D/21-R2/Boutons-3D-Cases-a-cocher-3D-et-Boutons-radio-3D.300-7682680.fr.html" title="fr"><img src="../../image/flagSmall/fr.png" alt="FR"/></a>
+       
+       
+       &nbsp;<a href="3D-Buttons-3D-Check-Boxes-and-3D-Radio-Buttons.300-7682680.en.html" title="en"><img src="../../image/flagSmall/en.png" alt="EN"/></a>
+       
+       
+       &nbsp;<a href="https://doc.4d.com/4Dv21R2/4D/21-R2/3D-Schaltflachen-3D-Kontrollkastchen-3D-Optionsfelder.300-7682680.de.html" title="de"><img src="../../image/flagSmall/de.png" alt="DE"/></a>
+       
+       
+       &nbsp;<a href="https://doc.4d.com/4Dv21R2/4D/21-R2/Botones-3D-Casillas-de-seleccion-3D-y-Botones-radio-3D.300-7682680.es.html" title="es"><img src="../../image/flagSmall/es.png" alt="ES"/></a>
+       
+       
+       &nbsp;<a href="https://doc.4d.com/4Dv21R2/4D/21-R2/Boutons-3D-Cases-a-cocher-3D-et-Boutons-radio-3D.300-7682680.fe.html" title="fe"><img src="../../image/flagSmall/fe.png" alt="fe"/></a>
+       
+       
+       &nbsp;<a href="https://doc.4d.com/4Dv21R2/4D/21-R2/3D-Buttons-3D-Check-Boxes-and-3D-Radio-Buttons.300-7682680.ja.html" title="ja"><img src="../../image/flagSmall/ja.png" alt="JA"/></a>
+       
+       
+       &nbsp;<a href="https://doc.4d.com/4Dv21R2/4D/21-R2/Botoes-3D-caixa-de-selecao-3D-e-botoes-de-opcao-3D.300-7682680.pt.html" title="pt"><img src="../../image/flagSmall/pt.png" alt="PT"/></a>
+       
+    </div>
+    <div class="footer_blocD"></div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div id="pwrd_by_4d">
+    <span id="copyright">© 1985-2026 4D SAS / 4D, Inc. All rights reserved.</span><a href="http://www.4d.com/"><img src="../../image/logo/poweredby4D_web.png" alt="Powered by 4D" class="noMargin"/></a>
+</div>
+
+
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+
+
+
+        <div id="dlg_container" style="visibility:hidden">
+            <!--*************************-->
+			
+<div id="dlg0_005_dialog">
+    <div class="hd">
+        <img src="../../image_4d/tool16x16/comment.png" alt=""/>Add a comment
+    </div>
+    <div class="bd">
+        <form id="dlg0_005_form" method="post" action="#">
+            <p>
+               
+                <input type="hidden" id="langues_id" value=""/>
+                <input type="hidden" id="dlg0_005_translate" value="Comment,Cancel,Add a comment"/>
+            </p>
+            <p>
+                <textarea name="myComment" id="dlg0_005_description" rows="20" cols="80">
+                </textarea>
+            </p>
+            <div id="dlg0_005_descriptionContainer">
+            </div>
+        </form>
+    </div>
+</div>
+            
+
+</div>
+
+
+       <!--*************************-->
+    <script type="text/javascript" src="https://doc.4d.com/js_statique/dlg0_005.js"></script>
+        <!--*************************-->
+		
+    </body>
+
+<!-- Mirrored from doc.4d.com/4Dv21R2/4D/21-R2/3D-Buttons-3D-Check-Boxes-and-3D-Radio-Buttons.300-7682680.en.html by HTTrack Website Copier/3.x [XR&CO'2014], Tue, 02 Jun 2026 11:24:59 GMT -->
+</html>

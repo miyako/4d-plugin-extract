@@ -1,0 +1,63 @@
+{
+	"methods": {
+		"import_xls_encoder_text": {
+			"timeStamp": "2026-04-13T03:52:20Z",
+			"attributes": {
+				"invisible": true,
+				"preemptive": "capable"
+			}
+		},
+		"import_md_encoder_text": {
+			"timeStamp": "2026-06-03T01:45:10Z",
+			"attributes": {
+				"invisible": true,
+				"preemptive": "capable"
+			}
+		},
+		"import_docx_encoder_text": {
+			"timeStamp": "2026-04-15T03:17:21Z",
+			"attributes": {
+				"invisible": true,
+				"preemptive": "capable"
+			}
+		},
+		"import_html_encoder_text": {
+			"timeStamp": "2026-06-03T01:16:13Z",
+			"attributes": {
+				"invisible": true,
+				"preemptive": "capable"
+			}
+		},
+		"import_txt_encoder_text": {
+			"timeStamp": "2026-04-13T04:27:31Z",
+			"attributes": {
+				"invisible": true,
+				"preemptive": "capable"
+			}
+		},
+		"query_document_encoder": {
+			"timeStamp": "2026-04-13T00:51:16Z"
+		},
+		"OnModelDownloaded": {
+			"timeStamp": "2026-04-13T00:51:16Z",
+			"attributes": {
+				"invisible": true,
+				"preemptive": "capable"
+			}
+		},
+		"import_eml_encoder_text": {
+			"timeStamp": "2026-04-15T01:32:18Z",
+			"attributes": {
+				"invisible": true,
+				"preemptive": "capable"
+			}
+		},
+		"import_pdf_encoder_text": {
+			"timeStamp": "2026-04-13T02:29:20Z",
+			"attributes": {
+				"invisible": true,
+				"preemptive": "capable"
+			}
+		}
+	}
+}

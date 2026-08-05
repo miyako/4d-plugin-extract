@@ -1,0 +1,39 @@
+{
+	"editors": [
+		{
+			"type": "explorer"
+		},
+		{
+			"type": "method",
+			"id": 2147483639,
+			"codeDescriptor": {
+				"type": 1,
+				"methodName": "import_pdf_encoder_text"
+			}
+		},
+		{
+			"type": "method",
+			"id": 2147483643,
+			"codeDescriptor": {
+				"type": 1,
+				"methodName": "import_txt_encoder_text"
+			}
+		},
+		{
+			"type": "method",
+			"id": 2147483647,
+			"codeDescriptor": {
+				"type": 1,
+				"methodName": "import_xls_encoder_text"
+			}
+		},
+		{
+			"type": "method",
+			"id": 2147483642,
+			"codeDescriptor": {
+				"type": 1,
+				"methodName": "query_document_encoder"
+			}
+		}
+	]
+}

@@ -1,0 +1,123 @@
+{
+	"Sources/Methods/import_pdf_encoder_text.4dm": {
+		"startSelection": 27,
+		"endSelection": 27,
+		"firstSelectedLine": 24,
+		"lastSelectedLine": 24,
+		"folding": [],
+		"bookmarks": [],
+		"stamp": "2026-04-13T02:29:20.709Z"
+	},
+	"Sources/Methods/import_xls_encoder_text.4dm": {
+		"startSelection": 23,
+		"endSelection": 23,
+		"firstSelectedLine": 24,
+		"lastSelectedLine": 24,
+		"folding": [],
+		"bookmarks": [],
+		"stamp": "2026-04-13T03:52:20.585Z"
+	},
+	"Sources/Methods/import_txt_encoder_text.4dm": {
+		"startSelection": 0,
+		"endSelection": 0,
+		"firstSelectedLine": 27,
+		"lastSelectedLine": 27,
+		"folding": [],
+		"bookmarks": [],
+		"stamp": "2026-04-13T04:27:31.023Z"
+	},
+	"Sources/Methods/import_html_encoder_text.4dm": {
+		"startSelection": 0,
+		"endSelection": 0,
+		"firstSelectedLine": 16,
+		"lastSelectedLine": 16,
+		"folding": [
+			28,
+			29
+		],
+		"bookmarks": [],
+		"stamp": "2026-06-03T01:16:13.733Z"
+	},
+	"Sources/Methods/import_docx_encoder_text.4dm": {
+		"startSelection": 21,
+		"endSelection": 21,
+		"firstSelectedLine": 22,
+		"lastSelectedLine": 22,
+		"folding": [],
+		"bookmarks": [],
+		"stamp": "2026-04-15T03:17:21.456Z"
+	},
+	"Sources/Methods/import_md_encoder_text.4dm": {
+		"startSelection": 0,
+		"endSelection": 0,
+		"firstSelectedLine": 8,
+		"lastSelectedLine": 8,
+		"folding": [
+			28
+		],
+		"bookmarks": [],
+		"stamp": "2026-06-03T01:45:10.583Z"
+	},
+	"Sources/Methods/OnModelDownloaded.4dm": {
+		"startSelection": 0,
+		"endSelection": 7,
+		"firstSelectedLine": 0,
+		"lastSelectedLine": 41,
+		"folding": [],
+		"bookmarks": [],
+		"stamp": "2026-04-13T00:51:16.034Z"
+	},
+	"Sources/DatabaseMethods/onStartup.4dm": {
+		"startSelection": 11,
+		"endSelection": 11,
+		"firstSelectedLine": 99,
+		"lastSelectedLine": 99,
+		"folding": [
+			25,
+			39,
+			53,
+			81,
+			137,
+			151,
+			165
+		],
+		"bookmarks": [],
+		"stamp": "2026-06-03T01:13:50.110Z"
+	},
+	"Sources/Methods/import_eml_encoder_text.4dm": {
+		"startSelection": 48,
+		"endSelection": 48,
+		"firstSelectedLine": 19,
+		"lastSelectedLine": 19,
+		"folding": [],
+		"bookmarks": [],
+		"stamp": "2026-04-15T01:32:18.996Z"
+	},
+	"Sources/Methods/query_document_encoder.4dm": {
+		"startSelection": 28,
+		"endSelection": 28,
+		"firstSelectedLine": 50,
+		"lastSelectedLine": 50,
+		"folding": [],
+		"bookmarks": [],
+		"stamp": "2026-04-13T00:51:16.035Z"
+	},
+	"Sources/Methods/query_document_decoder.4dm": {
+		"startSelection": 0,
+		"endSelection": 0,
+		"firstSelectedLine": 0,
+		"lastSelectedLine": 0,
+		"folding": [],
+		"bookmarks": [],
+		"stamp": ""
+	},
+	"Sources/Methods/import_docx_decoder_tokens.4dm": {
+		"startSelection": 0,
+		"endSelection": 0,
+		"firstSelectedLine": 0,
+		"lastSelectedLine": 0,
+		"folding": [],
+		"bookmarks": [],
+		"stamp": "2026-04-13T00:51:16.034Z"
+	}
+}

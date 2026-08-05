@@ -1,0 +1,72 @@
+[
+	{
+		"line": 53,
+		"method": {
+			"type": 1,
+			"methodName": "import_pdf_encoder_text"
+		}
+	},
+	{
+		"line": 52,
+		"method": {
+			"type": 1,
+			"methodName": "import_docx_encoder_text"
+		}
+	},
+	{
+		"line": 52,
+		"method": {
+			"type": 1,
+			"methodName": "import_eml_encoder_text"
+		}
+	},
+	{
+		"line": 22,
+		"method": {
+			"type": 1,
+			"methodName": "import_xls_encoder_text"
+		}
+	},
+	{
+		"line": 22,
+		"method": {
+			"type": 1,
+			"methodName": "import_txt_encoder_text"
+		}
+	},
+	{
+		"line": 22,
+		"method": {
+			"type": 1,
+			"methodName": "import_pdf_encoder_text"
+		}
+	},
+	{
+		"line": 22,
+		"method": {
+			"type": 1,
+			"methodName": "import_md_encoder_text"
+		}
+	},
+	{
+		"line": 22,
+		"method": {
+			"type": 1,
+			"methodName": "import_html_encoder_text"
+		}
+	},
+	{
+		"line": 22,
+		"method": {
+			"type": 1,
+			"methodName": "import_eml_encoder_text"
+		}
+	},
+	{
+		"line": 22,
+		"method": {
+			"type": 1,
+			"methodName": "import_docx_encoder_text"
+		}
+	}
+]
