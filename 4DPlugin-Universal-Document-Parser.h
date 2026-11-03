@@ -19,6 +19,7 @@
 #include <ctime>
 #include <cstdlib>
 #include <cstring>
+#include <climits>
 #include <cmath>
 #include <numeric>
 #include <random>

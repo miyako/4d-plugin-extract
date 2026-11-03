@@ -189,7 +189,7 @@ static void utf16le_to_utf_8(std::vector<uint8_t>& buf, std::string& u8) {
 #ifdef __APPLE__
     CFStringRef str = CFStringCreateWithBytes(kCFAllocatorDefault,
                                               (const UInt8 *)buf.data(),
-                                              buf.size()*sizeof(UniChar), kCFStringEncodingUTF16LE, true);
+                                              buf.size() & ~(size_t)1, kCFStringEncodingUTF16LE, true); // length in bytes
     if(str)
     {
         CFIndex len = CFStringGetLength(str);
@@ -201,9 +201,11 @@ static void utf16le_to_utf_8(std::vector<uint8_t>& buf, std::string& u8) {
         CFRelease(str);
     }
 #else
-    int len = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)buf.data(), buf.size(), NULL, 0, NULL, NULL);
+    // WideCharToMultiByte takes a count of UTF-16 units, not bytes
+    int len = WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)buf.data(), (int)(buf.size() / 2), NULL, 0, NULL, NULL);
+    if (len <= 0) return;
     std::vector<uint8_t> bufu8(len + 1);
-    if (WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)buf.data(), buf.size(), (LPSTR)bufu8.data(), len, NULL, NULL)) {
+    if (WideCharToMultiByte(CP_UTF8, 0, (LPCWSTR)buf.data(), (int)(buf.size() / 2), (LPSTR)bufu8.data(), len, NULL, NULL)) {
         u8 = (const char*)bufu8.data();
     }
 #endif
@@ -518,8 +520,14 @@ static void rtf_convert_proc(void *param) {
              options:@{NSDocumentTypeDocumentOption: NSRTFTextDocumentType}
              documentAttributes:nil
              error:&error];
-            if (!error)
-                p->text = (const char *)[[attrStr string] UTF8String];
+            if (attrStr) {
+                if (!error) {
+                    const char *s = [[attrStr string] UTF8String];
+                    if (s) p->text = s;
+                }
+                [attrStr release]; // the project is not ARC
+            }
+            [src release];
         }
     }
 #endif
@@ -876,9 +884,9 @@ static void document_to_json_ppt(Document& document,
                 PA_CollectionRef paragraphs = PA_CreateCollection();
                 int rowIdx = 0; // physical sheet row index, increments regardless of empty rows
                 for (const auto &t : slide.text) {
-                    PA_ObjectRef paragraphNode = PA_CreateObject();
                     if(t.empty())
                         continue;
+                    PA_ObjectRef paragraphNode = PA_CreateObject();
                     
                     emptyCol = false;
                                         
@@ -888,6 +896,8 @@ static void document_to_json_ppt(Document& document,
                 }
                 if (emptyCol) {
                     //empty page
+                    PA_DisposeObject(pageNode);
+                    PA_DisposeCollection(paragraphs);
                     colIdx++;
                     continue;
                 }
@@ -940,8 +950,8 @@ typedef struct {
 } DocumentAtom;
 
 static uint16_t read_u16_le(const uint8_t *buf) { return buf[0] | (buf[1]<<8); }
-static uint32_t read_u32_le(const uint8_t *buf) { return buf[0] | (buf[1]<<8) | (buf[2]<<16) | (buf[3]<<24); }
-static uint32_t read_u32_be(const uint8_t *buf) { return buf[0] << 24 | (buf[1]<<16) | (buf[2]<<8) | (buf[3]); }
+static uint32_t read_u32_le(const uint8_t *buf) { return (uint32_t)buf[0] | ((uint32_t)buf[1]<<8) | ((uint32_t)buf[2]<<16) | ((uint32_t)buf[3]<<24); }
+static uint32_t read_u32_be(const uint8_t *buf) { return ((uint32_t)buf[0] << 24) | ((uint32_t)buf[1]<<16) | ((uint32_t)buf[2]<<8) | (uint32_t)buf[3]; }
 
 static RecordHeader read_RecordHeader(const uint8_t *p) {
     
@@ -1019,6 +1029,9 @@ static DocumentAtom read_DocumentAtom(const uint8_t *p) {
 
 void read_doc(Document& document, const uint8_t *stream, size_t stream_len, int codepage) {
    
+    // the FIB fields read below go up to lcbClx at 0x01A6..0x01A9
+    if (stream == NULL || stream_len < 0x01AA) return;
+
     uint16_t wIdent = read_u16_le(stream);
     if(wIdent == 0xA5EC) {
         document.type = "doc";
@@ -1125,6 +1138,7 @@ void read_ppt(Document& document, const uint8_t *stream, size_t stream_len, int 
             {
 //                std::cerr << "DocumentContainer" << "(" << rh.recLen << ")"  << std::endl;
                                                 
+                if (rh.recLen < sizeof(DocumentAtom)) break;
                 DocumentAtom da;
                 da = read_DocumentAtom(stream + offset);//RT_DocumentAtom
                                 
@@ -1138,6 +1152,8 @@ void read_ppt(Document& document, const uint8_t *stream, size_t stream_len, int 
                     da_offset += sizeof(RecordHeader);
 
                     pos += sizeof(RecordHeader);
+                    // a member may not extend past its DocumentContainer
+                    if (member.recLen > rh.recLen - pos) break;
                     
                     switch (member.recType) {
                         case 0x07d0 :
@@ -1170,6 +1186,8 @@ void read_ppt(Document& document, const uint8_t *stream, size_t stream_len, int 
                                 sl = read_RecordHeader(stream + m_offset);
                                 m_pos += sizeof(RecordHeader);
                                 m_offset += sizeof(RecordHeader);
+                                // an atom may not extend past the stream
+                                if (m_offset > stream_len || sl.recLen > stream_len - m_offset) break;
                                 
                                 switch (sl.recType) {
                                     case 0x03f3 :
@@ -1202,7 +1220,7 @@ void read_ppt(Document& document, const uint8_t *stream, size_t stream_len, int 
 //                                        std::cerr << "\t\tTextCharsAtom" << "(" << sl.recLen << ")"  << std::endl;
                                     {
                                         std::string u8;
-                                        utf16_to_utf8((const uint8_t *)stream + m_offset, sl.recLen, u8);
+                                        utf16_to_utf8((const uint8_t *)stream + m_offset, sl.recLen / 2, u8); // recLen is in bytes
                                         slide.text.push_back(u8);
 //                                        std::cerr << u8 << std::endl;
                                     }
@@ -1667,20 +1685,11 @@ static void process_root(Document& document,
     if (document.type == "doc") {
         
         std::vector<uint8_t> clx;
-        if(document.fWhichTblStm == 1) {
-            if(doc_1table_buf.size() >= (document.fcClx + document.lcbClx)) {
-                clx.assign(
-                           doc_1table_buf.begin() + document.fcClx,
-                           doc_1table_buf.begin() + document.fcClx + document.lcbClx
-                );
-            }
-        }else{
-            if(doc_0table_buf.size() >= (document.fcClx + document.lcbClx)) {
-                clx.assign(
-                           doc_0table_buf.begin() + document.fcClx,
-                           doc_0table_buf.begin() + document.fcClx + document.lcbClx
-                );
-            }
+        // fcClx + lcbClx is a 32-bit sum that can wrap: compare without adding
+        const std::vector<uint8_t>& tbl = (document.fWhichTblStm == 1) ? doc_1table_buf : doc_0table_buf;
+        if (document.fcClx <= tbl.size() && document.lcbClx <= tbl.size() - document.fcClx) {
+            clx.assign(tbl.begin() + document.fcClx,
+                       tbl.begin() + document.fcClx + document.lcbClx);
         }
         
         struct Piece {
@@ -1697,11 +1706,15 @@ static void process_root(Document& document,
         if (it != clx.end()) {
             size_t offset = std::distance(clx.begin(), it);
             offset += sizeof(uint8_t);
-            size_t lcb = read_u32_le(clx.data() + offset);
+            size_t lcb = 0;
+            if (clx.size() - offset >= sizeof(uint32_t)) {
+                lcb = read_u32_le(clx.data() + offset);
+            }
             offset += sizeof(uint32_t);
             size_t pcd_count = lcb / 12;
             size_t cp_count = pcd_count + 1;
-            if(lcb == (pcd_count * 8) + (cp_count * 4)) {
+            // the PlcPcd must fit in the CLX that holds it
+            if((lcb != 0) && (offset <= clx.size()) && (lcb <= clx.size() - offset) && (lcb == (pcd_count * 8) + (cp_count * 4))) {
                 std::vector<uint32_t> cps(cp_count);
                 for (size_t i = 0; i < cp_count; ++i) {
                     cps[i] = read_u32_le(clx.data() + offset);
@@ -1729,19 +1742,20 @@ static void process_root(Document& document,
 //                std::cerr << "got " << pieces.size() << " pieces!" << std::endl;
 
                 for (const auto& piece : pieces) {
-                uint32_t charCount = piece.cpEnd - piece.cpStart;
-                uint32_t byteCount = piece.fCompressed ? charCount : charCount * 2;
-                if (piece.offset + byteCount > document_buf.size()) {
+                // 64-bit arithmetic: cpEnd < cpStart or a large offset must not wrap past the check
+                uint64_t charCount = (piece.cpEnd >= piece.cpStart) ? (uint64_t)(piece.cpEnd - piece.cpStart) : 0;
+                uint64_t byteCount = piece.fCompressed ? charCount : charCount * 2;
+                if (charCount == 0 || (uint64_t)piece.offset + byteCount > (uint64_t)document_buf.size()) {
 //                std::cerr << "Piece out of bounds\n";
                 continue;
                 }
                 const uint8_t* dataPtr = document_buf.data() + piece.offset;
                     std::string u8;
                     if (piece.fCompressed) {
-                        std::string ansi = std::string((const char*)dataPtr, byteCount);
+                        std::string ansi = std::string((const char*)dataPtr, (size_t)byteCount);
                         ansi_to_utf8(ansi, u8, codepage);
                     } else {
-                        utf16_to_utf8((const uint8_t *)dataPtr, byteCount, u8);
+                        utf16_to_utf8((const uint8_t *)dataPtr, (size_t)charCount, u8); // count of UTF-16 units
                     }
                     document.text += u8;
                 }
@@ -1829,8 +1843,12 @@ bool olecf_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
             document.type = "";
             libolecf_item_t *root = NULL;
             if (libolecf_file_get_root_item(file, &root, &error) == 1) {
+                // a bad_alloc / out_of_range while parsing must not skip the
+                // libolecf frees below or the deletion of the temp copy
+                try {
                 process_root(document, root, codepage);
                 libolecf_item_free(&root, NULL);
+                root = NULL;
                 if(document.type == "msg"){
                     document_to_json_msg(document,
                                          obj,
@@ -1869,6 +1887,10 @@ bool olecf_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                                          pooling_mode,
                                          overlap_ratio);
                     success = true;
+                }
+                } catch (...) {
+                    if (root) libolecf_item_free(&root, NULL);
+                    success = false;
                 }
             }else{
                 std::cerr << "Failed to get MSG root item!" << std::endl;

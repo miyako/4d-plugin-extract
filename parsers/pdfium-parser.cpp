@@ -207,6 +207,12 @@ extern bool pdfium_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
     bool success = false;
     
     Document document;
+    // FPDF_LoadMemDocument takes an int size: a larger buffer would wrap negative.
+    if (data.size() > (size_t)INT_MAX) {
+        ob_set_a(obj, L"type", L"pdf");
+        ob_set_b(obj, L"success", false);
+        return false;
+    }
     FPDF_DOCUMENT doc = FPDF_LoadMemDocument(
                                              data.data(),
                                              (int)data.size(),

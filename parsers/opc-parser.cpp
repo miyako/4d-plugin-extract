@@ -344,6 +344,8 @@ static void document_to_json_ss(Workbook& document,
                         }
                     }
                     if(emptyRow) {
+                        PA_DisposeObject(paragraphNode);
+                        PA_DisposeCollection(values);
                         rowIdx++;
                         continue;
                     }
@@ -354,6 +356,8 @@ static void document_to_json_ss(Workbook& document,
                     ob_append_o(paragraphs, paragraphNode);
                 }
                 if (emptyCol) {
+                    PA_DisposeObject(sheetNode);
+                    PA_DisposeCollection(paragraphs);
                     colIdx++;
                     continue;
                 }
@@ -545,7 +549,6 @@ static void document_to_json(Document& document,
                 PA_CollectionRef paragraphs = PA_CreateCollection();
                 int rowIdx = 0; // physical sheet row index, increments regardless of empty rows
                 for (const auto &paragraph : page.paragraphs) {
-                    PA_ObjectRef paragraphNode = PA_CreateObject();
                     std::string joined;
                     for (const auto &run : paragraph.runs) {
                         if(run.text.empty())
@@ -556,6 +559,7 @@ static void document_to_json(Document& document,
                     
                     if(joined.empty())
                         continue;
+                    PA_ObjectRef paragraphNode = PA_CreateObject();
                     
                     emptyCol = false;
                                         
@@ -565,6 +569,8 @@ static void document_to_json(Document& document,
                 }
                 if (emptyCol) {
                     //empty page
+                    PA_DisposeObject(pageNode);
+                    PA_DisposeCollection(paragraphs);
                     colIdx++;
                     continue;
                 }
@@ -784,7 +790,15 @@ static xmlDoc *parse_opc_part(opcContainer *container, opcPart part) {
             }
             data.push_back('\0');
             opcContainerCloseInputStream(stream);
-            return xmlParseMemory((const char*)&data[0], (int)data.size());
+            // OPC parts must not contain a DTD (ECMA-376 Part 2, M1.17). Reject
+            // one instead of letting entity expansion ("billion laughs") blow
+            // up the tree walk, and refuse sizes that do not fit in an int.
+            static const char kDoctype[] = "<!DOCTYPE";
+            if (data.size() > (size_t)INT_MAX ||
+                std::search(data.begin(), data.end(), kDoctype, kDoctype + 9) != data.end()) {
+                return NULL;
+            }
+            return xmlReadMemory((const char*)&data[0], (int)data.size(), NULL, NULL, XML_PARSE_NONET);
         }
     }
     
@@ -869,6 +883,12 @@ bool opc_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
             const std::string& encryptedPackage = ms::GetContensByName(cfb, "EncryptedPackage"); // data
             const ms::EncryptionInfo info(ms::GetContensByName(cfb, "EncryptionInfo")); // xml
             info.put();
+
+            // spinCount comes from the file; MS-OFFCRYPTO caps it at 10,000,000.
+            // An INT_MAX value would spin hashPassword for minutes.
+            if (!info.isStandardEncryption && (info.spinCount < 0 || info.spinCount > 10000000)) {
+                return false;
+            }
 
             bool decoded = false;
             if (info.isStandardEncryption) {

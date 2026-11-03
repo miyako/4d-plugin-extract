@@ -23,9 +23,24 @@ namespace gmime {
 
 using namespace gmime;
 
+// Iterative pre-order walk (see tidy-parser.cpp): nesting depth of an
+// untrusted HTML body must not drive C stack depth. NULL-safe for a
+// frameset document, where tidyGetBody() returns NULL.
 static void print_text(TidyDoc tdoc, TidyNode tnode, std::string& text) {
     
-    for (TidyNode child = tidyGetChild(tnode); child; child = tidyGetNext(child)) {
+    if (!tnode) return;
+
+    std::vector<TidyNode> pending;
+    TidyNode child = tidyGetChild(tnode);
+
+    for (;;) {
+        if (!child) {
+            if (pending.empty()) break;
+            child = pending.back();
+            pending.pop_back();
+            continue;
+        }
+        TidyNode next = tidyGetNext(child);
         TidyNodeType ttype = tidyNodeGetType(child);
         if (ttype == TidyNode_Text) {
             TidyBuffer buf;
@@ -34,8 +49,11 @@ static void print_text(TidyDoc tdoc, TidyNode tnode, std::string& text) {
             text += std::string((char*)buf.bp, buf.size);
             tidyBufFree(&buf);
         } else if (ttype == TidyNode_Start) {
-            print_text(tdoc, child, text);
+            pending.push_back(next);
+            child = tidyGetChild(child);
+            continue;
         }
+        child = next;
     }
 }
 
@@ -199,11 +217,13 @@ static void processMessage(GMimeObject *parent, GMimeObject *part, gpointer user
     
     mime_ctx *ctx = (mime_ctx *)user_data;
     
-    if(GMIME_IS_MULTIPART(part)) {
-        ctx->level++;
-        g_mime_multipart_foreach((GMimeMultipart *)part, processPart, ctx);
-        ctx->level--;
-    }
+    // No second walk of multiparts here: g_mime_message_foreach already
+    // visits every descendant, and re-walking each multipart (and every
+    // embedded message under it) cost O(depth^levels) on nested input while
+    // adding nothing (nested messages have is_main_message == false, and
+    // the attachment/part branches below are disabled). processPart is kept
+    // for when nested-message handling is wanted again.
+    (void)processPart;
     
     bool addedToBody = false;
     
@@ -211,7 +231,7 @@ static void processMessage(GMimeObject *parent, GMimeObject *part, gpointer user
     
     if    ((GMIME_IS_TEXT_PART(part) && (!disposition))
        || (isPartialTextPart(part))
-       || ((GMIME_IS_TEXT_PART(part) && ( disposition) && (0 == strncasecmp(g_mime_content_disposition_get_disposition(disposition), "inline", 6)))))
+       || ((GMIME_IS_TEXT_PART(part) && ( disposition) && g_mime_content_disposition_get_disposition(disposition) && (0 == strncasecmp(g_mime_content_disposition_get_disposition(disposition), "inline", 6)))))
     {
         if(ctx->is_main_message) {
             addToBody(parent, part, ctx);

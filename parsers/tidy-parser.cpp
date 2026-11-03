@@ -152,9 +152,25 @@ static bool is_ignored_tag(TidyNode node) {
     }
 }
 
+// Pre-order walk with an explicit stack instead of recursion: the depth of
+// an untrusted document's element nesting must not drive the depth of the
+// C stack (small on 4D worker threads). Same visiting order as before.
+// tidyGetBody() returns NULL for a frameset document, hence the NULL check.
 static void print_text(TidyDoc tdoc, TidyNode tnode, std::string& text) {
 
-    for (TidyNode child = tidyGetChild(tnode); child; child = tidyGetNext(child)) {
+    if (!tnode) return;
+
+    std::vector<TidyNode> pending; // next sibling to resume at, per open level
+    TidyNode child = tidyGetChild(tnode);
+
+    for (;;) {
+        if (!child) {
+            if (pending.empty()) break;
+            child = pending.back();
+            pending.pop_back();
+            continue;
+        }
+        TidyNode next = tidyGetNext(child);
         TidyNodeType ttype = tidyNodeGetType(child);
 
         if (ttype == TidyNode_Text) {
@@ -172,6 +188,7 @@ static void print_text(TidyDoc tdoc, TidyNode tnode, std::string& text) {
                 // Skip this element entirely — don't recurse, don't
                 // touch `text` — its content (e.g. JS/CSS source) is
                 // not real page text.
+                child = next;
                 continue;
             }
             
@@ -186,8 +203,11 @@ static void print_text(TidyDoc tdoc, TidyNode tnode, std::string& text) {
                     text += '\n';
             }
             
-            print_text(tdoc, child, text);
+            pending.push_back(next);
+            child = tidyGetChild(child);
+            continue;
         }
+        child = next;
     }
 }
 

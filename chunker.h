@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <algorithm>
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  chunker.h
@@ -44,7 +45,7 @@ struct ChunkParams {
     {
         ChunkParams p;
         p.target_len     = target_len;
-        p.pad_reserve    = std::max(4u, target_len / 64u);
+        p.pad_reserve    = (std::max)(4u, target_len / 64u); // parenthesised: windows.h max macro
         p.overlap_tokens = static_cast<uint32_t>(target_len * overlap_pct);
         p.min_fill_ratio = min_fill_ratio;
         return p;

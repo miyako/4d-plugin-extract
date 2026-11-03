@@ -265,6 +265,8 @@ static void document_to_json(Document& document,
                         }
                     }
                     if(emptyRow) {
+                        PA_DisposeObject(paragraphNode);
+                        PA_DisposeCollection(values);
                         rowIdx++;
                         continue;
                     }
@@ -275,6 +277,8 @@ static void document_to_json(Document& document,
                     ob_append_o(paragraphs, paragraphNode);
                 }
                 if (emptyCol) {
+                    PA_DisposeObject(sheetNode);
+                    PA_DisposeCollection(paragraphs);
                     colIdx++;
                     continue;
                 }
@@ -338,8 +342,10 @@ bool xls_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
             xls_close_WB(pWB);
             goto finally;
         }else{
-            for (uint16_t i = 0; i < pWB->sheets.count; ++i) {
-                xlsWorkSheet* pWS = xls_getWorkSheet(pWB, i);
+            // DWORD, not uint16_t: sheets.count is a DWORD, so a file with 65536+
+            // BOUNDSHEET records made a 16-bit index wrap and loop forever.
+            for (xls::DWORD i = 0; i < pWB->sheets.count; ++i) {
+                xlsWorkSheet* pWS = xls_getWorkSheet(pWB, (int)i);
                 if (!pWS) {
                     std::cerr << "fail:xls_getWorkSheet" << std::endl;
                     continue;
@@ -352,7 +358,8 @@ bool xls_parse_data(std::vector<uint8_t>& data, PA_ObjectRef obj,
                 }else{
                     
                     Sheet sheet;
-                    sheet.name = pWB->sheets.sheet[i].name;
+                    const char *sheet_name = pWB->sheets.sheet[i].name;
+                    sheet.name = sheet_name ? sheet_name : "";
                     
                     for (xls::DWORD row = 0; row <= pWS->rows.lastrow; ++row) {
                         

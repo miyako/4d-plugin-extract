@@ -196,9 +196,9 @@ static void document_to_json(Document& document,
                 PA_CollectionRef paragraphs = PA_CreateCollection();
                 int rowIdx = 0; // physical sheet row index, increments regardless of empty rows
                 for (const auto &section : page.sections) {
-                    PA_ObjectRef paragraphNode = PA_CreateObject();
                     if(section.body.empty())
                         continue;
+                    PA_ObjectRef paragraphNode = PA_CreateObject();
                     
                     emptyCol = false;
                                         
@@ -208,6 +208,8 @@ static void document_to_json(Document& document,
                 }
                 if (emptyCol) {
                     //empty page
+                    PA_DisposeObject(pageNode);
+                    PA_DisposeCollection(paragraphs);
                     colIdx++;
                     continue;
                 }

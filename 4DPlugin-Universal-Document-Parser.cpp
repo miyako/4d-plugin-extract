@@ -62,6 +62,16 @@ void PluginMain(PA_long32 selector, PA_PluginParameters params) {
 	}
 }
 
+#pragma mark options
+
+// Converting an out-of-range or NaN double to int is undefined behaviour:
+// option values come from the caller's object, so validate before the cast.
+static int option_to_int(PA_ObjectRef o, const wchar_t *key, int fallback) {
+    double d = ob_get_n(o, key);
+    if (!std::isfinite(d) || d < (double)INT_MIN || d > (double)INT_MAX) return fallback;
+    return (int)d;
+}
+
 #pragma mark 4D.File
 
 static bool _object_to_path(PA_ObjectRef f, std::string& path, int type) {
@@ -73,11 +83,20 @@ static bool _object_to_path(PA_ObjectRef f, std::string& path, int type) {
         PA_VariableKind vk = PA_GetObjectPropertyType(f, &PLATFORMPATH);
         if(vk == eVK_Unistring) {
             PA_Variable p = PA_GetObjectProperty(f, &PLATFORMPATH);//PA_ClearVariable
-            PA_Variable cbparams[2];
-            cbparams[0] = PA_CreateVariable(eVK_Unistring);//PA_DisposeUnistring
-            cbparams[1] = PA_CreateVariable(eVK_Longint);//PA_DisposeUnistring
             PA_Unistring platformPath = PA_GetStringVariable(p);
-            PA_SetStringVariable(&cbparams[0], &platformPath);
+            // Copy the text now. platformPath points into p's string: it used
+            // to be handed to cbparams[0] as well, so clearing cbparams[0]
+            // and then p disposed the same string twice, and on Windows the
+            // dangling platformPath was then read below (use after free).
+            CUTF16String path16(platformPath.fString ? platformPath.fString : (PA_Unichar *)L"",
+                                platformPath.fString ? (size_t)platformPath.fLength : 0);
+            PA_Variable cbparams[2];
+            // eVK_Undefined: PA_CreateVariable(eVK_Unistring) allocates an
+            // empty string that PA_SetStringVariable would overwrite (leak).
+            cbparams[0] = PA_CreateVariable(eVK_Undefined);
+            cbparams[1] = PA_CreateVariable(eVK_Longint);
+            PA_Unistring argPath = PA_CreateUnistring((PA_Unichar *)path16.c_str());//owned by cbparams[0]
+            PA_SetStringVariable(&cbparams[0], &argPath);
             PA_SetLongintVariable(&cbparams[1], 1/*fk platform path*/);
             PA_Variable folder = PA_ExecuteCommandByID(type, cbparams, 2);
             PA_ClearVariable(&cbparams[0]);
@@ -85,12 +104,22 @@ static bool _object_to_path(PA_ObjectRef f, std::string& path, int type) {
             PA_ClearVariable(&p);
             
 #if VERSIONMAC
-            pp.setUTF8String((const uint8_t *)"path", 4);
-            PA_Unistring PATH = PA_CreateUnistring((PA_Unichar *)pp.getUTF16StringPtr());//PA_DisposeUnistring
-            PA_Variable _p = PA_GetObjectProperty(PA_GetObjectVariable(folder), &PATH);//PA_ClearVariable
-            platformPath = PA_GetStringVariable(_p);
-            PA_DisposeUnistring(&PATH);
-            PA_ClearVariable(&_p);
+            // the constructor returns no object for an invalid path
+            PA_ObjectRef folderObj = PA_GetObjectVariable(folder);
+            path16.clear();
+            if (folderObj) {
+                pp.setUTF8String((const uint8_t *)"path", 4);
+                PA_Unistring PATH = PA_CreateUnistring((PA_Unichar *)pp.getUTF16StringPtr());//PA_DisposeUnistring
+                PA_Variable _p = PA_GetObjectProperty(folderObj, &PATH);//PA_ClearVariable
+                if (PA_GetVariableKind(_p) == eVK_Unistring) {
+                    PA_Unistring posixPath = PA_GetStringVariable(_p);
+                    if (posixPath.fString) {
+                        path16 = CUTF16String(posixPath.fString, (size_t)posixPath.fLength);
+                    }
+                }
+                PA_DisposeUnistring(&PATH);
+                PA_ClearVariable(&_p);
+            }
 #endif
             // NOT clearing folder: 4DPluginAPI.c confirms this pattern.
             // PA_CreateObject/PA_DuplicateObject/PA_CreateCollection all call
@@ -104,7 +133,7 @@ static bool _object_to_path(PA_ObjectRef f, std::string& path, int type) {
             // same shape, so left un-cleared, now on confirmed grounds rather
             // than just caution.
             C_TEXT t;
-            t.setUTF16String(&platformPath);
+            t.setUTF16String(&path16);
             CUTF8String u8;
             t.copyUTF8String(&u8);
             path = std::string((const char *)u8.c_str(), u8.size());
@@ -446,9 +475,9 @@ void Extract_SET_OPTION(PA_PluginParameters params) {
 
                         std::ifstream f(path, std::ios::binary);
                         if (f) {
-                            std::ostringstream ss;
-                            ss << f.rdbuf();
-                            std::string etd = ss.str();
+                            // (the model used to be read whole into an unused
+                            // string here: several GB for a typical GGUF file)
+                            f.close();
                             chunker::ModelConfig model_cfg;
                             model_cfg.model_path = path;
                             model_cfg.verbosity  = 1;
@@ -509,7 +538,7 @@ void Extract(PA_PluginParameters params) {
         
         int codepage = 1252;
         if(ob_is_defined(document, L"codepage")) {
-            int intValue = (int)ob_get_n(document, L"codepage");
+            int intValue = option_to_int(document, L"codepage", 0);
             if(intValue > 0) {
                 codepage = intValue;
             }
@@ -517,7 +546,7 @@ void Extract(PA_PluginParameters params) {
         
         int max_paragraph_length = -1;
         if(ob_is_defined(document, L"max_paragraph_length")) {
-            int intValue = (int)ob_get_n(document, L"max_paragraph_length");
+            int intValue = option_to_int(document, L"max_paragraph_length", 0);
             if(intValue > 0) {
                 max_paragraph_length = intValue;
             }
@@ -534,7 +563,7 @@ void Extract(PA_PluginParameters params) {
         }
         int tokens_length = 1024;
         if(ob_is_defined(document, L"tokens_length")) {
-            int intValue = (int)ob_get_n(document, L"tokens_length");
+            int intValue = option_to_int(document, L"tokens_length", 0);
             if(intValue > 0) {
                 tokens_length = intValue;
             }
@@ -549,7 +578,7 @@ void Extract(PA_PluginParameters params) {
         }
         PoolingMode pooling_mode = PoolingMode::Mean;
         if(ob_is_defined(document, L"pooling_mode")) {
-            int intValue = (int)ob_get_n(document, L"pooling_mode");
+            int intValue = option_to_int(document, L"pooling_mode", 0);
             if(intValue > 0) {
                 pooling_mode = (PoolingMode)intValue;
             }
@@ -730,7 +759,9 @@ void ob_append_s(PA_CollectionRef c, const std::string& value) {
     
     C_TEXT t;
     t.setUTF8String((const uint8_t *)value.c_str(), (uint32_t)value.length());
-    PA_Variable v = PA_CreateVariable(eVK_Unistring);
+    // eVK_Undefined: eVK_Unistring would allocate an empty string that
+    // PA_SetStringVariable overwrites without disposing (leak per element)
+    PA_Variable v = PA_CreateVariable(eVK_Undefined);
     PA_Unistring u = PA_CreateUnistring((PA_Unichar *)t.getUTF16StringPtr());
     PA_SetStringVariable(&v, &u);
     PA_SetCollectionElement(c, PA_GetCollectionLength(c), v);

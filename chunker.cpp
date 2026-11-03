@@ -28,6 +28,8 @@
 #include <cstring>
 #include <numeric>
 #include <stdexcept>
+#include <limits>
+#include <mutex>
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  Platform helpers
@@ -55,8 +57,14 @@ void LlamaChunker::ModelDeleter::operator()(void* p) const noexcept {
 LlamaChunker::LlamaChunker(const ModelConfig& cfg)
     : cfg_(cfg)
 {
-    // ── 1. Init backend (idempotent after first call) ──────────────────
-    llama_backend_init();
+    // ── 1. Init backend once per process ────────────────────────────────
+    // Extract SET OPTION can load a model from several processes; run the
+    // init (and register its single matching cleanup) exactly once.
+    static std::once_flag s_backend_once;
+    std::call_once(s_backend_once, [] {
+        llama_backend_init();
+        std::atexit([] { llama_backend_free(); });
+    });
 
     // ── 2. Build model params: load metadata only, skip weights ────────
     llama_model_params mparams = llama_model_default_params();
@@ -264,6 +272,10 @@ std::vector<int32_t>
 LlamaChunker::tokenize(const std::string& text, bool add_special) const {
     const llama_vocab* vp = reinterpret_cast<const llama_vocab*>(vocab_);
 
+    // llama_tokenize takes an int32_t length
+    if (text.size() > (size_t)(std::numeric_limits<int32_t>::max)())
+        throw std::length_error("chunker: text too large to tokenize");
+
     // First call: measure required buffer size
     int n = llama_tokenize(vp,
                            text.c_str(),
@@ -271,6 +283,9 @@ LlamaChunker::tokenize(const std::string& text, bool add_special) const {
                            nullptr, 0,
                            add_special,
                            /*parse_special=*/false);
+    // INT32_MIN signals overflow (llama.h); negating it would be UB
+    if (n == (std::numeric_limits<int32_t>::min)())
+        throw std::length_error("chunker: token count overflow");
     if (n < 0) {
         // llama_tokenize returns negative count on "buffer too small".
         // Re-call with the right size.
@@ -671,25 +686,11 @@ void LlamaChunker::validate_params(const ChunkParams& p) const {
 //  Factory
 // ─────────────────────────────────────────────────────────────────────────────
 
-// We need a pointer-stable address for the atexit lambda.
-// Store as a raw pointer; atexit resets it.
-static LlamaChunker* g_instance_ptr = nullptr;
-
+// The backend cleanup is registered once, in the constructor. It used to be
+// registered here with std::atexit on every load (an unbounded number of
+// handlers, each calling llama_backend_free, plus an unsynchronised global).
 ChunkerPtr make_chunker(const ModelConfig& cfg) {
-    auto ptr = std::make_unique<LlamaChunker>(cfg);
-    g_instance_ptr = ptr.get();
-
-    // Register cleanup: reset the global alias (the unique_ptr in main
-    // will be reset first during normal scope exit, but atexit is the
-    // belt-and-suspenders guarantee for abnormal termination paths).
-    std::atexit([]() {
-        // If the unique_ptr in the caller's scope has already been
-        // destroyed, g_instance_ptr is dangling — set to null only.
-        g_instance_ptr = nullptr;
-        llama_backend_free();
-    });
-
-    return ptr;
+    return std::make_unique<LlamaChunker>(cfg);
 }
 
 } // namespace chunker
