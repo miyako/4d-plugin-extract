@@ -499,12 +499,12 @@ void Extract(PA_PluginParameters params) {
         std::vector<uint8_t>data;
         CUTF8String _password;
         std::string password;
-        if(ob_get_s(document, L"password", &_password))
+        if(ob_get_a(document, L"password", &_password))
            password = (const char *)_password.c_str();
         
         CUTF8String _charset;
         std::string charset = "iso-8859-1";
-        if(ob_get_s(document, L"charset", &_charset))
+        if(ob_get_a(document, L"charset", &_charset))
             charset = (const char *)_charset.c_str();
         
         int codepage = 1252;

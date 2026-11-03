@@ -1,18 +1,31 @@
-extract/test/userPreferences.*
-extract/build/*
-extract/Universal Document Parser.xcodeproj/xcuserdata/*
-extract/Universal Document Parser.xcodeproj/project.xcworkspace/*
-extract/test/Project/Trash/*
-extract/Universal Document Parser.xcodeproj/xcshareddata/*
-extract/test/Project/DerivedData/*
-extract/test/Data/Replaced Files*
-extract/test/Data/Logs/*
-extract/test/Data/data.journal
-extract/test/data\[0001\].4BK
-extract/test/backupHistory.json
-extract/test/data\[0002\].4BK
-extract/test/Plugins/Universal Document Parser.bundle/Contents/Windows64/Universal Document Parser.exp
-extract/test/Plugins/Universal Document Parser.bundle/Contents/Windows64/Universal Document Parser.lib
-extract/Objs/*
-extract/.vs/*
-build/*
+.DS_Store
+build/
+Objs/
+.vs/
+
+# Xcode per-user state
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# 4D test project: per-user and generated files
+test/userPreferences.*/
+test/Project/DerivedData/
+test/Project/Trash/
+test/Data/Logs/
+test/Data/Replaced Files*
+test/Data/data.journal
+test/data\[0001\].4BK
+test/data\[0002\].4BK
+test/backupHistory.json
+
+# MSVC linker byproducts next to the 4DX
+test/Plugins/Universal Document Parser.bundle/Contents/Windows64/Universal Document Parser.exp
+test/Plugins/Universal Document Parser.bundle/Contents/Windows64/Universal Document Parser.lib
+
+# plugin binary is produced by the build (runtime libpdfium.dylib stays tracked)
+test/Plugins/Universal Document Parser.bundle/Contents/MacOS/Universal Document Parser
+test/Plugins/Universal Document Parser.bundle/Contents/_CodeSignature/
+
+# outputs of the Deployment "Run Script" phase (sign + notarize locally)
+/Universal Document Parser.dmg
+/Universal Document Parser.zip

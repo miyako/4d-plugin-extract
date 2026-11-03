@@ -95,7 +95,7 @@ static void document_to_json(Document& document,
                 texts.push_back(page.text);
             }
             PA_CollectionRef matrix = process_paragraphs(texts, tokens_length, token_padding, !text_as_tokens, overlap_ratio, pooling_mode);
-            ob_set_c(documentNode, "input", matrix);
+            ob_set_c(documentNode, L"input", matrix);
         }
             break;
         case output_type_collections:
@@ -141,7 +141,7 @@ static void document_to_json(Document& document,
                 ob_set_s(paragraphNode, "text", page.text.c_str());
                 ob_append_o(paragraphs, paragraphNode);
                 
-                ob_set_c(pageNode, "paragraphs", paragraphs);
+                ob_set_c(pageNode, L"paragraphs", paragraphs);
                 ob_set_n(pageNode, "index", colIdx++);
                 ob_append_o(pages, pageNode);
             }

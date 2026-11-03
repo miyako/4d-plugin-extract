@@ -586,7 +586,7 @@ static void document_to_json_msg(Document& document,
                 texts.push_back(text);
             }
             PA_CollectionRef matrix = process_paragraphs(texts, tokens_length, token_padding, !text_as_tokens, overlap_ratio, pooling_mode);
-            ob_set_c(documentNode, "input", matrix);
+            ob_set_c(documentNode, L"input", matrix);
         }
             break;
         case output_type_collections:
@@ -640,7 +640,7 @@ static void document_to_json_msg(Document& document,
                 ob_set_s(paragraphNode, "rtf", document.message.rtf.c_str());
                 ob_append_o(paragraphs, paragraphNode);
                 
-                ob_set_c(pageNode, "paragraphs", paragraphs);
+                ob_set_c(pageNode, L"paragraphs", paragraphs);
                 ob_set_n(pageNode, "index", 0);
                 ob_append_o(pages, pageNode);
             }
@@ -679,7 +679,7 @@ static void document_to_json_doc(Document& document,
                 texts.push_back(document.text);
             }
             PA_CollectionRef matrix = process_paragraphs(texts, tokens_length, token_padding, !text_as_tokens, overlap_ratio, pooling_mode);
-            ob_set_c(documentNode, "input", matrix);
+            ob_set_c(documentNode, L"input", matrix);
         }
             break;
         case output_type_collections:
@@ -711,7 +711,7 @@ static void document_to_json_doc(Document& document,
                 ob_set_s(paragraphNode, "text", document.text.c_str());
                 ob_append_o(paragraphs, paragraphNode);
                 
-                ob_set_c(pageNode, "paragraphs", paragraphs);
+                ob_set_c(pageNode, L"paragraphs", paragraphs);
                 ob_set_n(pageNode, "index", 0);
                 ob_append_o(pages, pageNode);
             }
@@ -816,7 +816,7 @@ static void document_to_json_ppt(Document& document,
                 texts.push_back(paragraphs);
             }
             PA_CollectionRef matrix = process_paragraphs(texts, tokens_length, token_padding, !text_as_tokens, overlap_ratio, pooling_mode);
-            ob_set_c(documentNode, "input", matrix);
+            ob_set_c(documentNode, L"input", matrix);
         }
             break;
         case output_type_collections:
@@ -891,7 +891,7 @@ static void document_to_json_ppt(Document& document,
                     colIdx++;
                     continue;
                 }
-                ob_set_c(pageNode, "paragraphs", paragraphs);
+                ob_set_c(pageNode, L"paragraphs", paragraphs);
                 ob_set_n(pageNode, "index", colIdx++);
                 ob_append_o(pages, pageNode);
             }
