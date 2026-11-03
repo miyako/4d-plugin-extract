@@ -12,13 +12,15 @@ Extracts text from `.xlsx`, `.docx`, `.pptx`, `.xls`, `.doc`, `.ppt`, `.pdf`, `.
 | [`Extract`](#extract) | Object | Extract and chunk a document's text |
 | [`Extract SET OPTION`](#extract-set-option) | — | Load the tokenizer used to size chunks |
 
-**Platforms:** macOS (Apple Silicon) and Windows 64-bit.
+**Platforms:** macOS 11.5+ and Windows 64-bit. Releases built by the current release workflow are universal (Apple Silicon and Intel); see [Requirements](#requirements--platform-notes) for the Intel caveat.
 
 ---
 
 ## Requirements & platform notes
 
-- **Load a tokenizer before relying on token-count chunking.** [`Extract SET OPTION`](#extract-set-option) with `Extract Option Tokenizer File` must run at least once (per plugin lifetime, not per call) before [`Extract`](#extract) can size chunks by real token count. If no tokenizer has been loaded, chunking falls back to placeholder output rather than raising an error — see [Error handling](#error-handling--troubleshooting).
+- **Load a tokenizer before using `Extract Output Collection` or `Extract Output Collections`.** [`Extract SET OPTION`](#extract-set-option) with `Extract Option Tokenizer File` must run at least once (per plugin lifetime, not per call). Without a tokenizer these two formats return `success: true` with an **empty** `input` collection (or `inputs` holding empty collections), not an error — see [Error handling](#error-handling--troubleshooting). `Extract Output Object` and `Extract Output Text` don't use the tokenizer.
+- **Preemptive processes.** Both commands are declared thread-safe, and the sample methods are `"preemptive":"capable"`. PDF extraction uses PDFium, which is not thread-safe, and the plugin does not serialize PDFium calls: avoid running `Extract` on `.pdf` files in several preemptive processes **at the same time** until this is addressed. The other formats keep their state per call.
+- **Intel Macs.** The universal binary's Intel slice is linked without llama.cpp's CPU backend (the vendored `libggml-cpu.a` is Apple Silicon only). Tokenizer loading only reads the vocabulary, so this may not matter, but tokenizer-based chunking on Intel has not been tested.
 - **`.rtf` has no working extractor.** `Extract Document RTF` is a declared constant, but the plugin's internal format dispatch has no case for it. Calling `Extract` with this constant always returns `{success: false}` with no further detail — there is currently no code path that produces RTF output at all.
 - **Failure is silent, not a 4D error.** `Extract` never raises an exception or error to the calling method. Every failure — missing file, unreadable format, unhandled document type, an internal parser exception — surfaces only as `success: false` on the returned object, with no `error`/message property. Plan your calling code around checking `.success`, not around `try`/catch equivalents.
 - **Not every task property applies to every document type.** `password`, `charset`, `codepage`, and `break_by_section` are each meaningful for only a subset of document types — see the table in [`Extract`](#extract)'s description. Passing one that doesn't apply to the current `documentType` is harmless; it's simply ignored.
@@ -70,17 +72,22 @@ $result:=Extract(documentType; outputFormat; task)
 |`Extract Output Collection`|`2`|Suitable for an **OpenAI**-style `embeddings` API.|
 |`Extract Output Collections`|`3`|Suitable for a **Voyage AI**-style `contextualizedembeddings` API.|
 
-These four values are documented in the plugin's own README; I didn't independently re-derive their exact numeric mapping from source (the underlying C++ enum for output format isn't declared in the reviewed source, unlike `documentType`/pooling mode, which are), so treat the values above as sourced from the plugin's public documentation rather than independently verified here.
+Every result has `success` (Boolean). On success the other properties are:
 
-- With `Extract Output Text`: result has `input` (Text — the entire document, concatenated) and `documents` (Collection — the same chunks as `Extract Output Collection` would produce).
-- With `Extract Output Collection`: result has `input` (Collection — the document split into chunks). Shape it with `unique_values_only` and `max_paragraph_length`.
-- With `Extract Output Collections`: result has `inputs` (Collection of Collections — chunks grouped by source paragraph/section). Shape it the same way.
+|`outputFormat`|Properties|
+|-|-|
+|`Extract Output Object`|`type` (Text, e.g. `"docx"`), `pages` (Collection of objects: `index`, `paragraphs` — a collection of `{index; text}`; spreadsheet rows also carry `values`, a collection of cell texts, and sheets a `meta.name`). `.msg`/`.eml` results also have a `meta` object (subject, sender, recipients).|
+|`Extract Output Text`|`documents` (Collection of Text: one element per page/slide/sheet, or per group of `max_paragraph_length` paragraphs). No tokenizer involved.|
+|`Extract Output Collection`|`type`, `input` (Collection: every chunk of the document, in order — Text, or a collection of token IDs when `text_as_tokens` is `true`).|
+|`Extract Output Collections`|`type`, `inputs` (Collection of Collections: the chunks of each page/slide/sheet grouped together).|
+
+`unique_values_only` and `max_paragraph_length` shape the Text, Collection and Collections formats; the Object format ignores them for most document types.
 
 #### `task` object properties
 
 |Property|Type|Description|
 |-|-|-|
-|`file`|4D.File or 4D.Folder|The document to read. If omitted, `Extract` returns `{success: false}` immediately with no other properties set.|
+|`file`|4D.File|The document to read. If omitted, `Extract` returns `{success: false}` immediately with no other properties set.|
 |`password`|Text|Password to open `.docx`, `.xlsx`, `.pptx`, or `.pdf`. Ignored for other document types.|
 |`charset`|Text|Charset used to open `.xls`. Default `"iso-8859-1"`. Ignored for other document types.|
 |`codepage`|Longint|Codepage used to open `.doc`, `.ppt`, or `.msg`. Default `1252`. Ignored for other document types.|
@@ -194,11 +201,21 @@ This command has no return value — there's no `Object`/success flag to check a
 
 Loads a GGUF file (tensors are not loaded, only the tokenizer/vocabulary) and builds an in-process, `llama.cpp`-compatible tokenizer. This is what lets [`Extract`](#extract) report chunk sizes as exact token counts matching the target embedding model, rather than an approximation.
 
-The loaded tokenizer is shared across every subsequent `Extract` call for the plugin's lifetime — call this once (e.g. at startup or before a batch job), not per document. If the file can't be loaded (bad path, malformed GGUF), the failure is logged to the server console only; the currently-loaded tokenizer (if any) is left unchanged, and there's no 4D-side signal that the load failed.
+The loaded tokenizer is shared across every subsequent `Extract` call, in every process, for the plugin's lifetime — call this once (e.g. at startup or before a batch job), not per document. Calling it again replaces the tokenizer; calls already running keep the one they started with. If the file can't be loaded (bad path, malformed GGUF), the failure is written to the standard error stream only; the currently-loaded tokenizer (if any) is left unchanged, and there's no 4D-side signal that the load failed.
 
 ### Example
 
+From the plugin's own test method (`OnModelDownloaded.4dm`), called once the model file is available:
+
 ```4d
+	Extract SET OPTION(Extract Option Tokenizer File; $file)
+```
+
+Loading a GGUF file you already have:
+
+```4d
+var $file : 4D.File
+$file:=Folder(fk resources folder).file("models/tokenizer.gguf")
 Extract SET OPTION(Extract Option Tokenizer File; $file)
 ```
 
@@ -209,7 +226,11 @@ Extract SET OPTION(Extract Option Tokenizer File; $file)
 - **`success: false` with nothing else set.** This is the only failure signal `Extract` gives you — there's no error code or message property. If a batch job needs to distinguish *why* a document failed, you'll need to reason about it externally (check the file exists, check the extension against the table above, etc.) rather than relying on the plugin to tell you.
 - **`Extract Document RTF` always fails.** The constant exists, but there's no extractor wired up to it internally — every call with this `documentType` returns `{success: false}` regardless of the file's actual contents.
 - **Omitting `task.file` fails immediately.** No exception, no distinct message — just `{success: false}`, same as any other failure.
-- **Calling `Extract` before ever calling `Extract SET OPTION`** means there's no tokenizer loaded. Rather than erroring, chunk output falls back to a fixed-size placeholder (e.g. an empty string, or a chunk made entirely of padding-token IDs) instead of real token-sized chunks — this can look like a working call that's silently returning meaningless output, so make sure `Extract SET OPTION` has actually run first.
+- **Empty `input` with `success: true`.** No tokenizer is loaded: call [`Extract SET OPTION`](#extract-set-option) first. The Collection and Collections formats can't chunk without it and return empty collections rather than an error.
+- **`.msg` in `Extract Output Object` has empty `pages`.** The message body is only used by the Text, Collection and Collections formats; the Object format fills `meta` but not `pages`. Use another format for the body text.
+- **`.eml` in `Extract Output Object` returns `success: false`.** Building the sender/recipient `meta` fails for messages that have a `From:` (or other address) header, so this combination does not work at present. Use `Extract Output Collection`, `Extract Output Collections` or `Extract Output Text`.
+- **`.docx`/`.xlsx`/`.pptx` containing a DTD fail** (since the code review following v1.0.1). OOXML parts must not contain a `<!DOCTYPE`, and such a part is now rejected to block entity-expansion attacks; a part that can't be parsed contributes no text.
+- **Untrusted documents.** Since the same review, deeply nested HTML (also inside `.msg`/`.eml`), malformed `.doc`/`.ppt`/`.msg` structures, `.xls` files with very many sheets and nested `.eml` multiparts no longer crash or hang 4D. Very large inputs (zip bombs, huge spreadsheets) are still processed without a size cap.
 - **`password`/`charset`/`codepage`/`break_by_section` being ignored isn't a bug.** Each only applies to specific document types (see the `task` property table under [`Extract`](#extract)) — passing them for a type they don't apply to has no effect, good or bad.
 - **`overlap_ratio` values right at the edges of `(0, 1)` fall back to the default `0.09`** rather than erroring — if you need to confirm your value took effect, check the actual chunk boundaries in the result rather than assuming the property was honored.
 
