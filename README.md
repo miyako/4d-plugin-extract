@@ -233,6 +233,7 @@ Extract SET OPTION(Extract Option Tokenizer File; $file)
 - **Untrusted documents.** Since the same review, deeply nested HTML (also inside `.msg`/`.eml`), malformed `.doc`/`.ppt`/`.msg` structures, `.xls` files with very many sheets and nested `.eml` multiparts no longer crash or hang 4D. Very large inputs (zip bombs, huge spreadsheets) are still processed without a size cap.
 - **`password`/`charset`/`codepage`/`break_by_section` being ignored isn't a bug.** Each only applies to specific document types (see the `task` property table under [`Extract`](#extract)) — passing them for a type they don't apply to has no effect, good or bad.
 - **`overlap_ratio` values right at the edges of `(0, 1)` fall back to the default `0.09`** rather than erroring — if you need to confirm your value took effect, check the actual chunk boundaries in the result rather than assuming the property was honored.
+- **Memory growth over long batches.** Before the ownership fixes, every `Extract` call that passed `task.file` or options such as `password`, `charset` or `codepage`, and every `Extract SET OPTION` with `tokenizer_file`, leaked 4D values (the copied property values and the internal `4D.File` object). These are now released. The synthetic regression tests are in [`tests/ownership`](tests/ownership/README.md).
 
 ---
 

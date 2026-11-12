@@ -309,8 +309,12 @@ bool ob_get_a(PA_ObjectRef obj, const wchar_t *_key, CUTF8String *value) {
 
         if(is_defined)
         {
+            // The result is owned (a deep copy) and must be cleared, but
+            // only on success: on error it is left uninitialised. Capture the
+            // error first; PA_GetStringVariable below resets it.
             PA_Variable v = PA_GetObjectProperty(obj, &key);
-            if(PA_GetVariableKind(v) == eVK_Unistring)
+            PA_ErrorCode err = PA_GetLastError();
+            if(err == eER_NoErr && PA_GetVariableKind(v) == eVK_Unistring)
             {
                 PA_Unistring uvalue = PA_GetStringVariable(v);
 
@@ -348,6 +352,10 @@ bool ob_get_a(PA_ObjectRef obj, const wchar_t *_key, CUTF8String *value) {
                 }
 #endif
             }
+            if(err == eER_NoErr)
+            {
+                PA_ClearVariable(&v);
+            }
         }
 
         PA_DisposeUnistring(&key);
@@ -369,9 +377,13 @@ bool ob_get_b(PA_ObjectRef obj, const wchar_t *_key) {
         if(PA_HasObjectProperty(obj, &key))
         {
             PA_Variable v = PA_GetObjectProperty(obj, &key);
-            if(PA_GetVariableKind(v) == eVK_Boolean)
+            if(PA_GetLastError() == eER_NoErr)
             {
-                value = PA_GetBooleanVariable(v);
+                if(PA_GetVariableKind(v) == eVK_Boolean)
+                {
+                    value = PA_GetBooleanVariable(v);
+                }
+                PA_ClearVariable(&v);
             }
         }
 
@@ -394,9 +406,13 @@ double ob_get_n(PA_ObjectRef obj, const wchar_t *_key) {
         if(PA_HasObjectProperty(obj, &key))
         {
             PA_Variable v = PA_GetObjectProperty(obj, &key);
-            if(PA_GetVariableKind(v) == eVK_Real)
+            if(PA_GetLastError() == eER_NoErr)
             {
-                value = PA_GetRealVariable(v);
+                if(PA_GetVariableKind(v) == eVK_Real)
+                {
+                    value = PA_GetRealVariable(v);
+                }
+                PA_ClearVariable(&v);
             }
         }
 
@@ -419,9 +435,15 @@ PA_CollectionRef ob_get_c(PA_ObjectRef obj, const wchar_t *_key) {
         if(PA_HasObjectProperty(obj, &key))
         {
             PA_Variable v = PA_GetObjectProperty(obj, &key);
-            if(PA_GetVariableKind(v) == eVK_Collection)
+            if(PA_GetLastError() == eER_NoErr)
             {
-                value = PA_GetCollectionVariable(v);
+                if(PA_GetVariableKind(v) == eVK_Collection)
+                {
+                    value = PA_GetCollectionVariable(v);
+                }
+                /* the property still holds it, so the returned reference
+                   stays valid (borrowed from obj) after clearing */
+                PA_ClearVariable(&v);
             }
         }
 
@@ -443,9 +465,15 @@ PA_ObjectRef ob_get_o(PA_ObjectRef obj, const wchar_t *_key) {
         if(PA_HasObjectProperty(obj, &key))
         {
             PA_Variable v = PA_GetObjectProperty(obj, &key);
-            if(PA_GetVariableKind(v) == eVK_Object)
+            if(PA_GetLastError() == eER_NoErr)
             {
-                value = PA_GetObjectVariable(v);
+                if(PA_GetVariableKind(v) == eVK_Object)
+                {
+                    value = PA_GetObjectVariable(v);
+                }
+                /* the property still holds it, so the returned reference
+                   stays valid (borrowed from obj) after clearing */
+                PA_ClearVariable(&v);
             }
         }
 

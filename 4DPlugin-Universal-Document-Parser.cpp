@@ -83,6 +83,12 @@ static bool _object_to_path(PA_ObjectRef f, std::string& path, int type) {
         PA_VariableKind vk = PA_GetObjectPropertyType(f, &PLATFORMPATH);
         if(vk == eVK_Unistring) {
             PA_Variable p = PA_GetObjectProperty(f, &PLATFORMPATH);//PA_ClearVariable
+            // On error p is uninitialised: neither read nor clear it. Check
+            // before PA_GetStringVariable, which resets the last error.
+            if(PA_GetLastError() != eER_NoErr) {
+                PA_DisposeUnistring(&PLATFORMPATH);
+                return false;
+            }
             PA_Unistring platformPath = PA_GetStringVariable(p);
             // Copy the text now. platformPath points into p's string: it used
             // to be handed to cbparams[0] as well, so clearing cbparams[0]
@@ -111,27 +117,22 @@ static bool _object_to_path(PA_ObjectRef f, std::string& path, int type) {
                 pp.setUTF8String((const uint8_t *)"path", 4);
                 PA_Unistring PATH = PA_CreateUnistring((PA_Unichar *)pp.getUTF16StringPtr());//PA_DisposeUnistring
                 PA_Variable _p = PA_GetObjectProperty(folderObj, &PATH);//PA_ClearVariable
-                if (PA_GetVariableKind(_p) == eVK_Unistring) {
+                PA_ErrorCode err = PA_GetLastError();
+                if (err == eER_NoErr && PA_GetVariableKind(_p) == eVK_Unistring) {
                     PA_Unistring posixPath = PA_GetStringVariable(_p);
                     if (posixPath.fString) {
                         path16 = CUTF16String(posixPath.fString, (size_t)posixPath.fLength);
                     }
                 }
                 PA_DisposeUnistring(&PATH);
-                PA_ClearVariable(&_p);
+                if (err == eER_NoErr) PA_ClearVariable(&_p);
             }
 #endif
-            // NOT clearing folder: 4DPluginAPI.c confirms this pattern.
-            // PA_CreateObject/PA_DuplicateObject/PA_CreateCollection all call
-            // PA_ExecuteCommandByID for a command that constructs a brand-new
-            // object/collection (New Object, OB Copy, New Collection), extract
-            // the ref via PA_GetObjectVariable/PA_GetCollectionVariable, and
-            // never clear the result - clearing immediately would destroy the
-            // very thing just constructed, since nothing else references it
-            // yet. `folder` here is built the same way, via the "4D.File"/
-            // "4D.Folder" constructor commands (cmd_4D.File/cmd_4D.Folder) -
-            // same shape, so left un-cleared, now on confirmed grounds rather
-            // than just caution.
+            // The 4D.File/4D.Folder constructor result is owned by the plugin.
+            // PA_CreateObject leaves New Object's result uncleared only because
+            // it hands that reference to its caller; nothing takes `folder`,
+            // so release it here (it leaked on every call before).
+            PA_ClearVariable(&folder);
             C_TEXT t;
             t.setUTF16String(&path16);
             CUTF8String u8;
@@ -145,6 +146,8 @@ static bool _object_to_path(PA_ObjectRef f, std::string& path, int type) {
     return false;
 }
 
+// DORMANT: file_object_to_data has no caller (Extract reads the file through
+// file_object_to_path). Its ownership is kept correct for future use.
 static bool file_object_to_data(PA_ObjectRef f, std::vector<uint8_t>& data) {
     
     if(f != NULL) {
@@ -156,7 +159,9 @@ static bool file_object_to_data(PA_ObjectRef f, std::vector<uint8_t>& data) {
         const int cmd_OB_Get = 1224;
         PA_Variable prm_OB_Get[2];
         prm_OB_Get[0] = _4D;
-        prm_OB_Get[1] = PA_CreateVariable(eVK_Unistring);
+        // eVK_Undefined: eVK_Unistring would allocate an empty string that
+        // PA_SetStringVariable overwrites without disposing (leak).
+        prm_OB_Get[1] = PA_CreateVariable(eVK_Undefined);
         C_TEXT pp;
         pp.setUTF8String((const uint8_t *)"Blob", 4);
         PA_Unistring BLOB = PA_CreateUnistring((PA_Unichar *)pp.getUTF16StringPtr());
@@ -199,16 +204,20 @@ static bool file_object_to_data(PA_ObjectRef f, std::vector<uint8_t>& data) {
             pp.setUTF8String((const uint8_t *)"size", 4);
             PA_Unistring SIZE = PA_CreateUnistring((PA_Unichar *)pp.getUTF16StringPtr());//PA_DisposeUnistring
             PA_Variable _s = PA_GetObjectProperty(f, &SIZE);
-            double size_d = PA_GetRealVariable(_s);
+            // On error _s is uninitialised: neither read nor clear it (NAN is
+            // rejected by the size check below).
+            double size_d = NAN;
+            if (PA_GetLastError() == eER_NoErr) {
+                size_d = PA_GetRealVariable(_s);
+                PA_ClearVariable(&_s);
+            }
             PA_DisposeUnistring(&SIZE);
-            PA_ClearVariable(&_s);
 
             // size_d is a 4D-file-system-reported size, not attacker-supplied, but
             // it's still an externally-reported double flowing into both an
             // allocation (data.resize below) and a native 32-bit COPY BLOB
             // parameter - validate before either use rather than truncating blind.
             if (!std::isfinite(size_d) || size_d < 0.0 || size_d > (double)INT32_MAX) {
-                PA_ClearVariable(&prm_OB_Instance_of[0]);
                 return isBlob;
             }
             PA_long32 size = (PA_long32)size_d;
@@ -238,7 +247,8 @@ static bool file_object_to_data(PA_ObjectRef f, std::vector<uint8_t>& data) {
             PA_ClearVariable(&prm_COPY_BLOB[4]);
         }
         
-        PA_ClearVariable(&prm_OB_Instance_of[0]);
+        // prm_OB_Instance_of[0] (also prm_COPY_BLOB[0]) only borrows f via
+        // PA_SetObjectVariable: clearing it released the caller's reference.
         return isBlob;
     }
     
